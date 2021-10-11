@@ -1,0 +1,26 @@
+{
+    "name": "gamepad-2",
+    "version": "1.0.0",
+    "description": "",
+    "main": "main.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "serve": "vite preview"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rokobuljan/gamepad.js.git"
+    },
+    "keywords": [],
+    "author": "rbuljan",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/rokobuljan/gamepad.js/issues"
+    },
+    "homepage": "https://github.com/rokobuljan/gamepad.js#readme",
+    "devDependencies": {
+        "sass": "^1.42.1",
+        "vite": "^2.6.5"
+    }
+}

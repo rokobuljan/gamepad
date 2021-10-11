@@ -1,0 +1,75 @@
+/*QuickReset*/
+*,
+*::before,
+*::after {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+#app {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    background: #363738;
+    touch-action: none;
+}
+
+.player {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    font-size: 3em;
+    pointer-events: none;
+    background-image: url("/player.png");
+    background-position: 50%;
+    background-size: cover;
+    width: 50px;
+    height: 50px;
+}
+
+#player img {
+    display: block;
+    width: 50px;
+}
+
+
+#GP-throttle {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    left: 50%;
+}
+
+#GP-rotation {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+}
+
+.Gamepad-Joystick {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+}
+
+.Gamepad-Joystick-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+}
