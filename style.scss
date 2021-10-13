@@ -6,10 +6,22 @@
     box-sizing: border-box;
 }
 
-html,
 body {
-    height: 100%;
+    height: calc(100vh + 60px);
     overflow: hidden;
+    font: 16px/1.2 sans-serif;
+}
+
+#log {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    color: #fff;
+    padding: 2em;
+    pointer-events: none;
+    font-size: 11px;
 }
 
 #app {
@@ -19,8 +31,18 @@ body {
     right: 0;
     bottom: 0;
     overflow: hidden;
-    background: #363738;
     touch-action: none;
+    color: hsla(0, 0%, 100%, 0.85);
+
+    background-color: #170d24;
+    background-image: radial-gradient(
+            ellipse at 10% 90%,
+            #3c2d83 0%,
+            transparent 55%
+        ),
+        radial-gradient(ellipse at 90% 90%, #8f2746 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 10%, #395aac 0%, transparent 55%),
+        radial-gradient(ellipse at 10% 10%, #35244f 0%, transparent 55%);
 }
 
 .player {
@@ -37,11 +59,17 @@ body {
     height: 50px;
 }
 
+.missile {
+    position: absolute;
+    width: 4px;
+    height: 20px;
+    background: red;
+}
+
 #player img {
     display: block;
     width: 50px;
 }
-
 
 #GP-throttle {
     position: absolute;
@@ -56,20 +84,35 @@ body {
     height: 100%;
 }
 
-.Gamepad-Joystick {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.3);
-    box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
-    pointer-events: none;
-}
+.Gamepad {
+    &-Joystick {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.3);
+        box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.1),
+            0 0 0 1px rgba(255, 255, 255, 0.2);
+        pointer-events: none;
+        transform: translate(-50%, -50%);
 
-.Gamepad-Joystick-handle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
+        &-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    &-Button {
+        position: absolute;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        transform: translate(-50%, -50%);
+
+        &:hover {
+            color: #000;
+        }
+    }
 }

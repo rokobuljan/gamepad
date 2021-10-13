@@ -11,21 +11,18 @@ const pointer = {
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
 
-function getDistance(x1, y1, x2, y2) {
-    const y = x2 - x1;
-    const x = y2 - y1;
-    return Math.sqrt(x * x + y * y);
-}
-
 class Joystick {
     constructor(id, options) {
 
         Object.assign(this, {
+            x: 0,
+            y: 0,
             parent: "body",
             position: "full",
             axis: "all",
             radius: 75,
-            onInput() {},
+            style: {},
+            onInput() { },
         }, options, {
             id: id,
             value: 0,
@@ -39,32 +36,30 @@ class Joystick {
 
         this.el = {
             parent: EL(this.parent),
-            joystick: ELNew("div", { className: `Gamepad-Joystick axis-${this.axis}` }),
+            joystick: ELNew("div", { className: `Gamepad-Joystick axis-${this.axis}`, id: this.id }),
             joystickHandle: ELNew("div", { className: "Gamepad-Joystick-handle" })
         };
 
         this.init();
     }
 
-    vibrate(vibrationPattern) {
-        navigator.vibrate(vibrationPattern);
-    }
-
     onDragStart(evt) {
+
+        // If another Gamepad Button was tpuched, don't do anything with the joystick
+        if (evt.target.closest(".Gamepad-Button")) return;
+
         this.isDrag = true;
         this.wasTouched = true;
 
-        if (this.identifier > -1) return;
-        evt = evt.changedTouches[0]; // or use evt.targetTouches ??
-        this.identifier = evt.identifier;
+        const evtTouch = evt.targetTouches[0];
+        this.identifier = evtTouch.identifier;
 
 
         const { left, top } = this.el.parent.getBoundingClientRect();
-        const { clientX, clientY } = evt;
+        const { clientX, clientY } = evtTouch;
 
         this.x_start = clientX - left;
         this.y_start = clientY - top;
-
 
         this.el.joystick.style.left = `${this.x_start}px`;
         this.el.joystick.style.top = `${this.y_start}px`;
@@ -72,17 +67,18 @@ class Joystick {
         this.el.joystickHandle.style.top = `50%`;
 
         this.onInput();
+
     }
 
     onDrag(evt) {
         evt.preventDefault();
         if (!this.isDrag) return;
 
-        evt = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0];
-        if (!evt) return;
+        const evtTouch = [...evt.targetTouches].filter(ev => ev.identifier === this.identifier)[0];
+        if (!evtTouch) return;
 
         const { left, top } = this.el.parent.getBoundingClientRect();
-        const { clientX, clientY } = evt;
+        const { clientX, clientY } = evtTouch;
 
         const x_drag = clientX - left;
         const y_drag = clientY - top;
@@ -125,9 +121,10 @@ class Joystick {
 
     onDragEnd(evt) {
 
-        evt = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier);
+        if (this.identifier < 0) return;
+        const evtTouch = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0];
+        if (!evtTouch) return;
 
-        if (!evt) return;
         this.identifier = -1;
 
         this.isDrag = false;
@@ -141,18 +138,26 @@ class Joystick {
 
     init() {
 
-        // Styles
+        // Styles deending on joystick type / axis
         const joystickStyles = {
-            all: `width: ${this.radius * 2}px; height: ${this.radius * 2}px;`,
-            x: `width: ${this.radius * 2}px; height: 10px;`,
-            y: `height: ${this.radius * 2}px; width: 10px;`,
+            all: { width: `${this.radius * 2}px`, height: `${this.radius * 2}px` },
+            x: { width: `${this.radius * 2}px`, height: `6px` },
+            y: { height: `${this.radius * 2}px`, width: `6px` },
         };
-        this.el.joystick.style.cssText = joystickStyles[this.axis];
-        this.el.joystick.style.borderRadius = `${this.radius * Math.PI}px`;
+        const styles = {
+            // Joystick-type styles
+            ...joystickStyles[this.axis],
+            // Default styles
+            borderRadius: `${this.radius * Math.PI}px`,
+            // Overrided by user styles
+            ...this.style
+        }
+        // Apply Joystick styles
+        Object.assign(this.el.joystick.style, styles);
+        // Apply JoystickHandle styles
         this.el.joystickHandle.style.cssText = `width: ${this.radius * 2 * 0.6}px; height: ${this.radius * 2 * 0.6}px;`;
 
-
-        // Elements
+        // Append Elements
         this.el.joystick.append(this.el.joystickHandle);
         this.el.parent.append(this.el.joystick);
 

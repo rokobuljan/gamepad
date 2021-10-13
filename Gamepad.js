@@ -2,26 +2,33 @@
  * Gamepad
  */
 
-import { Button } from "./Button.js";
-import { Joystick } from "./Joystick.js";
+import { Button } from "./controllers/Button.js";
+import { Joystick } from "./controllers/Joystick.js";
 
 const _controllers = { button: Button, joystick: Joystick }
+
+
+// const EL_log = EL("#log");
+// const lg = (msg) => {
+//     console.log(msg);
+//     EL_log.innerHTML = `<br>JSK: ${JSON.stringify(msg)} ${EL_log.innerHTML}`;
+// }
+
+
+
+// // Check if is touchable device
+// const touchable = 'createTouch' in document;
 
 class Gamepad {
     constructor(controllers) {
         this.controllers = {};
+        this.touches = {}; // identifier ID : touch evt
         this.init(controllers);
     }
 
-    init(controllers) {
-        Object.entries(controllers).forEach(([id, options]) => {
-            const controller = new _controllers[options.type](id, options);
-            this.controllers[id] = controller;
-            console.log(this.controllers[id]);
-        });
+    vibrate(vibrationPattern) {
+        navigator.vibrate(vibrationPattern);
     }
-
-    // Destroy specific or all controllers
 
     destroyOne(id) {
         // Destroy one
@@ -36,6 +43,14 @@ class Gamepad {
         Object.keys(this.controllers).forEach((id) => 
             this.destroyOne(id)
         );
+    }
+
+    init(controllers) {
+        Object.entries(controllers).forEach(([id, options]) => {
+            const controller = new _controllers[options.type](id, {...options, Gamepad: this});
+            this.controllers[id] = controller;
+            console.log(this.controllers[id]);
+        });
     }
 }
 
