@@ -2,22 +2,10 @@
  * Gamepad
  */
 
-import { Button } from "./controllers/Button.js";
-import { Joystick } from "./controllers/Joystick.js";
+import { Button } from "./controllers/button.js";
+import { Joystick } from "./controllers/joystick.js";
 
 const _controllers = { button: Button, joystick: Joystick }
-
-
-// const EL_log = EL("#log");
-// const lg = (msg) => {
-//     console.log(msg);
-//     EL_log.innerHTML = `<br>JSK: ${JSON.stringify(msg)} ${EL_log.innerHTML}`;
-// }
-
-
-
-// // Check if is touchable device
-// const touchable = 'createTouch' in document;
 
 class Gamepad {
     constructor(controllers) {
@@ -47,9 +35,8 @@ class Gamepad {
 
     init(controllers) {
         Object.entries(controllers).forEach(([id, options]) => {
-            const controller = new _controllers[options.type](id, {...options, Gamepad: this});
+            const controller = new _controllers[options.type](id, options);
             this.controllers[id] = controller;
-            console.log(this.controllers[id]);
         });
     }
 }

@@ -1,5 +1,5 @@
 import './style.scss'
-import { Gamepad } from "./Gamepad.js";
+import { Gamepad } from "./gamepad.js";
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
@@ -24,7 +24,7 @@ class Player {
             angle: 0,
             angVel: 0,
             speed: 0,
-            speed_max: 6,
+            speed_max: 4,
             controller: { angle: 0, value: 0 },
         }, options);
 
@@ -119,7 +119,6 @@ class Weapon {
     }
 
     init() {
-        console.log(this);
         EL_app.append(this.EL);
         this.move();
         weapons.push(this);
@@ -144,7 +143,6 @@ const GP = new Gamepad({
         type: "joystick", // "joystick | button"
         parent: "#app",
         axis: "all",
-        radius: 60,
         onInput() {
             // console.log(this.value, this.angle);
             PL.controller.value = this.value;
@@ -154,7 +152,6 @@ const GP = new Gamepad({
     fire: {
         type: "button",
         parent: "#app",
-        radius: 60,
         text: "",
         style: {
             right: "3%",
@@ -163,7 +160,9 @@ const GP = new Gamepad({
             background: "hsla(255, 100%, 100%, 0.2)",
         },
         onInput() {
-            if (this.value) PL.fire();
+            if (!this.value) return;
+            PL.fire();
+            GP.vibrate(100);
         }
     }
 });

@@ -1,89 +1,38 @@
-/**
- * Gamepad Button Class 
- */
+import { Controller } from "./controller.js";
 
-const pointer = {
-    down: "touchstart",
-    up: "touchend",
-};
+/**
+ * Gamepad
+ * 
+ * Button Controller 
+ */
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
 
-class Button {
+class Button extends Controller {
     constructor(id, options) {
-        Object.assign(this, {
-            parent: "body",
-            radius: 75,
-            text: "",
-            style: {},
-            onInput() { },
-        }, options, {
-            id: id,
-            value: 0,
-            wasTouched: false,
-            identifier: -1, // Touch finger identifier,
-            Gamepad,
-        });
-
-        this.el = {
-            parent: EL(this.parent),
-            button: ELNew("div", { className: `Gamepad-Button`, textContent: this.text, id: this.id })
-        };
-
+        super("Button", id, options);
         this.init();
     }
 
-    onPress(evt) {
-        evt.preventDefault();
-        this.wasTouched = true;
-
-        if (this.identifier > -1) return; // Touch is already registered
-        const evtTouch = evt.changedTouches[0];
-        this.identifier = evtTouch.identifier;
-
+    onDown(evt) {
+        super.onDown(evt);
         this.value = 1;
-        this.onInput();
+        this.onInput(evt);
     }
 
-    onRelease(evt) {
-
-        const evtTouch = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0];
-        if (!evtTouch) return false;
-        this.identifier = -1;
-
+    onUp(evt) {
+        super.onUp(evt);
         this.value = 0;
-        this.onInput();
+        this.onInput(evt);
     }
 
     init() {
-
-        const styles = {
-            // Default stsyles
-            borderRadius: `${this.radius}px`,
-            height: `${this.radius * 2}px`,
-            minWidth: `${this.radius * 2}px`,
-            fontSize: `${this.radius}px`,
-            // Overrided by user styles
-            ...this.style
-        };
-
-        Object.assign(this.el.button.style, styles);
-
-        // Append Elements
-        this.el.parent.append(this.el.button);
-
-        // Events
-        this.el.button.addEventListener(pointer.down, (evt) => this.onPress(evt), { passive: false });
-        this.el.parent.addEventListener(pointer.up, (evt) => this.onRelease(evt), { passive: false });
-
-        // Avoid contextmenu on long press
-        this.el.button.addEventListener("contextmenu", (evt) => evt.preventDefault());
-
+        super.init();
     }
 
     destroy() {
-        this.el.button.remove();
+        this.el.remove();
     }
 }
 
