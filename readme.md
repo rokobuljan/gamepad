@@ -1,6 +1,6 @@
 # Gamepad
 
-Creates a virtual *gamepad* with virtual **buttons** and **joystick** for your games or IOT!  
+Creates a virtual multi-touch *gamepad* with virtual **buttons** and **joystick** for your games or IOT!  
 *Beta*
 
 
@@ -8,10 +8,10 @@ Creates a virtual *gamepad* with virtual **buttons** and **joystick** for your g
 
 **Options:**
 
-| Property      | Type    | Default value | Description           |
-| ------------- | ------- | ------------- | --------------------- |
-| `fulscreen`   | Boolean | `true`        | Invoke FullScreen API |
-| `controllers` | Object  | `{}`          | See: \<Controller\>   |
+| Property      | Type    | Value  | Description           |
+| ------------- | ------- | ------ | --------------------- |
+| `fullscreen`  | Boolean | `true` | Invoke FullScreen API |
+| `controllers` | Object  | `{}`   | See: \<Controller\>   |
 
 ## Gamepad Methods:
 
@@ -47,7 +47,7 @@ Inside the `onInput()` method you can use the `this.value` and `this.angle` valu
 
 | Property  | Description                      |
 | --------- | -------------------------------- |
-| `destroy` | Destroys the soecific Controller |
+| `destroy` | Destroys the specific Controller |
 
 
 
