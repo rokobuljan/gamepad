@@ -22,9 +22,8 @@ class Player {
             y: 100,
             radius: 40,
             angle: 0,
-            angVel: 0,
             speed: 0,
-            speed_max: 4,
+            speed_max: 2,
             controller: { angle: 0, value: 0 },
         }, options);
 
@@ -143,6 +142,10 @@ const GP = new Gamepad({
         type: "joystick", // "joystick | button"
         parent: "#app",
         axis: "all",
+        style: {
+            left: "20%",
+            bottom: "4%",
+        },
         onInput() {
             // console.log(this.value, this.angle);
             PL.controller.value = this.value;

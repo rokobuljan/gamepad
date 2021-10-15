@@ -16,18 +16,19 @@ class Joystick extends Controller {
         this.init();
     }
 
-    onDown(evt) {
-        super.onDown(evt);
+    onDown() {
+        super.onDown();
 
         this.el.style.left = `${this.x_start}px`;
         this.el.style.top = `${this.y_start}px`;
         this.el_handle.style.left = `50%`;
         this.el_handle.style.top = `50%`;
-        this.onInput(evt);
+        
+        this.onInput();
     }
 
-    onDrag(evt) {
-        super.onDrag(evt);
+    onMove() {
+        super.onMove();
 
         if (this.axis === "all") {
 
@@ -54,17 +55,17 @@ class Joystick extends Controller {
 
         }
 
-        this.onInput(evt);
+        this.onInput();
     }
 
-    onUp(evt) {
-        super.onUp(evt);
+    onUp() {
+        super.onUp();
 
         this.value = 0;
-        this.onInput(evt);
-
         this.el_handle.style.left = `50%`;
         this.el_handle.style.top = `50%`;
+
+        this.onInput();
     }
 
     init() {

@@ -15,6 +15,7 @@ const pointer = {
     down: "touchstart",
     up: "touchend",
     move: "touchmove",
+    cancel: "touchcancel"
 };
 
 class Controller {
@@ -33,12 +34,16 @@ class Controller {
             angle: 0,
             wasTouched: false,
             isDrag: false,
-            isPress: false,
+            isDown: false,
             identifier: -1, // Touch finger identifier,
             evtTouch: null,
         });
         this.isJoystick = this.type === "Joystick";
     }
+
+    onDown() {}
+    onMove() {}
+    onUp() {}
 
     // Get relative mouse coordinates 
     getMouseXY(evt) {
@@ -47,37 +52,33 @@ class Controller {
         return { x: clientX - left, y: clientY - top };
     }
 
-    getEvent(evt) {
-        return {
-            touches: isTouchable ? evt.changedTouches : evt,
-            touch: isTouchable ? evt.changedTouches[0] : evt,
-            identifier: isTouchable ? evt.changedTouches[0].identifier : 0,
-            registered: isTouchable ? [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0] : evt,
-        };
-    }
+    handleDown(evt) {
 
-    onDown(evt) {
-        if (this.identifier > -1) return; // Touch is already registered
+        // Is already assigned? Do nothing
+        if (this.isDown || this.identifier > -1) return;
 
-        const Evt = this.getEvent(evt);
-        const { x, y } = this.getMouseXY(Evt.touch);
+        // Get the first pointer that touched
+        const tou = evt.changedTouches[0];
+        if (!tou) return;
 
-        this.identifier = Evt.identifier; // Remember the Touch identifier
+        const { x, y } = this.getMouseXY(tou);
+
+        this.identifier = tou.identifier;
         this.x_start = x;
         this.y_start = y;
-        this.isPress = true;
+        this.isDown = true;
         this.wasTouched = true;
+
+        this.onDown();
     }
 
-    onDrag(evt) {
-        evt.preventDefault();
+    handleMove(evt) {
+        if (!this.isDown || this.identifier < 0) return;
 
-        if (this.isJoystick && !this.isPress) return;
+        const tou = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0];
+        if (!tou) return;
 
-        const Evt = this.getEvent(evt);
-        if (!Evt.registered) return;
-
-        const { x, y } = this.getMouseXY(Evt.registered);
+        const { x, y } = this.getMouseXY(tou);
 
         this.isDrag = true;
         this.x_drag = x;
@@ -86,16 +87,22 @@ class Controller {
         this.y_diff = this.y_drag - this.y_start;
         this.distance_drag = Math.min(this.radius, Math.sqrt(this.x_diff * this.x_diff + this.y_diff * this.y_diff));
         this.angle = Math.atan2(this.y_diff, this.x_diff);
+
+        this.onMove();
     }
 
-    onUp(evt) {
+    handleUp(evt) {
         if (this.identifier < 0) return;
-        const Evt = this.getEvent(evt);
-        if (!Evt.registered) return;
+
+        const tou = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0];
+        if (!tou) return;
 
         this.identifier = -1;
-        this.isPress = false;
         this.isDrag = false;
+        this.isDown = false;
+
+        console.log("UP " + tou.identifier);
+        this.onUp();
     }
 
     init() {
@@ -136,10 +143,23 @@ class Controller {
         el_evt_starter.addEventListener(pointer.down, (evt) => {
             // If a Gamepad Button was touched, don't do anything with the Joystick
             if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
-            this.onDown(evt);
+            this.handleDown(evt);
         }, { passive: false });
-        this.el_parent.addEventListener(pointer.move, (evt) => this.onDrag(evt), { passive: false });
-        this.el_parent.addEventListener(pointer.up, (evt) => this.onUp(evt));
+
+        if (this.isJoystick) {
+            this.el_parent.addEventListener(pointer.move, (evt) => {
+                evt.preventDefault();
+                this.handleMove(evt);
+            }, { passive: false });
+        }
+
+        this.el_parent.addEventListener(pointer.up, (evt) => {
+            if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
+            this.handleUp(evt)
+        });
+        this.el_parent.addEventListener(pointer.cancel, (evt) => this.handleUp(evt));
+
+
         // Avoid contextmenu on long press
         this.el_parent.addEventListener("contextmenu", (evt) => evt.preventDefault());
     }

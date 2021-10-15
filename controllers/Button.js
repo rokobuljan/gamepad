@@ -15,16 +15,20 @@ class Button extends Controller {
         this.init();
     }
 
-    onDown(evt) {
-        super.onDown(evt);
+    onDown() {
+        super.onDown();
+
         this.value = 1;
-        this.onInput(evt);
+
+        this.onInput();
     }
 
-    onUp(evt) {
-        super.onUp(evt);
+    onUp() {
+        super.onUp();
+
         this.value = 0;
-        this.onInput(evt);
+        
+        this.onInput();
     }
 
     init() {
