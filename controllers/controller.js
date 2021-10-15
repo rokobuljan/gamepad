@@ -78,6 +78,8 @@ class Controller {
             this.el_controller.style.top = `${this.y_start}px`;
         }
 
+        this.el.classList.add("is-active");
+
         this.onDown();
     }
 
@@ -113,6 +115,8 @@ class Controller {
         this.identifier = -1;
         this.isDrag = false;
         this.isDown = false;
+
+        this.el.classList.remove("is-active");
 
         this.onUp();
     }

@@ -84,6 +84,10 @@ body {
         justify-content: center;
         align-items: center;
         user-select: none;
+
+        &.is-active {
+            box-shadow:  0 0 0 2px rgba(255, 255, 255, 0.4),  0 0 50px rgba(255, 255, 255, 0.4);
+        }
     }
 
     &-Joystick {
