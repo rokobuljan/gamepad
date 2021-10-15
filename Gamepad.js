@@ -8,10 +8,12 @@ import { Joystick } from "./controllers/joystick.js";
 const _controllers = { button: Button, joystick: Joystick }
 
 class Gamepad {
-    constructor(controllers) {
-        this.controllers = {};
-        this.touches = {}; // identifier ID : touch evt
-        this.init(controllers);
+    constructor(options) {
+        Object.assign(this, {
+            fullscreen: true,
+            controllers: {},
+        }, options);
+        this.init();
     }
 
     vibrate(vibrationPattern) {
@@ -19,7 +21,6 @@ class Gamepad {
     }
 
     destroyOne(id) {
-        // Destroy one
         if (id && this.controllers.hasOwnProperty(id)) {
             this.controllers[id].destroy();
             delete this.controllers[id];
@@ -33,11 +34,19 @@ class Gamepad {
         );
     }
 
-    init(controllers) {
-        Object.entries(controllers).forEach(([id, options]) => {
-            const controller = new _controllers[options.type](id, options);
-            this.controllers[id] = controller;
+    init() {
+        Object.entries(this.controllers).forEach(([id, options]) => {
+            this.controllers[id] = new _controllers[options.type](id, options);
         });
+
+        if (this.fullscreen) {
+            const EL_fullScreen = document.querySelector("body");
+            EL_fullScreen.addEventListener("click", function (evt) {
+                evt.preventDefault();
+                document.documentElement.requestFullscreen();
+            });
+        }
+
     }
 }
 

@@ -7,19 +7,19 @@
 }
 
 body {
-    height: calc(100vh + 60px);
     overflow: hidden;
     font: 16px/1.2 sans-serif;
 }
 
 #app {
+    touch-action: none;
+
     position: absolute;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
     overflow: hidden;
-    touch-action: none;
     color: hsla(0, 0%, 100%, 0.85);
 
     background-color: #170d24;
@@ -73,14 +73,20 @@ body {
 }
 
 .Gamepad {
-    &-Joystick {
+
+    &-Joystick,
+    &-Button {
+
+        box-shadow:  0 0 0 2px rgba(255, 255, 255, 0.4);
         position: absolute;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.3);
-        box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.1),
-            0 0 0 1px rgba(255, 255, 255, 0.2);
-        pointer-events: none;
         transform: translate(-50%, -50%);
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        user-select: none;
+    }
+
+    &-Joystick {
 
         &-handle {
             position: absolute;
@@ -89,18 +95,6 @@ body {
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.4);
             transform: translate(-50%, -50%);
-        }
-    }
-
-    &-Button {
-        position: absolute;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        transform: translate(-50%, -50%);
-
-        &:hover {
-            color: #000;
         }
     }
 }

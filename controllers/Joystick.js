@@ -19,8 +19,6 @@ class Joystick extends Controller {
     onDown() {
         super.onDown();
 
-        this.el.style.left = `${this.x_start}px`;
-        this.el.style.top = `${this.y_start}px`;
         this.el_handle.style.left = `50%`;
         this.el_handle.style.top = `50%`;
         

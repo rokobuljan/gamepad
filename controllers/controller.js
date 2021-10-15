@@ -25,7 +25,9 @@ class Controller {
             axis: "all",
             radius: 50,
             text: "",
-            style: {},
+            position: { top: "50%", left: "50%" }, // For the wrapper .Gamepad-Controller
+            reposition: false, // If the controller should reposition at Touch Down coordinates
+            style: {}, // Styles
             onInput() { },
         }, options, {
             type,
@@ -41,9 +43,9 @@ class Controller {
         this.isJoystick = this.type === "Joystick";
     }
 
-    onDown() {}
-    onMove() {}
-    onUp() {}
+    onDown() { }
+    onMove() { }
+    onUp() { }
 
     // Get relative mouse coordinates 
     getMouseXY(evt) {
@@ -68,6 +70,11 @@ class Controller {
         this.y_start = y;
         this.isDown = true;
         this.wasTouched = true;
+
+        if (this.reposition) {
+            this.el_controller.style.left = `${this.x_start}px`;
+            this.el_controller.style.top = `${this.y_start}px`;
+        }
 
         this.onDown();
     }
@@ -101,11 +108,13 @@ class Controller {
         this.isDrag = false;
         this.isDown = false;
 
-        console.log("UP " + tou.identifier);
         this.onUp();
     }
 
     init() {
+
+        this.el_parent = EL(this.parent);
+        this.el_controller = ELNew("div", { className: "Gamepad-Controller" });
         this.el = ELNew("div", {
             id: this.id,
             textContent: this.text,
@@ -129,11 +138,18 @@ class Controller {
         };
 
         // Add styles
+        Object.assign(this.el_controller.style, {
+            position: "absolute",
+            width: "0",
+            height: "0",
+            userSelect: "none",
+            ...this.position
+        });
         Object.assign(this.el.style, styles);
 
-        // Insert Element
-        this.el_parent = EL(this.parent);
-        this.el_parent.append(this.el);
+        // Insert Elements
+        this.el_controller.append(this.el);
+        this.el_parent.append(this.el_controller);
 
         // Events
 
@@ -155,10 +171,13 @@ class Controller {
 
         this.el_parent.addEventListener(pointer.up, (evt) => {
             if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
-            this.handleUp(evt)
+            this.handleUp(evt);
         });
-        this.el_parent.addEventListener(pointer.cancel, (evt) => this.handleUp(evt));
 
+        this.el_parent.addEventListener(pointer.cancel, (evt) => {
+            if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
+            this.handleUp(evt);
+        });
 
         // Avoid contextmenu on long press
         this.el_parent.addEventListener("contextmenu", (evt) => evt.preventDefault());

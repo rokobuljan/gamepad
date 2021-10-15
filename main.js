@@ -23,8 +23,9 @@ class Player {
             radius: 40,
             angle: 0,
             speed: 0,
-            speed_max: 2,
+            speed_max: 5,
             controller: { angle: 0, value: 0 },
+            canFire: true,
         }, options);
 
         this.EL = ELNew("div", { className: "player" });
@@ -51,8 +52,6 @@ class Player {
         this.x += Math.cos(this.controller.angle) * this.speed;
         this.y += Math.sin(this.controller.angle) * this.speed;
 
-        // console.log(this.x, this.y);
-
         const bcr_app = EL_app.getBoundingClientRect();
         // edge collision  
         this.x = Math.max(0, Math.min(bcr_app.width - this.radius, this.x));
@@ -61,8 +60,6 @@ class Player {
         // Rotation
         this.angle = this.controller.angle;
 
-        // console.log(this.angle);
-
         // DRAW
         this.EL.style.cssText = `
             transform: translate(${this.x}px, ${this.y}px) rotate(${this.angle + Math.PI / 2}rad);
@@ -70,6 +67,7 @@ class Player {
     }
 
     fire() {
+        if (!this.canFire) return;
         new Weapon({
             x: this.x + (this.radius / 2) + 4,
             y: this.y + (this.radius / 2) - 3,
@@ -86,10 +84,12 @@ class Weapon {
             x: 0,
             y: 0,
             angle: 0,
-            speed: 3,
+            speed: 6,
         }, props, {
-            speed_max: 10,
+            speed_max: 13,
             life: 190,
+            fireRate: 10,
+            fireCoolDown: 0,
             EL: ELNew("div", { className: "missile" }),
         });
 
@@ -138,34 +138,39 @@ const PL = new Player({
 
 
 const GP = new Gamepad({
-    move: {
-        type: "joystick", // "joystick | button"
-        parent: "#app",
-        axis: "all",
-        style: {
-            left: "20%",
-            bottom: "4%",
+    controllers: {
+        move: {
+            type: "joystick", // "joystick | button"
+            parent: "#app",
+            axis: "all",
+            reposition: true,
+            position: {
+                left: "15%",
+                top: "50%",
+            },
+            onInput() {
+                // console.log(this.value, this.angle);
+                PL.controller.value = this.value;
+                PL.controller.angle = this.angle;
+            }
         },
-        onInput() {
-            // console.log(this.value, this.angle);
-            PL.controller.value = this.value;
-            PL.controller.angle = this.angle;
-        }
-    },
-    fire: {
-        type: "button",
-        parent: "#app",
-        text: "",
-        style: {
-            right: "3%",
-            bottom: "4%",
-            color: "#fff",
-            background: "hsla(255, 100%, 100%, 0.2)",
-        },
-        onInput() {
-            if (!this.value) return;
-            PL.fire();
-            GP.vibrate(100);
+        fire: {
+            type: "button",
+            parent: "#app",
+            text: "F",
+            position: {
+                right: "15%",
+                bottom: "50%",
+            },
+            style: {
+                color: "#fff",
+                background: "hsla(255, 100%, 100%, 0.2)",
+            },
+            onInput() {
+                if (!this.value) return;
+                PL.fire();
+                GP.vibrate(100);
+            }
         }
     }
 });
@@ -174,10 +179,8 @@ const GP = new Gamepad({
 const engine = () => {
 
     PL.move();
+    weapons.forEach(weapon => weapon.move());
 
-    if (weapons.length) {
-        weapons.forEach(weapon => weapon.move());
-    }
 
     // Loop RAF
     requestAnimationFrame(engine);
