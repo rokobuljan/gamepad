@@ -7,8 +7,9 @@ Creates a virtual multi-touch *gamepad* with virtual **buttons** and **joystick*
 
 ## Getting Started
 
+**Example:**
+
 ```js
-// Given PL is your Player class:
 const GP = new Gamepad({
     controllers: {
         move: {
@@ -21,10 +22,12 @@ const GP = new Gamepad({
                 top: "50%",
             },
             onInput() {
-                PL.controller.value = this.value;
-                PL.controller.angle = this.angle;
-                // If you update your Player position and angle continuosly inside a
-                // requestAnimationFrame you're good to go, otherwise use here something like:
+                // // If you update your Player position and angle continuosly inside a
+                // // requestAnimationFrame you're good to go with i.e:
+                // Payer.controller.value = this.value;
+                // Payer.controller.angle = this.angle;
+                //
+                // // otherwise use here something like:
                 // PL.move(this.value, this.angle);
                 // to update your player position when the Controller triggers onInput
             }
@@ -42,9 +45,10 @@ const GP = new Gamepad({
                 background: "hsla(255, 100%, 100%, 0.2)",
             },
             onInput() {
-                if (!this.value) return;
-                PL.fire();
-                GP.vibrate(100); // Vibrate the Handheld for 100ms
+                // // If value is 1 - Player should fire!
+                // if (!this.value) return;
+                // Player.fire();
+                GP.vibrate(100); // Vibrate the Gamepad for 100ms
             }
         },
         settings: {
@@ -61,14 +65,20 @@ const GP = new Gamepad({
                 background: "rgba(0,0,0,0.2)",
             },
             onInput() {
-                if (!this.value) return;
-                // Open Settings panel to pause game, restart, options etc...
+                // if (!this.value) return; // (value is 0, do nothing) 
+                //
+                // // Open Settings panel to pause game, restart, options etc...
+                // Game.settings.open()
             }
         }
     }
 });
 
-// When needed: 
+// // When needed: 
+// // Vibrate for 200, 100 and 200 ms with 30ms pauses in between
+// GP.vibrate([200, 30, 100, 30, 200]) 
+//
+// // Destroy Gamepad instance
 // GP.destroy(); 
 ```
 
