@@ -27,7 +27,7 @@ class Button extends Controller {
         super.onUp();
 
         this.value = 0;
-        
+
         this.onInput();
     }
 
@@ -36,7 +36,7 @@ class Button extends Controller {
     }
 
     destroy() {
-        this.el.remove();
+        super.destroy();
     }
 }
 

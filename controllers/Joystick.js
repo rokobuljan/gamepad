@@ -19,8 +19,7 @@ class Joystick extends Controller {
     onDown() {
         super.onDown();
 
-        this.el_handle.style.left = `50%`;
-        this.el_handle.style.top = `50%`;
+        this.value = 0;
         
         this.onInput();
     }
@@ -76,7 +75,7 @@ class Joystick extends Controller {
     }
 
     destroy() {
-
+        super.destroy.call(this);
     }
 }
 

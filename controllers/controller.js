@@ -58,6 +58,8 @@ class Controller {
 
         // Is already assigned? Do nothing
         if (this.isDown || this.identifier > -1) return;
+        // If a Gamepad Button was touched, don't do anything with the Joystick
+        if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
 
         // Get the first pointer that touched
         const tou = evt.changedTouches[0];
@@ -80,6 +82,8 @@ class Controller {
     }
 
     handleMove(evt) {
+        evt.preventDefault();
+
         if (!this.isDown || this.identifier < 0) return;
 
         const tou = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0];
@@ -100,6 +104,8 @@ class Controller {
 
     handleUp(evt) {
         if (this.identifier < 0) return;
+        // If a Gamepad Button was touched, don't do anything with the Joystick
+        if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
 
         const tou = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0];
         if (!tou) return;
@@ -153,38 +159,25 @@ class Controller {
 
         // Events
 
-        // Event for Joystick can be initiated from parent:
+        this.handleDown = this.handleDown.bind(this);
+        this.handleMove = this.handleMove.bind(this);
+        this.handleUp = this.handleUp.bind(this);
+
         const el_evt_starter = this.isJoystick ? this.el_parent : this.el;
-
-        el_evt_starter.addEventListener(pointer.down, (evt) => {
-            // If a Gamepad Button was touched, don't do anything with the Joystick
-            if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
-            this.handleDown(evt);
-        }, { passive: false });
-
-        if (this.isJoystick) {
-            this.el_parent.addEventListener(pointer.move, (evt) => {
-                evt.preventDefault();
-                this.handleMove(evt);
-            }, { passive: false });
-        }
-
-        this.el_parent.addEventListener(pointer.up, (evt) => {
-            if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
-            this.handleUp(evt);
-        });
-
-        this.el_parent.addEventListener(pointer.cancel, (evt) => {
-            if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
-            this.handleUp(evt);
-        });
-
-        // Avoid contextmenu on long press
+        el_evt_starter.addEventListener(pointer.down, this.handleDown, { passive: false });
+        this.el_parent.addEventListener(pointer.move, this.handleMove, { passive: false });
+        this.el_parent.addEventListener(pointer.up, this.handleUp);
+        this.el_parent.addEventListener(pointer.cancel, this.handleUp);
         this.el_parent.addEventListener("contextmenu", (evt) => evt.preventDefault());
     }
 
     destroy() {
-        this.el.remove();
+        const el_evt_starter = this.isJoystick ? this.el_parent : this.el;
+        el_evt_starter.removeEventListener(pointer.down, this.handleDown, { passive: false });
+        this.el_parent.removeEventListener(pointer.move, this.handleMove, { passive: false });
+        this.el_parent.removeEventListener(pointer.up, this.handleUp);
+        this.el_parent.removeEventListener(pointer.cancel, this.handleUp);
+        this.el_controller.remove();
     }
 }
 
