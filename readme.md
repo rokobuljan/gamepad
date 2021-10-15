@@ -28,7 +28,7 @@ const GP = new Gamepad({
                 // Payer.controller.angle = this.angle;
                 //
                 // // otherwise use here something like:
-                // PL.move(this.value, this.angle);
+                // Player.move(this.value, this.angle);
                 // to update your player position when the Controller triggers onInput
             }
         },
