@@ -38,3 +38,10 @@ Inside the `onInput()` method you can use the `this.value` and `this.angle` valu
 | --------------- | ---------------- | --------------------------------------- |
 | `Button`        | Always `0`       | `1` on pressed and `0` on touch release |
 | `Joystick`      | Angle in radians | Float `0.0` to `1.0`                    |
+
+Whenever you desire you can get your created controllers instances like:
+
+```
+const GP = new Gamepad({options....});
+console.log(GP.controllers);
+```
