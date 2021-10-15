@@ -95,17 +95,17 @@ To create your **controllers** (Joysticks, Buttons), add to Gamepad's `controlle
 
 **Options:**
 
-| Property     | Type     | Value                       | Description                                             |
-| ------------ | -------- | --------------------------- | ------------------------------------------------------- |
-| `type`       | String   | `"button"` `"joystick"`     | Type of controller                                      |
-| `parent`     | String   | `"body"`                    | Selector, where to insert the Controller                |
-| `axis`       | String   | `"all"` `"x"` `"y"`         | Joystick movement axis                                  |
-| `radius`     | Number   | `50`                        | Controller radius                                       |
-| `text`       | String   | `""`                        | Button text                                             |
-| `position`   | Object   | `{top: "50%", left: "50%"}` | Controller position inside Gamepad                      |
-| `reposition` | Boolean  | `false`                     | If on touch-start the controller should change position |
-| `style`      | Object   | `{}`                        | Additional custom CSS styles                            |
-| `onInput`    | Function |                             | Triggered on input (move, down, up)                     |
+| Property     | Type     | Value                       | Description                            |
+| ------------ | -------- | --------------------------- | -------------------------------------- |
+| `type`       | String   | `"button"` `"joystick"`     | Type of controller                     |
+| `parent`     | String   | `"body"`                    | Parent Selector (to insert into)       |
+| `axis`       | String   | `"all"` `"x"` `"y"`         | Joystick movement axis                 |
+| `radius`     | Number   | `50`                        | Controller radius                      |
+| `text`       | String   | `""`                        | Button text                            |
+| `position`   | Object   | `{top: "50%", left: "50%"}` | Controller position inside Gamepad     |
+| `reposition` | Boolean  | `false`                     | Change position on touchstart          |
+| `style`      | Object   | `{}`                        | Additional custom CSS styles           |
+| `onInput`    | Function |                             | Triggered on touch\[start\|move\|end\] |
 
 Inside the `onInput()` method you can use the `this.value` and `this.angle` values.
 
