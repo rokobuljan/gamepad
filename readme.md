@@ -3,7 +3,9 @@
 Creates a virtual multi-touch *gamepad* with virtual **buttons** and **joystick** for your games or IOT!  
 *Beta*
 
-## Example:
+![JavaScript Virtual Gamepad Controller With Joystick](gamepad-js.png)
+
+## Getting Started
 
 ```js
 // Given PL is your Player class:
@@ -65,6 +67,9 @@ const GP = new Gamepad({
         }
     }
 });
+
+// When needed: 
+// GP.destroy(); 
 ```
 
 
