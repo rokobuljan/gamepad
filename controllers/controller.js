@@ -38,7 +38,6 @@ class Controller {
             isDrag: false,
             isDown: false,
             identifier: -1, // Touch finger identifier,
-            evtTouch: null,
         });
         this.isJoystick = this.type === "Joystick";
     }
