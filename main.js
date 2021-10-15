@@ -171,9 +171,29 @@ const GP = new Gamepad({
                 PL.fire();
                 GP.vibrate(100);
             }
+        },
+        settings: {
+            type: "button",
+            parent: "#app",
+            text: "☰",
+            radius: 20,
+            position: {
+                right: "35px",
+                top: "35px",
+            },
+            style: {
+                color: "#fff",
+                background: "rgba(0,0,0,0.2)",
+            },
+            onInput() {
+                if (!this.value) return;
+                // Open some settings panel
+            }
         }
-    }
+    },
 });
+
+console.log(GP.controllers);
 
 const engine = () => {
 

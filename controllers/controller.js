@@ -132,7 +132,7 @@ class Controller {
 
         // Styles depending on controller type/axis
         const stylesByType = {
-            all: { width: `${this.radius * 2}px`, height: `${this.radius * 2}px` },
+            all: { minWidth: `${this.radius * 2}px`, height: `${this.radius * 2}px` },
             x: { width: `${this.radius * 2}px`, height: `6px` },
             y: { height: `${this.radius * 2}px`, width: `6px` },
         };
