@@ -10,7 +10,7 @@ const _controllers = { button: Button, joystick: Joystick }
 class Gamepad {
     constructor(options) {
         Object.assign(this, {
-            fullscreen: true,
+            fullscreen: false,
             controllers: {},
         }, options);
         this.init();
@@ -36,7 +36,8 @@ class Gamepad {
 
     init() {
         Object.entries(this.controllers).forEach(([id, options]) => {
-            this.controllers[id] = new _controllers[options.type](id, options);
+            const controllerType = options.type.toLowerCase();
+            this.controllers[id] = new _controllers[controllerType](id, options);
         });
 
         if (this.fullscreen) {

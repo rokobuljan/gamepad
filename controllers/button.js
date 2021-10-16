@@ -6,26 +6,23 @@ import { Controller } from "./controller.js";
  * Button Controller 
  */
 
-const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
-const EL = (sel, PAR) => (PAR || document).querySelector(sel);
-
 class Button extends Controller {
     constructor(id, options) {
-        super("Button", id, options);
+        super(id, options, "Button");
         this.init();
     }
 
-    onDown() {
-        super.onDown();
-
-        this.value = 1;
-
+    onStart() {
+        super.onStart();
+        this.value = this.spring ? 1 : this.isActive ? 1 : 0;
+        
         this.onInput();
     }
+    
+    onEnd() {
+        super.onEnd();
 
-    onUp() {
-        super.onUp();
-
+        if (!this.spring) return;
         this.value = 0;
 
         this.onInput();

@@ -15,6 +15,7 @@ body {
     touch-action: none;
 
     position: absolute;
+    display: flex;
     left: 0;
     top: 0;
     right: 0;
@@ -31,6 +32,26 @@ body {
         radial-gradient(ellipse at 90% 90%, #8f2746 0%, transparent 55%),
         radial-gradient(ellipse at 90% 10%, #395aac 0%, transparent 55%),
         radial-gradient(ellipse at 10% 10%, #35244f 0%, transparent 55%);
+
+    &-left {
+        position: relative;
+        flex: 1;
+    }
+
+    &-right {
+        position: relative;
+        flex: 1;
+    }
+
+    &-menu {
+        position: absolute;
+        padding: 20px;
+        visibility: hidden;
+
+        &.is-active {
+            visibility: visible;
+        }
+    }
 }
 
 .player {
@@ -54,51 +75,6 @@ body {
     background: red;
 }
 
-#player img {
-    display: block;
-    width: 50px;
-}
-
-#GP-throttle {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    left: 50%;
-}
-
-#GP-rotation {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-}
-
-.Gamepad {
-
-    &-Joystick,
-    &-Button {
-
-        box-shadow:  0 0 0 2px rgba(255, 255, 255, 0.4);
-        position: absolute;
-        transform: translate(-50%, -50%);
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        user-select: none;
-
-        &.is-active {
-            box-shadow:  0 0 0 2px rgba(255, 255, 255, 0.4),  0 0 50px rgba(255, 255, 255, 0.4);
-        }
-    }
-
-    &-Joystick {
-
-        &-handle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            transform: translate(-50%, -50%);
-        }
-    }
+.Gamepad-Controller.is-active {
+    box-shadow: 0 0 50px currentColor;
 }

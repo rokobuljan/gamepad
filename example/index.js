@@ -138,36 +138,34 @@ const PL = new Player({
 
 
 const GP = new Gamepad({
+    fullscreen: true,
     controllers: {
         move: {
             type: "joystick", // "joystick | button"
-            parent: "#app",
+            parent: "#app-left",
             axis: "all",
-            reposition: true,
             position: {
-                left: "15%",
+                left: "25%",
                 top: "50%",
             },
+            fixed: false,
             onInput() {
-                // console.log(this.value, this.angle);
                 PL.controller.value = this.value;
                 PL.controller.angle = this.angle;
             }
         },
         fire: {
             type: "button",
-            parent: "#app",
-            text: "F",
+            parent: "#app-right",
             position: {
-                right: "15%",
+                right: "25%",
                 bottom: "50%",
-            },
-            style: {
-                color: "#fff",
-                background: "hsla(255, 100%, 100%, 0.2)",
             },
             onInput() {
                 if (!this.value) return;
+
+                console.log(12312312312123);
+
                 PL.fire();
                 GP.vibrate(100);
             }
@@ -177,16 +175,19 @@ const GP = new Gamepad({
             parent: "#app",
             text: "☰",
             radius: 20,
+            spring: false, 
             position: {
                 right: "35px",
                 top: "35px",
             },
             style: {
+                border: "0",
                 color: "#fff",
-                background: "rgba(0,0,0,0.2)",
+                background: "transparent",
             },
             onInput() {
-                if (!this.value) return;
+                console.log(this.isActive)
+                EL("#app-menu").classList.toggle("is-active", this.isActive);
                 // Open some settings panel
             }
         }

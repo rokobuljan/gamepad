@@ -7,20 +7,19 @@ import { Controller } from "./controller.js";
  */
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
-const EL = (sel, PAR) => (PAR || document).querySelector(sel);
 
 class Joystick extends Controller {
 
     constructor(id, options) {
-        super("Joystick", id, options);
+        super(id, options, "Joystick");
         this.init();
     }
 
-    onDown() {
-        super.onDown();
+    onStart() {
+        super.onStart();
 
         this.value = 0;
-        
+
         this.onInput();
     }
 
@@ -38,14 +37,14 @@ class Joystick extends Controller {
 
         } else if (this.axis === "x") {
 
-            this.value = Math.max(Math.min(x_diff / this.radius, 1), -1);
+            this.value = Math.max(Math.min(this.x_diff / this.radius, 1), -1);
 
             const x_pos = this.value * this.radius + this.radius;
             this.el_handle.style.left = `${x_pos}px`;
 
         } else if (this.axis === "y") {
 
-            this.value = Math.max(Math.min(-y_diff / this.radius, 1), -1);
+            this.value = Math.max(Math.min(-this.y_diff / this.radius, 1), -1);
 
             const y_pos = -this.value * this.radius + this.radius;
             this.el_handle.style.top = `${y_pos}px`;
@@ -55,8 +54,9 @@ class Joystick extends Controller {
         this.onInput();
     }
 
-    onUp() {
-        super.onUp();
+    onEnd() {
+        super.onEnd();
+        if (!this.spring) return;
 
         this.value = 0;
         this.el_handle.style.left = `50%`;
@@ -69,8 +69,20 @@ class Joystick extends Controller {
         super.init();
 
         // Add Handle to this Controller
-        this.el_handle = ELNew("div", { className: "Gamepad-Joystick-handle" });
-        this.el_handle.style.cssText = `width: ${this.radius * 2 * 0.6}px; height: ${this.radius * 2 * 0.6}px;`;
+        this.el_handle = ELNew("div", { className: "Gamepad-Controller Gamepad-Joystick-handle" });
+        const styles = {
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            width: `${this.radius * 2 * 0.5}px`,
+            height: `${this.radius * 2 * 0.5}px`,
+            background: "currentColor",
+            color: "inherit",
+            transform: "inherit",
+            borderRadius: "inherit",
+        };
+        Object.assign(this.el_handle.style, styles);
+
         this.el.append(this.el_handle);
     }
 
