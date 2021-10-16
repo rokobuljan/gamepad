@@ -74,7 +74,7 @@ const GP = new Gamepad({
 // Retrieve all your Controllers
 console.log(GP.controllers);
 
-// // Destroy specific Gamepad Controller instances
+// // Destroy a specific Gamepad Controller instance
 // GP.controllers.fire.destroy(); 
 
 // // Destroy all Gamepad Controllers instances
