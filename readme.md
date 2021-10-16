@@ -96,10 +96,10 @@ If you wnt to add *active* state styles use CSS like:
 
 **Options:**
 
-| Property      | Type    | Value   | Description                          |
-| ------------- | ------- | ------- | ------------------------------------ |
-| `fullscreen`  | Boolean | `false` | Invoke FullScreen API on first touch |
-| `controllers` | Object  | `{}`    | *See:* **Controller**                |
+| Property      | Type    | Value                               | Description                          |
+| ------------- | ------- | ----------------------------------- | ------------------------------------ |
+| `fullscreen`  | Boolean | `false`                             | Invoke FullScreen API on first touch |
+| `controllers` | Object  | `{"SOME ID": {...options}}` | *See:* **Controller**                |
 
 ## Gamepad Methods:
 
@@ -108,7 +108,7 @@ If you wnt to add *active* state styles use CSS like:
 | `destroy()` | Destroys all Controllers               |
 | `vibrate()` | Vibrate *ms* (Number or pattern Array) |
 
-## Controller `Joystick`, `Button`
+## Controller (`Joystick`, `Button`)
 
 To create your **controllers** (Joysticks, Buttons), add to Gamepad's `controllers` a desired ID for your controller and this **Options:** Object value like: `fireMissileButton: {...options}`
 
