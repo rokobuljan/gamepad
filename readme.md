@@ -96,10 +96,10 @@ If you wnt to add *active* state styles use CSS like:
 
 **Options:**
 
-| Property      | Type    | Value                               | Description                          |
-| ------------- | ------- | ----------------------------------- | ------------------------------------ |
-| `fullscreen`  | Boolean | `false`                             | Invoke FullScreen API on first touch |
-| `controllers` | Object  | `{"SOME ID": {...options}}` | *See:* **Controller**                |
+| Property      | Type    | Value                                 | Description                          |
+| ------------- | ------- | ------------------------------------- | ------------------------------------ |
+| `fullscreen`  | Boolean | `false`                               | Invoke FullScreen API on first touch |
+| `controllers` | Object  | `{"SOME ID": {...controllerOptions}}` | *See: **Controller - Options***      |
 
 ## Gamepad Methods:
 
@@ -108,9 +108,10 @@ If you wnt to add *active* state styles use CSS like:
 | `destroy()` | Destroys all Controllers               |
 | `vibrate()` | Vibrate *ms* (Number or pattern Array) |
 
-## Controller (`Joystick`, `Button`)
+## Controller (*Joystick, Button*)
 
-To create your **controllers** (Joysticks, Buttons), add to Gamepad's `controllers` a desired ID for your controller and this **Options:** Object value like: `fireMissileButton: {...options}`
+To create your **controllers** (Joysticks, Buttons), add to Gamepad's `controllers` Object any desired property ID for your controller (must be unique!) 
+like i.e:: `fireMissileButton: {...controllerOptions}`
 
 **Options:**
 
@@ -127,20 +128,22 @@ To create your **controllers** (Joysticks, Buttons), add to Gamepad's `controlle
 
 **Methods:**
 
-| Property      | Type     | Description                             |
+| Method        | Type     | Description                             |
 | ------------- | -------- | --------------------------------------- |
 | `onInput()`\* | Function | Callback on touch-start/move/end/cancel |
 
-Inside the `onInput()` method you can use the `this` to retrieve this various dynamic values.  
 
 ***Notice:** 
 the `onInput()` will not be triggered on touch-end for controllers which property `spring` is set to `false`. 
 
 ## Reading Controller output values
 
+Inside the `onInput()` method you can use the `this` to retrieve this various dynamic values.  
 
 
-Or you can use your Gamepad instance controllers like i.e: `const throttleVal = GP.controllers.throttle.value` (where `throttle` is the Controller ID you set when registering your controllers `{throttle: {...controllerOptions}}`)
+Alternatively, you can also use your Gamepad instance controllers like i.e: `const throttleVal = GP.controllers.throttle.value` (where `throttle` is the Controller ID you set when registering your controllers `{throttle: {...controllerOptions}}`)
+
+**Dynamic Controller properties and its values**:
 
 | Property        | Type    | Description                               |
 | --------------- | ------- | ----------------------------------------- |
@@ -157,13 +160,13 @@ Or you can use your Gamepad instance controllers like i.e: `const throttleVal = 
 | `y_diff`        | Number  | *px* Difference y from start and move     |
 | `distance_drag` | Number  | *px* Drag distance (capped to max radius) |
 
-PS: Inspect your controllers to get more useful data properties.
+PS: Inspect your desired Controller ID to get more useful properties and values.
 
 
 
 ## Controller Methods:
 
-| Property    | Description                      |
+| Method      | Description                      |
 | ----------- | -------------------------------- |
 | `destroy()` | Destroys the specific Controller |
 
@@ -188,7 +191,7 @@ Object {
 }
 ```
 
-## Development and run Example demo
+## Development and Example demo
 
 ```sh
 npm i
@@ -202,9 +205,9 @@ npm run serve  # http://localhost:5000
 
 Since **only touch events are supported**: open Dev tools, inspect, and set preview as *Mobile*  
 
-### Test example demo from handheld
+### Test example demo from handheld device
 
-To test from a mobile device: 
+To test the example demo from a mobile device: 
 
 - Run `npm run dev`
 - Set your Mobile device Settings Developer Mode ON, and turn ON **_USB Debugging_** mode  
