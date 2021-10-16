@@ -1,5 +1,5 @@
 import './style.scss'
-import { Gamepad } from "./gamepad.js";
+import { Gamepad } from "../gamepad.js";
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);

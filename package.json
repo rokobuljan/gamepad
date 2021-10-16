@@ -2,7 +2,7 @@
     "name": "gamepad-2",
     "version": "1.0.0",
     "description": "",
-    "main": "main.js",
+    "main": "gamepad.js",
     "scripts": {
         "dev": "vite",
         "build": "vite build",

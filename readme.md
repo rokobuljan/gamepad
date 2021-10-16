@@ -1,9 +1,10 @@
 # Gamepad
 
 Creates a virtual multi-touch *gamepad* with virtual **buttons** and **joystick** for your games or IOT!  
-*Beta*
 
-![JavaScript Virtual Gamepad Controller With Joystick](gamepad-js.png)
+> *Beta*
+
+![JavaScript Virtual Gamepad Controller With Joystick](example/gamepad-js.png)
 
 ## Getting Started
 
@@ -150,3 +151,29 @@ Object {
     settings: Button{}
 }
 ```
+
+## Development and run Example demo
+
+```sh
+npm i
+npm run dev # and head to http://localhost:3000
+
+# To build the example
+npm run build
+# To serve the built project from /dist
+npm run serve  # http://localhost:5000
+```
+
+Since **only touch events are supported**: open Dev tools, inspect, and set preview as *Mobile*  
+
+### Test example demo from handheld
+
+To test from a bobile device: 
+
+- Run `npm run dev`
+- Set your Mobile device Settings Developer Mode ON, and turn ON **_USB Debugging_** mode  
+- In your computer find your IPv4 Address using `ipconfig` or `ifconfig` from terminal.
+- Head to Chrome on your mobile to that address, i.e: http://192.168.8.106:3000/
+- On your computer, open chrome://inspect/#devices and wait for your device and chrome tab to appear
+- Hit: the button **_inspect fallback_**
+
