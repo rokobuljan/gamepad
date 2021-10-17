@@ -19,21 +19,23 @@ class Gamepad {
      * @param {object|Controller} options controllerOptions or a Button or Joystick Controller instance.
      * @returns Gamepad
      */
-    add(options) {
-        let controller;
-        if (isController(options)) {
-            controller = options;
-        } else {
-            options.type = (options.type || "button").trim().toLowerCase();
-            controller = new {
-                button: Button,
-                joystick: Joystick,
-            }[options.type](options);
-        }
-        this.controllers[controller.id] = controller;
-
-        // Initialize Controller
-        controller.init();
+    add(...args) {
+        args.forEach((options) => {
+            let controller;
+            if (isController(options)) {
+                controller = options;
+            } else {
+                options.type = (options.type || "button").trim().toLowerCase();
+                controller = new {
+                    button: Button,
+                    joystick: Joystick,
+                }[options.type](options);
+            }
+            this.controllers[controller.id] = controller;
+    
+            // Initialize Controller
+            controller.init();
+        });
 
         return this;
     }
@@ -43,12 +45,14 @@ class Gamepad {
      * @param {string} id Controller ID to remove
      * @returns Gamepad
      */
-    remove(id) {
-        id = typeof id === "string" ? id : id.id;
-        if (this.controllers.hasOwnProperty(id)) {
-            this.controllers[id].destroy();
-            delete this.controllers[id];
-        }
+    remove(...args) {
+        args.forEach((id) => {
+            id = typeof id === "string" ? id : id.id;
+            if (this.controllers.hasOwnProperty(id)) {
+                this.controllers[id].destroy();
+                delete this.controllers[id];
+            }
+        });
         return this;
     }
 
