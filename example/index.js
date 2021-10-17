@@ -1,15 +1,9 @@
 import './style.scss'
-import { Gamepad } from "../gamepad.js";
+import { Gamepad, Joystick, Button } from "../gamepad.js";
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
 const EL_app = EL("#app");
-
-// function getDistance(x1, y1, x2, y2) {
-//     const y = x2 - x1;
-//     const x = y2 - y1;
-//     return Math.sqrt(x * x + y * y);
-// }
 
 /**
  * Example:
@@ -118,92 +112,93 @@ class Weapon {
     }
 
     init() {
+        this.move(); // Move to ship position
         EL_app.append(this.EL);
-        this.move();
         weapons.push(this);
     }
 
     destroy() {
         this.EL.remove();
-        const idx = weapons.indexOf(this);
-        weapons.splice(1, idx);
+        weapons.splice(weapons.indexOf(this), 1);
     }
 }
 
-
 const PL = new Player({
-    x: 0,
-    y: 0,
+    x: 50,
+    y: 50,
 });
-
-
-const GP = new Gamepad({
-    fullscreen: true,
-    controllers: {
-        move: {
-            type: "joystick", // "joystick | button"
-            parent: "#app-left",
-            axis: "all",
-            position: {
-                left: "25%",
-                top: "50%",
-            },
-            fixed: false,
-            onInput() {
-                PL.controller.value = this.value;
-                PL.controller.angle = this.angle;
-            }
-        },
-        fire: {
-            type: "button",
-            parent: "#app-right",
-            position: {
-                right: "25%",
-                bottom: "50%",
-            },
-            onInput() {
-                if (!this.value) return;
-
-                console.log(12312312312123);
-
-                PL.fire();
-                GP.vibrate(100);
-            }
-        },
-        settings: {
-            type: "button",
-            parent: "#app",
-            text: "☰",
-            radius: 20,
-            spring: false, 
-            position: {
-                right: "35px",
-                top: "35px",
-            },
-            style: {
-                border: "0",
-                color: "#fff",
-                background: "transparent",
-            },
-            onInput() {
-                console.log(this.isActive)
-                EL("#app-menu").classList.toggle("is-active", this.isActive);
-                // Open some settings panel
-            }
-        }
-    },
-});
-
-console.log(GP.controllers);
 
 const engine = () => {
-
     PL.move();
     weapons.forEach(weapon => weapon.move());
-
-
     // Loop RAF
     requestAnimationFrame(engine);
 };
 
 engine();
+
+
+// GAMEPAD EXAMPLE:
+
+
+const GP = new Gamepad([
+    {
+        id: "move",
+        type: "joystick", // "joystick | button"
+        parent: "#app-left",
+        axis: "all",
+        fixed: false,
+        position: {
+            left: "25%",
+            top: "50%",
+        },
+        onInput() {
+            PL.controller.value = this.value;
+            PL.controller.angle = this.angle;
+        }
+    },
+    {
+        id: "fire",
+        parent: "#app-right",
+        fixed: false,
+        position: {
+            right: "25%",
+            bottom: "50%",
+        },
+        onInput() {
+            if (!this.value) return;
+
+            PL.fire();
+            GP.vibrate(100);
+        },
+    }
+]);
+
+const ControllerButtonSettings = new Button({
+    id: "settings",
+    parent: "#app",
+    text: "☰",
+    radius: 20,
+    spring: false,
+    position: {
+        right: "35px",
+        top: "35px",
+    },
+    style: {
+        border: "0",
+        color: "#fff",
+        background: "transparent",
+    },
+    onInput() {
+        // Open some settings panel
+        EL("#app-menu").classList.toggle("is-active", this.isActive);
+    }
+});
+
+console.log(GP.controllers);
+
+GP.add(ControllerButtonSettings);
+
+GP.requestFullScreen();
+
+ControllerButtonSettings.init();

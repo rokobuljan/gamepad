@@ -1,19 +1,19 @@
 import { Controller } from "./controller.js";
 
 /**
- * Gamepad
- * 
- * Button Controller 
+ * Gamepad - Button Controller 
+ * Author: https://github.com/rokobuljan/ 
  */
 
 class Button extends Controller {
-    constructor(id, options) {
-        super(id, options, "Button");
-        this.init();
+    constructor(options) {
+        options.type = "button";
+        super(options);
     }
 
     onStart() {
         super.onStart();
+
         this.value = this.spring ? 1 : this.isActive ? 1 : 0;
         
         this.onInput();

@@ -1,142 +1,172 @@
 # Gamepad
 
-Creates a virtual multi-touch *gamepad* with virtual **buttons** and **joystick** for your games or IOT!  
+Your virtual multi-touch Gamepad with **buttons** and **joystick**!   
+For JavaScript games or IOT!  
 
-> *Beta*
+
 
 ![JavaScript Virtual Gamepad Controller With Joystick](example/gamepad-js.png)
 
 ## Getting Started
 
-**Example:**
+
+**Usage**
 
 ```js
-const GP = new Gamepad({
-    controllers: {
-        move: { // Any ID you want. Must be unique
-            type: "joystick", 
-            parent: "#app-left", // Where to append the controller
-            fixed: false, // Change position on touch-start
-            position: { // Initial position on load
-                left: "15%",
-                top: "50%",
-            },
-            onInput() { // Triggered on angle or value change.
-                // // If you update your Player position and angle continuosly inside a
-                // // requestAnimationFrame you're good to go with i.e:
-                // Payer.controller.value = this.value;
-                // Payer.controller.angle = this.angle;
-                //
-                // // otherwise use here something like:
-                // Player.move(this.value, this.angle);
-                // to update your player position when the Controller triggers onInput
-            }
+import { Gamepad } from "./gamepad.js";
+
+const GP = new Gamepad([
+    {
+        id: "controller-move", // MANDATORY
+        type: "joystick", 
+        parent: "#app-left", // Where to append the controller
+        fixed: false, // Change position on touch-start
+        position: { // Initial position on load
+            left: "15%",
+            top: "50%",
         },
-        fire: {  // Any ID you want. Must be unique
-            type: "button",
-            parent: "#app-right",
-            position: {
-                right: "15%",
-                bottom: "50%",
-            },
-            onInput() {
-                // // If value is 1 - Player should fire!
-                // if (!this.value) return;
-                // Player.fire();
-                GP.vibrate(100); // Vibrate the Gamepad for 100ms
-                // // You can also use a pattern with pauses of 30ms:
-                // GP.vibrate([200, 30, 100, 30, 200]) 
-            }
-        },
-        settings: {  // Any ID you want. Must be unique
-            type: "button",
-            parent: "#app",
-            spring: false, // Act as a checkbox
-            text: "☰",
-            radius: 20,
-            position: {
-                right: "35px",
-                top: "35px",
-            },
-            style: {
-                color: "#fff",
-                background: "rgba(0,0,0,0.2)",
-            },
-            onInput() {
-                // // Toggle Settings panel to pause game, restart, options etc...
-                // Game.settings.toggle(this.isActive)
-            }
+        onInput() { // Triggered on angle or value change.
+            // // If you update your Player position and angle continuosly inside a
+            // // requestAnimationFrame you're good to go with i.e:
+            // Payer.controller.value = this.value;
+            // Payer.controller.angle = this.angle;
+            //
+            // // otherwise use here something like:
+            // Player.move(this.value, this.angle);
+            // to update your player position when the Controller triggers onInput
         }
+    }, { 
+        id: "controller-fire", // MANDATORY
+        parent: "#app-right",
+        position: {
+            right: "15%",
+            bottom: "50%",
+        },
+        onInput() { // Triggered on value change.
+            // // If value is 1 - Player should fire!
+            // if (!this.value) return;
+            // Player.fire();
+            //
+            GP.vibrate(100); // Vibrate the Gamepad for 100ms
+            // // You can also use a pattern with pauses of 30ms:
+            // GP.vibrate([200, 30, 100, 30, 200]) 
+        }
+    }
+]);
+
+// Retrieve all your Controllers instances
+console.log(GP.controllers); // {"controller-move: Joystick{}, "controller-fire": Button{}}
+```
+
+## Standalone Controllers
+
+You can also use `Joystick` or `Button` Controller as **standalone**:
+
+```js
+import { Gamepad, Joystick, Button } from "./gamepad.js";
+
+const ControllerMenuButton = new Button({ 
+    id: "controller-menu",
+    parent: "#app",
+    spring: false, // Act as a checkbox
+    text: "☰",
+    radius: 20,
+    position: {
+        right: "35px",
+        top: "35px",
+    },
+    style: {
+        color: "#fff",
+        background: "rgba(0,0,0,0.2)",
+    },
+    onInput() {
+        // // Toggle Settings panel to pause game, restart, options etc...
+        // Game.settings.toggle(this.isActive)
     }
 });
 
+// To initialize it manually (if you don't want to use a Gamepad wrapper)
+ControllerMenuButton.init();
 
-// Retrieve all your Controllers
-console.log(GP.controllers);
-
-// // Destroy a specific Gamepad Controller instance
-// GP.controllers.fire.destroy(); 
-
-// // Destroy all Gamepad Controllers instances
-// GP.destroy(); 
+// or add it to an existing Gamepad instance to initialize it automatically.
+const GP = new Gamepad();
+GP.add(ControllerMenuButton);
 ```
 
-## Active state CSS Styles
 
-If you wnt to add *active* state styles use CSS like:
+## CSS: Active state
+
+If you wnt to add *active* state styles, use CSS like:
 
 ```css
-.Gamepad-Controller.is-active {
+.Gamepad-controller.is-active {
     box-shadow: 0 0 50px currentColor;
 }
 ```
 
-
 ## Gamepad
 
-**Options:**
+**Syntax:**
 
-| Property      | Type    | Value                                 | Description                          |
-| ------------- | ------- | ------------------------------------- | ------------------------------------ |
-| `fullscreen`  | Boolean | `false`                               | Invoke FullScreen API on first touch |
-| `controllers` | Object  | `{"SOME ID": {...controllerOptions}}` | *See: **Controller - Options***      |
+```js
+new Gamepad();
+new Gamepad( [controllerOptions|Controller, ... ]Optional );
+```
 
-## Gamepad Methods:
+Accepts an argument Array of either controllerOptions or Controller instances  
+It automatically initializes (`init()`) its Controllers.
 
-| Property    | Description                            |
-| ----------- | -------------------------------------- |
-| `destroy()` | Destroys all Controllers               |
-| `vibrate()` | Vibrate *ms* (Number or pattern Array) |
+### Gamepad Methods
+
+| Method                        | Arguments                             | Description                                                |
+| ----------------------------- | ------------------------------------- | ---------------------------------------------------------- |
+| `add(object\|Controller)`     | controllerOptions or Controller       |                                                            |
+| `remove(string\|Controller)`  | controllerId or Controller            | destroy specific Controller                                |
+| `destroy(string\|Controller)` | (Optional) controllerId or Controller | Destroy all associated Controller instances                |
+| `requestFullScreen()`         |                                       | Invoke FullScreen API on first touch                       |
+| `exitFullScreen()`            |                                       | Revoke FullScreen API                                      |
+| `vibrate(number|array)`       | i.e: `200` or `[200,30,100,30,200]`   | *ms* vibration time, or Array of vibrate and pause pattern |
+
+Gamepad Methods are chainable, i.e: `.vibrate(400).destroy().exitFullScreen()`
 
 ## Controller (*Joystick, Button*)
+
+**Standalone syntax**
+
+```js
+new Joystick({controllerOptions})
+new Button({controllerOptions})
+```
 
 To create your **controllers** (Joysticks, Buttons), add to Gamepad's `controllers` Object any desired property ID for your controller (must be unique!) 
 like i.e:: `fireMissileButton: {...controllerOptions}`
 
-**Options:**
+### controllerOptions
 
-| Property   | Type    | Value                       | Description                         |
-| ---------- | ------- | --------------------------- | ----------------------------------- |
-| `axis`     | String  | `"all"` `"x"` `"y"`         | Movement axis constraint (Joystick) |
-| `fixed`    | Boolean | `true`                      | Change position on touchstart       |
-| `text`     | String  | `""`                        | Button text or inner HTML           |
-| `type`     | String  | `"button"` `"joystick"`     | Type of controller                  |
-| `parent`   | String  | `"body"`                    | Parent Selector (to insert into)    |
-| `position` | Object  | `{top: "50%", left: "50%"}` | Controller position inside Gamepad  |
-| `radius`   | Number  | `50`                        | Controller radius in *px*           |
-| `style`    | Object  | `{}`                        | Additional custom CSS styles        |
+| Property           | Type    | Value                         | Description                                                 |
+| ------------------ | ------- | ----------------------------- | ----------------------------------------------------------- |
+| `id` **MANDATORY** | String  |                               | Mandatory unique ID name                                    |
+| `type`             | String  | `"button"`(Def.) `"joystick"` | Type of controller (Not necessary in standalone)            |
+| `axis`             | String  | `"all"`(Default) `"x"` `"y"`  | Movement axis constraint (Joystick)                         |
+| `fixed`            | Boolean | `true`                        | Set to `false` to change position on touch-start            |
+| `parent`           | String  | `"body"`                      | Parent Selector to insert into                              |
+| `position`         | Object  | `{top: "50%", left: "50%"}`   | Controller initial position inside Gamepad                  |
+| `radius`           | Number  | `50`                          | Controller radius in *px*                                   |
+| `spring`           | Object  | `true`                        | Set to `false` to keep state and values on touch-end/cancel |
+| `style`            | Object  | `{}`                          | Custom CSS styles                                           |
+| `text`             | String  | `""`                          | Button text or inner HTML                                   |
 
-**Methods:**
+### Controller Methods
 
-| Method        | Type     | Description                             |
-| ------------- | -------- | --------------------------------------- |
-| `onInput()`\* | Function | Callback on touch-start/move/end/cancel |
+| Method      | Type     | Description                             |
+| ----------- | -------- | --------------------------------------- |
+| `onInput()` | Function | Callback on touch-start/move/end/cancel |
 
 
 ***Notice:** 
 the `onInput()` will not be triggered on touch-end for controllers which property `spring` is set to `false`. 
 
-## Reading Controller output values
+## Controller output values
 
 Inside the `onInput()` method you can use the `this` to retrieve this various dynamic values.  
 
@@ -160,22 +190,15 @@ Alternatively, you can also use your Gamepad instance controllers like i.e: `con
 | `y_diff`        | Number  | *px* Difference y from start and move     |
 | `distance_drag` | Number  | *px* Drag distance (capped to max radius) |
 
-PS: Inspect your desired Controller ID to get more useful properties and values.
-
-
-
-## Controller Methods:
-
-| Method      | Description                      |
-| ----------- | -------------------------------- |
-| `destroy()` | Destroys the specific Controller |
+**PS:**  
+Inspect your desired Controller ID to get more useful properties and values.
 
 
 
 To preview all your Controllers instances:
 
 ```
-const GP = new Gamepad(myGamepadOptions);
+const GP = new Gamepad(gamepadOptions);
 console.log(GP.controllers);
 ```
 
@@ -190,6 +213,7 @@ Object {
     settings: Button{}
 }
 ```
+<hr>
 
 ## Development and Example demo
 

@@ -1,18 +1,17 @@
 import { Controller } from "./controller.js";
 
 /**
- * Gamepad
- * 
- * Joystick Controller 
+ * Gamepad - Joystick Controller 
+ * Author: https://github.com/rokobuljan/ 
  */
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 
 class Joystick extends Controller {
 
-    constructor(id, options) {
-        super(id, options, "Joystick");
-        this.init();
+    constructor(options) {
+        options.type = "joystick";
+        super(options);
     }
 
     onStart() {
@@ -69,7 +68,10 @@ class Joystick extends Controller {
         super.init();
 
         // Add Handle to this Controller
-        this.el_handle = ELNew("div", { className: "Gamepad-Controller Gamepad-Joystick-handle" });
+        this.el_handle = ELNew("div", {
+            className: "Gamepad-joystick-handle"
+        });
+
         const styles = {
             position: "absolute",
             top: "50%",
@@ -81,8 +83,8 @@ class Joystick extends Controller {
             transform: "inherit",
             borderRadius: "inherit",
         };
-        Object.assign(this.el_handle.style, styles);
 
+        Object.assign(this.el_handle.style, styles);
         this.el.append(this.el_handle);
     }
 

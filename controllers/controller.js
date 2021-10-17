@@ -1,8 +1,6 @@
 /**
- * Gamepad
- * author: https://github.com/rokobuljan/ 
- * 
- * Base Controller
+ * Gamepad - Base Controller
+ * Author: https://github.com/rokobuljan/ 
  */
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
@@ -20,7 +18,10 @@ const pointer = {
 };
 
 class Controller {
-    constructor(id, options, type) {
+    constructor(options) {
+
+        if (!options.id) return console.error("Gamepad: Controller is missing a unique ID");
+
         Object.assign(this, {
             parent: "body",
             axis: "all",
@@ -28,13 +29,13 @@ class Controller {
             text: "",
             position: { top: "50%", left: "50%" }, // For the anchor point
             fixed: true, // Set to false to change controller position on touch-down
-            spring: true, // if true will reset/null value on touch-end, if set to false the button will act as a checkbox, or the joystick will not reset
+            spring: true, // If true will reset/null value on touch-end, if set to false the button will act as a checkbox, or the joystick will not reset
             style: {
-                color: "hsla(360, 100%, 100%, 0.5)",
+                color: "hsla(0, 90%, 100%, 0.5)",
                 border: "2px solid currentColor",
             },
             isPress: false, // true if the controller is currently pressed
-            isActive: false, // trie if has "is-active" state / className 
+            isActive: false, // true if has "is-active" state / className 
             isDrag: false,
             value: 0,
             angle: 0,
@@ -45,11 +46,10 @@ class Controller {
             distance_drag: 0,
             onInput() { },
         }, options, {
-            type,
-            id,
             identifier: -1, // Touch finger identifier
+            isInitialized: false,
         });
-        this.isJoystick = this.type === "Joystick";
+        this.isJoystick = this.type === "joystick";
     }
 
     onStart() { }
@@ -138,12 +138,15 @@ class Controller {
 
     init() {
 
+        if (this.isInitialized) this.destroy();
+        this.isInitialized = true;
+
         this.el_parent = EL(this.parent);
-        this.el_anchor = ELNew("div", { className: "Gamepad-Anchor" });
+        this.el_anchor = ELNew("div", { className: "Gamepad-anchor" });
         this.el = ELNew("div", {
             id: this.id,
-            textContent: this.text,
-            className: `Gamepad-Controller Gamepad-${this.type} axis-${this.axis}`,
+            innerHTML: this.text,
+            className: `Gamepad-controller Gamepad-${this.type} axis-${this.axis}`,
         });
 
         // Styles for both Joystick and Button
@@ -199,7 +202,7 @@ class Controller {
 
         const el_evt_starter = this.isJoystick || !this.fixed ? this.el_parent : this.el;
         el_evt_starter.addEventListener(pointer.down, this.handleStart, { passive: false });
-        this.el_parent.addEventListener(pointer.move, this.handleMove, { passive: false });
+        if (this.isJoystick) this.el_parent.addEventListener(pointer.move, this.handleMove, { passive: false });
         this.el_parent.addEventListener(pointer.up, this.handleEnd);
         this.el_parent.addEventListener(pointer.cancel, this.handleEnd);
         this.el_parent.addEventListener("contextmenu", (evt) => evt.preventDefault());
@@ -208,7 +211,7 @@ class Controller {
     destroy() {
         const el_evt_starter = this.isJoystick || !this.fixed ? this.el_parent : this.el;
         el_evt_starter.removeEventListener(pointer.down, this.handleStart, { passive: false });
-        this.el_parent.removeEventListener(pointer.move, this.handleMove, { passive: false });
+        if (this.isJoystick) this.el_parent.removeEventListener(pointer.move, this.handleMove, { passive: false });
         this.el_parent.removeEventListener(pointer.up, this.handleEnd);
         this.el_parent.removeEventListener(pointer.cancel, this.handleEnd);
         this.el_anchor.remove();
