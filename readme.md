@@ -1,13 +1,21 @@
 # Gamepad
 
 Your virtual multi-touch Gamepad with **buttons** and **joystick**!   
-For JavaScript games or IOT!  
+For JavaScript games, apps and IOT!  
 
 
 
 ![JavaScript Virtual Gamepad Controller With Joystick](example/gamepad-js.png)
 
 ## Getting Started
+
+The `Gamepad` instance is a handy wrapper for all your `Joystick` and `Button` Controllers.  
+Although is optional (you can use the Joystick and Button Controllers as standalone) it comes of great use when building an app where you need to often change your different Gamepads. Take for example: Game-Menu vs. In-Game, or an app that has multiple games where each requires a different Gamepad.  
+
+Both Joystick and Button Controllers are fixed and static on their anchor points defined by the `position` property, but can be set to `fixed: false` and will reposition on touch.   
+
+The Joystick, even if left fixed, its parent Element will act as the touch-start pivot. 
+(This option might change in a future release)
 
 
 **Usage**
@@ -21,7 +29,7 @@ const GP = new Gamepad([
         type: "joystick", 
         parent: "#app-left", // Where to append the controller
         fixed: false, // Change position on touch-start
-        position: { // Initial position on load
+        position: { // Initial position on inside parent
             left: "15%",
             top: "50%",
         },
@@ -37,8 +45,9 @@ const GP = new Gamepad([
         }
     }, { 
         id: "controller-fire", // MANDATORY
+        // type is "button" by default 
         parent: "#app-right",
-        position: {
+        position: { // Anchor point position
             right: "15%",
             bottom: "50%",
         },
@@ -60,19 +69,29 @@ console.log(GP.controllers); // {"controller-move: Joystick{}, "controller-fire"
 
 ## Standalone Controllers
 
-You can also use `Joystick` or `Button` Controller as **standalone**:
+`Joystick` and `Button` Controllers can be also used as **standalone** (without the Gamepad *wrapper*)
 
 ```js
-import { Gamepad, Joystick, Button } from "./gamepad.js";
+import { Joystick, Button } from "./gamepad.js";
 
-const ControllerMenuButton = new Button({ 
-    id: "controller-menu",
+const ControllerPanorama = new Joystick({
+    id: "joystick-panorama",
+    axis: "x",
+    parent: "#app",
+    spring: false, // Don't reset (center) joystick on touch-end
+    onInput() {
+        // App.panorama.rotateX(this.value);
+    }
+});
+
+const ControllerMenu = new Button({ 
+    id: "button-menu",
     parent: "#app",
     spring: false, // Act as a checkbox
     text: "☰",
     radius: 20,
-    position: {
-        right: "35px",
+    position: { 
+        left: "50%",
         top: "35px",
     },
     style: {
@@ -80,23 +99,38 @@ const ControllerMenuButton = new Button({
         background: "rgba(0,0,0,0.2)",
     },
     onInput() {
-        // // Toggle Settings panel to pause game, restart, options etc...
-        // Game.settings.toggle(this.isActive)
+        // App.menu.toggle(this.isActive);
     }
 });
-
-// To initialize it manually (if you don't want to use a Gamepad wrapper)
-ControllerMenuButton.init();
-
-// or add it to an existing Gamepad instance to initialize it automatically.
-const GP = new Gamepad();
-GP.add(ControllerMenuButton);
 ```
 
+Initialize your controllers manually:
+
+```js
+ControllerMenu.init();
+ControllerPanorama.init();
+
+// When needed destroy your controllers:
+// ControllerMenu.destroy()
+// ControllerPanorama.destroy();
+```
+
+or rather - add them to an existing **Gamepad instance** to initialize them automatically:
+
+```js
+// ... instead of using .init() ...
+
+import { Gamepad } from "./gamepad.js";
+const GP = new Gamepad();
+
+GP.add(ControllerPanorama, ControllerMenu);
+// When needed destroy all controllers at once:
+// GP.destroy()
+```
 
 ## CSS: Active state
 
-If you wnt to add *active* state styles, use CSS like:
+To add *active* state styles, use CSS like:
 
 ```css
 .Gamepad-controller.is-active {
@@ -110,22 +144,22 @@ If you wnt to add *active* state styles, use CSS like:
 
 ```js
 new Gamepad();
-new Gamepad( [controllerOptions|Controller, ... ]Optional );
+new Gamepad( [{controllerOptions}|Controller, ...] );
 ```
 
 Accepts an argument Array of either controllerOptions or Controller instances  
-It automatically initializes (`init()`) its Controllers.
+It automatically creates and initializes (`init()`) its Controllers.
 
 ### Gamepad Methods
 
-| Method                        | Arguments                             | Description                                                |
-| ----------------------------- | ------------------------------------- | ---------------------------------------------------------- |
-| `add(object\|Controller)`     | controllerOptions or Controller       |                                                            |
-| `remove(string\|Controller)`  | controllerId or Controller            | destroy specific Controller                                |
-| `destroy(string\|Controller)` | (Optional) controllerId or Controller | Destroy all associated Controller instances                |
-| `requestFullScreen()`         |                                       | Invoke FullScreen API on first touch                       |
-| `exitFullScreen()`            |                                       | Revoke FullScreen API                                      |
-| `vibrate(number|array)`       | i.e: `200` or `[200,30,100,30,200]`   | *ms* vibration time, or Array of vibrate and pause pattern |
+| Method                           | Arguments                             | Description                                                   |
+| -------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
+| `add(object\|Controller,...)`    | controllerOptions or Controller       | Add and initialize controllers                                |
+| `remove(string\|Controller,...)` | controllerId or Controller            | Remove (and destroy) specific Controlles                      |
+| `destroy()`                      | (Optional) controllerId or Controller | Destroy all associated Controller instances                   |
+| `requestFullScreen()`            |                                       | Invoke FullScreen API<br>on first touch                       |
+| `exitFullScreen()`               |                                       | Revoke FullScreen API                                         |
+| `vibrate(number\|array)`         | i.e: `200` or `[200,30,100,30,200]`   | *ms* vibration time,<br>or Array of vibrate and pause pattern |
 
 Gamepad Methods are chainable, i.e: `.vibrate(400).destroy().exitFullScreen()`
 
@@ -143,25 +177,26 @@ like i.e:: `fireMissileButton: {...controllerOptions}`
 
 ### controllerOptions
 
-| Property           | Type    | Value                         | Description                                                 |
-| ------------------ | ------- | ----------------------------- | ----------------------------------------------------------- |
-| `id` **MANDATORY** | String  |                               | Mandatory unique ID name                                    |
-| `type`             | String  | `"button"`(Def.) `"joystick"` | Type of controller (Not necessary in standalone)            |
-| `axis`             | String  | `"all"`(Default) `"x"` `"y"`  | Movement axis constraint (Joystick)                         |
-| `fixed`            | Boolean | `true`                        | Set to `false` to change position on touch-start            |
-| `parent`           | String  | `"body"`                      | Parent Selector to insert into                              |
-| `position`         | Object  | `{top: "50%", left: "50%"}`   | Controller initial position inside Gamepad                  |
-| `radius`           | Number  | `50`                          | Controller radius in *px*                                   |
-| `spring`           | Object  | `true`                        | Set to `false` to keep state and values on touch-end/cancel |
-| `style`            | Object  | `{}`                          | Custom CSS styles                                           |
-| `text`             | String  | `""`                          | Button text or inner HTML                                   |
+| Property           | Type     | Value                         | Description                                                 |
+| ------------------ | -------- | ----------------------------- | ----------------------------------------------------------- |
+| `id` **MANDATORY** | String   |                               | Mandatory unique ID name                                    |
+| `type`             | String   | `"button"`(Def.) `"joystick"` | Type of controller (Not necessary in standalone)            |
+| `axis`             | String   | `"all"`(Default) `"x"` `"y"`  | Movement axis constraint (Joystick)                         |
+| `fixed`            | Boolean  | `true`                        | Set to `false` to change position on touch-start            |
+| `parent`           | String   | `"body"`                      | Parent Selector to insert into                              |
+| `position`         | Object   | `{top: "50%", left: "50%"}`   | Controller initial position inside Gamepad                  |
+| `radius`           | Number   | `50`                          | Controller radius in *px*                                   |
+| `spring`           | Object   | `true`                        | Set to `false` to keep state and values on touch-end/cancel |
+| `style`            | Object   | `{}`                          | Custom CSS styles                                           |
+| `text`             | String   | `""`                          | Button text or inner HTML                                   |
+| `onInput()`        | Function |                               | Callback on touch-start/move/end/cancel                     |
 
 ### Controller Methods
 
-| Method      | Type     | Description                             |
-| ----------- | -------- | --------------------------------------- |
-| `onInput()` | Function | Callback on touch-start/move/end/cancel |
-
+| Method       | Description                             |
+| ------------ | --------------------------------------- |
+| `init() `    | Manually initialize Controller instance |
+| `destroy() ` | Destroy Controller instance             |
 
 ***Notice:** 
 the `onInput()` will not be triggered on touch-end for controllers which property `spring` is set to `false`. 
@@ -173,22 +208,22 @@ Inside the `onInput()` method you can use the `this` to retrieve this various dy
 
 Alternatively, you can also use your Gamepad instance controllers like i.e: `const throttleVal = GP.controllers.throttle.value` (where `throttle` is the Controller ID you set when registering your controllers `{throttle: {...controllerOptions}}`)
 
-**Dynamic Controller properties and its values**:
 
-| Property        | Type    | Description                               |
-| --------------- | ------- | ----------------------------------------- |
-| `value`         | Number  | `0.0..1.0` (Joystick);  `0, 1` (Button)   |
-| `angle`         | Number  | Angle in radians (Joystick)               |
-| `isPress`       | Boolean | `true` on touch-start                     |
-| `isDrag`        | Boolean | `true` on touch-move (Joystick)           |
-| `isActive`      | Boolean | `true` if has "is-active" className       |
-| `x_start`       | Number  | *px* Relative x touch-start coordinates   |
-| `y_start`       | Number  | *px* Relative y touch-start coordinates   |
-| `x_drag`        | Number  | *px* Relative x touch-move coordinates    |
-| `y_drag`        | Number  | *px* Relative y touch-move coordinates    |
-| `x_diff`        | Number  | *px* Difference x from start and move     |
-| `y_diff`        | Number  | *px* Difference y from start and move     |
-| `distance_drag` | Number  | *px* Drag distance (capped to max radius) |
+| Property        | Type    | Description                                  |
+| --------------- | ------- | -------------------------------------------- |
+| `value`         | Number  | `0.0` - `1.0` (Joystick);  `0`, `1` (Button) |
+| `angle`         | Number  | Angle in radians (Joystick)                  |
+| `isPress`       | Boolean | `true` on touch-start                        |
+| `isDrag`        | Boolean | `true` on touch-move (Joystick)              |
+| `isActive`      | Boolean | `true` if has *"is-active"* className        |
+| `x_start`       | Number  | *px* Relative x touch-start coordinates      |
+| `y_start`       | Number  | *px* Relative y touch-start coordinates      |
+| `x_drag`        | Number  | *px* Relative x touch-move coordinates       |
+| `y_drag`        | Number  | *px* Relative y touch-move coordinates       |
+| `x_diff`        | Number  | *px* Difference x from start and move        |
+| `y_diff`        | Number  | *px* Difference y from start and move        |
+| `distance_drag` | Number  | *px* Drag distance (capped to max radius)    |
+
 
 **PS:**  
 Inspect your desired Controller ID to get more useful properties and values.
@@ -198,7 +233,7 @@ Inspect your desired Controller ID to get more useful properties and values.
 To preview all your Controllers instances:
 
 ```
-const GP = new Gamepad(gamepadOptions);
+const GP = new Gamepad(controllerOptions_move, controllerOptions_fire_1, ...);
 console.log(GP.controllers);
 ```
 
@@ -213,6 +248,41 @@ Object {
     settings: Button{}
 }
 ```
+
+## UI Strategies
+
+Controller's anchor points (`position`) are fixed by default. In such case you can set all your Controllers `parent` to the same DOM selector (i.e: `parent: "#app"`).  
+
+### Non-fixed controllers
+
+Some apps, games, are best experienced with **non-fixed Controllers** `fixed: false`.  
+Non-fixed controllers can change the position on screen depending on where the touch-start Event landed.  
+In such case, to prevent your controllers to overlap each-other the best strategy is to insert them into different parent Elements:
+
+```html
+<div id="app">
+  <div id="app-touchArea-left"></div>
+  <div id="app-touchArea-right"></div>
+</div>
+```
+
+```js
+new Gamepad([
+    {
+        id: "move",
+        parent: "#app-touchArea-left",
+        fixed: false,
+        //...
+    },
+    {
+        id: "fire",
+        parent: "#app-touchArea-right",
+        fixed: false,
+        //...
+    },
+]);
+```
+
 <hr>
 
 ## Development and Example demo
