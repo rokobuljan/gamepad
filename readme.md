@@ -184,7 +184,7 @@ like i.e:: `fireMissileButton: {...controllerOptions}`
 | `axis`             | String   | `"all"`(Default) `"x"` `"y"`  | Movement axis constraint (Joystick)                         |
 | `fixed`            | Boolean  | `true`                        | Set to `false` to change position on touch-start            |
 | `parent`           | String   | `"body"`                      | Parent Selector to insert into                              |
-| `position`         | Object   | `{top: "50%", left: "50%"}`   | Controller initial position inside Gamepad                  |
+| `position`         | Object   | `{top: "50%", left: "50%"}`   | Controller initial position inside parent                   |
 | `radius`           | Number   | `50`                          | Controller radius in *px*                                   |
 | `spring`           | Object   | `true`                        | Set to `false` to keep state and values on touch-end/cancel |
 | `style`            | Object   | `{}`                          | Custom CSS styles                                           |
