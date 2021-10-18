@@ -36,8 +36,8 @@ const GP = new Gamepad([
         onInput() { // Triggered on angle or value change.
             // // If you update your Player position and angle continuosly inside a
             // // requestAnimationFrame you're good to go with i.e:
-            // Payer.controller.value = this.value;
-            // Payer.controller.angle = this.angle;
+            // Player.controller.value = this.value;
+            // Player.controller.angle = this.angle;
             //
             // // otherwise use here something like:
             // Player.move(this.value, this.angle);
@@ -177,19 +177,19 @@ like i.e:: `fireMissileButton: {...controllerOptions}`
 
 ### controllerOptions
 
-| Property           | Type     | Value                         | Description                                                 |
-| ------------------ | -------- | ----------------------------- | ----------------------------------------------------------- |
-| `id` **MANDATORY** | String   |                               | Mandatory unique ID name                                    |
-| `type`             | String   | `"button"`(Def.) `"joystick"` | Type of controller (Not necessary in standalone)            |
-| `axis`             | String   | `"all"`(Default) `"x"` `"y"`  | Movement axis constraint (Joystick)                         |
-| `fixed`            | Boolean  | `true`                        | Set to `false` to change position on touch-start            |
-| `parent`           | String   | `"body"`                      | Parent Selector to insert into                              |
-| `position`         | Object   | `{top: "50%", left: "50%"}`   | Controller initial position inside parent                   |
-| `radius`           | Number   | `50`                          | Controller radius in *px*                                   |
-| `spring`           | Object   | `true`                        | Set to `false` to keep state and values on touch-end/cancel |
-| `style`            | Object   | `{}`                          | Custom CSS styles                                           |
-| `text`             | String   | `""`                          | Button text or inner HTML                                   |
-| `onInput()`        | Function |                               | Callback on touch-start/move/end/cancel                     |
+| Property           | Type     | Value                               | Description                                                 |
+| ------------------ | -------- | ----------------------------------- | ----------------------------------------------------------- |
+| `id` **MANDATORY** | String   |                                     | Mandatory unique ID name                                    |
+| `type`             | String   | `"button"`(Default)<br>`"joystick"` | Type of controller (Not necessary in standalone)            |
+| `axis`             | String   | `"all"`(Default)<br>`"x"`<br>`"y"`  | Movement axis constraint (Joystick)                         |
+| `fixed`            | Boolean  | `true`                              | Set to `false` to change position on touch-start            |
+| `parent`           | String   | `"body"`                            | Parent Selector to insert into                              |
+| `position`         | Object   | `{top: "50%", left: "50%"}`         | Controller initial position inside parent                   |
+| `radius`           | Number   | `50`                                | Controller radius in *px*                                   |
+| `spring`           | Object   | `true`                              | Set to `false` to keep state and values on touch-end/cancel |
+| `style`            | Object   | `{}`                                | Custom CSS styles                                           |
+| `text`             | String   | `""`                                | Button text or inner HTML                                   |
+| `onInput()`        | Function |                                     | Callback on touch-start/move/end/cancel                     |
 
 ### Controller Methods
 
