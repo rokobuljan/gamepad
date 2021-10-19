@@ -172,14 +172,12 @@ new Joystick({controllerOptions})
 new Button({controllerOptions})
 ```
 
-To create your **controllers** (Joysticks, Buttons), add to Gamepad's `controllers` Object any desired property ID for your controller (must be unique!) 
-like i.e:: `fireMissileButton: {...controllerOptions}`
 
 ### controllerOptions
 
 | Property           | Type     | Value                               | Description                                                 |
 | ------------------ | -------- | ----------------------------------- | ----------------------------------------------------------- |
-| `id` **MANDATORY** | String   |                                     | Mandatory unique ID name                                    |
+| `id` **MANDATORY** | String   |                                     | Unique ID name (Mandatory)                                              |
 | `type`             | String   | `"button"`(Default)<br>`"joystick"` | Type of controller (Not necessary in standalone)            |
 | `axis`             | String   | `"all"`(Default)<br>`"x"`<br>`"y"`  | Movement axis constraint (Joystick)                         |
 | `fixed`            | Boolean  | `true`                              | Set to `false` to change position on touch-start            |
