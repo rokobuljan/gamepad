@@ -144,7 +144,6 @@ engine();
 const GP = new Gamepad([
     {
         id: "move",
-        type: "joystick", // "joystick | button"
         parent: "#app-left",
         axis: "all",
         fixed: false,
@@ -160,6 +159,7 @@ const GP = new Gamepad([
     {
         id: "fire",
         parent: "#app-right",
+        type: "button",
         fixed: false,
         position: {
             right: "25%",
@@ -177,6 +177,7 @@ const GP = new Gamepad([
 const ControllerButtonSettings = new Button({
     id: "settings",
     parent: "#app",
+    type: "button",
     text: "☰",
     radius: 20,
     spring: false,

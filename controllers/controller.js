@@ -6,6 +6,9 @@
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
 
+const TAU = Math.PI * 2;
+const norm = (rad) => rad - TAU * Math.floor(rad / TAU);
+
 const isTouchable = ('ontouchstart' in window) ||
     (navigator.maxTouchPoints > 0) ||
     (navigator.msMaxTouchPoints > 0);
@@ -30,15 +33,12 @@ class Controller {
             position: { top: "50%", left: "50%" }, // For the anchor point
             fixed: true, // Set to false to change controller position on touch-down
             spring: true, // If true will reset/null value on touch-end, if set to false the button will act as a checkbox, or the joystick will not reset
-            style: {
-                color: "hsla(0, 90%, 100%, 0.5)",
-                border: "2px solid currentColor",
-            },
             isPress: false, // true if the controller is currently pressed
             isActive: false, // true if has "is-active" state / className 
             isDrag: false,
             value: 0,
             angle: 0,
+            angle_norm: 0,
             x_start: 0,
             y_start: 0,
             x_diff: 0,
@@ -49,6 +49,11 @@ class Controller {
             identifier: -1, // Touch finger identifier
             isInitialized: false,
         });
+        this.style = {
+            color: "hsla(0, 90%, 100%, 0.5)",
+            border: "2px solid currentColor",
+            ...this.style
+        };
         this.isJoystick = this.type === "joystick";
     }
 
@@ -110,8 +115,9 @@ class Controller {
         this.y_diff = this.y_drag - this.y_start;
         this.distance_drag = Math.min(this.radius, Math.sqrt(this.x_diff * this.x_diff + this.y_diff * this.y_diff));
 
-        // Finally set the angle:
-        this.angle = Math.atan2(this.y_diff, this.x_diff);
+        // Finally set the angle (normalized)
+        this.angle = norm(Math.atan2(this.y_diff, this.x_diff));
+        this.angle_norm = norm(this.angle);
         this.onMove();
     }
 

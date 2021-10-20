@@ -7,6 +7,7 @@ import { Button } from "./controllers/button.js";
 import { Joystick } from "./controllers/joystick.js";
 
 const isController = (ob) => ob instanceof Button || ob instanceof Joystick;
+const DEFAULT_TYPE = "joystick";
 
 class Gamepad {
     constructor(controllersArray) {
@@ -25,7 +26,7 @@ class Gamepad {
             if (isController(options)) {
                 controller = options;
             } else {
-                options.type = (options.type || "button").trim().toLowerCase();
+                options.type = (options.type || DEFAULT_TYPE).trim().toLowerCase();
                 controller = new {
                     button: Button,
                     joystick: Joystick,

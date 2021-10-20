@@ -26,7 +26,7 @@ import { Gamepad } from "./gamepad.js";
 const GP = new Gamepad([
     {
         id: "controller-move", // MANDATORY
-        type: "joystick", 
+        // type: "joystick", // Optional (Default is "joystick")
         parent: "#app-left", // Where to append the controller
         fixed: false, // Change position on touch-start
         position: { // Initial position on inside parent
@@ -45,7 +45,7 @@ const GP = new Gamepad([
         }
     }, { 
         id: "controller-fire", // MANDATORY
-        // type is "button" by default 
+        type: "button", // Since type is "joystick" by default 
         parent: "#app-right",
         position: { // Anchor point position
             right: "15%",
@@ -177,8 +177,8 @@ new Button({controllerOptions})
 
 | Property           | Type     | Value                               | Description                                                 |
 | ------------------ | -------- | ----------------------------------- | ----------------------------------------------------------- |
-| `id` **MANDATORY** | String   |                                     | Unique ID name (Mandatory)                                              |
-| `type`             | String   | `"button"`(Default)<br>`"joystick"` | Type of controller (Not necessary in standalone)            |
+| `id` **MANDATORY** | String   |                                     | Unique ID name (Mandatory)                                  |
+| `type`             | String   | `"joystick"`(Default)<br>`"button"` | Type of controller (Not necessary in standalone)            |
 | `axis`             | String   | `"all"`(Default)<br>`"x"`<br>`"y"`  | Movement axis constraint (Joystick)                         |
 | `fixed`            | Boolean  | `true`                              | Set to `false` to change position on touch-start            |
 | `parent`           | String   | `"body"`                            | Parent Selector to insert into                              |
@@ -211,6 +211,7 @@ Alternatively, you can also use your Gamepad instance controllers like i.e: `con
 | --------------- | ------- | -------------------------------------------- |
 | `value`         | Number  | `0.0` - `1.0` (Joystick);  `0`, `1` (Button) |
 | `angle`         | Number  | Angle in radians (Joystick)                  |
+| `angle_norm`    | Number  | Normalized Angle in radians (Joystick)       |
 | `isPress`       | Boolean | `true` on touch-start                        |
 | `isDrag`        | Boolean | `true` on touch-move (Joystick)              |
 | `isActive`      | Boolean | `true` if has *"is-active"* className        |
