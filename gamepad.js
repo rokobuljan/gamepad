@@ -10,7 +10,7 @@ const isController = (ob) => ob instanceof Button || ob instanceof Joystick;
 const DEFAULT_TYPE = "joystick";
 
 class Gamepad {
-    constructor(controllersArray) {
+    constructor(controllersArray = []) {
         this.controllers = {};
         controllersArray.forEach(options => this.add(options));
     }
