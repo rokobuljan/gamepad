@@ -1,6 +1,6 @@
 {
     "name": "@rbuljan/gamepad",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Multi-touch gamepad with buttons and joystick for JavaScript games, apps, IOT",
     "main": "gamepad.js",
     "scripts": {
@@ -10,15 +10,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/rokobuljan/gamepad.js.git"
+        "url": "git+https://github.com/rokobuljan/gamepad.git"
     },
     "keywords": ["Gamepad", "Joystick", "Controller", "Touch", "Games", "IOT"],
     "author": "rbuljan",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/rokobuljan/gamepad.js/issues"
+        "url": "https://github.com/rokobuljan/gamepad/issues"
     },
-    "homepage": "https://github.com/rokobuljan/gamepad.js#readme",
+    "homepage": "https://github.com/rokobuljan/gamepad#readme",
     "devDependencies": {
         "sass": "^1.42.1",
         "vite": "^2.6.5"
