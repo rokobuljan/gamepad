@@ -1,7 +1,7 @@
 {
     "name": "@rbuljan/gamepad",
-    "version": "1.0.0",
-    "description": "Multi-touch gamepad with **buttons** and **joystick** for JavaScript games, apps, IOT",
+    "version": "1.0.1",
+    "description": "Multi-touch gamepad with buttons and joystick for JavaScript games, apps, IOT",
     "main": "gamepad.js",
     "scripts": {
         "dev": "vite",
