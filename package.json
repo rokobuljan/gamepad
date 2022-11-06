@@ -12,9 +12,9 @@
         "type": "git",
         "url": "git+https://github.com/rokobuljan/gamepad.js.git"
     },
-    "keywords": [],
+    "keywords": ["Gamepad", "Joystick", "Controller", "Touch", "Games", "IOT"],
     "author": "rbuljan",
-    "license": "ISC",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/rokobuljan/gamepad.js/issues"
     },
