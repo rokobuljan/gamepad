@@ -1,22 +1,18 @@
 # Gamepad
 
-Your virtual multi-touch Gamepad with **buttons** and **joystick**!   
-For JavaScript games, apps and IOT!  
+Your virtual multi-touch Gamepad with **buttons** and **joystick** for JavaScript games, apps and IOT!  
 
-
-
-![JavaScript Virtual Gamepad Controller With Joystick](example/gamepad-js.png)
+![JavaScript Virtual Gamepad Controller With Joystick](https://raw.githubusercontent.com/rokobuljan/gamepad/main/example/gamepad-js.png)
 
 ## Getting Started
 
 The `Gamepad` instance is a handy wrapper for all your `Joystick` and `Button` Controllers.  
 Although is optional (you can use the Joystick and Button Controllers as standalone) it comes of great use when building an app where you need to often change your different Gamepads. Take for example: Game-Menu vs. In-Game, or an app that has multiple games where each requires a different Gamepad.  
 
-Both Joystick and Button Controllers are fixed and static on their anchor points defined by the `position` property, but can be set to `fixed: false` and will reposition on touch.   
+Both Joystick and Button Controllers are fixed and static on their anchor points defined by the `position` property, but can be set to `fixed: false` and will reposition on touch.
 
-The Joystick, even if left fixed, its parent Element will act as the touch-start pivot. 
+The Joystick, even if left fixed, its parent Element will act as the touch-start pivot.
 (This option might change in a future release)
-
 
 **Usage**
 
@@ -172,7 +168,6 @@ new Joystick({controllerOptions})
 new Button({controllerOptions})
 ```
 
-
 ### controllerOptions
 
 | Property           | Type     | Value                               | Description                                                 |
@@ -193,19 +188,17 @@ new Button({controllerOptions})
 
 | Method       | Description                             |
 | ------------ | --------------------------------------- |
-| `init() `    | Manually initialize Controller instance |
-| `destroy() ` | Destroy Controller instance             |
+| `init()`    | Manually initialize Controller instance |
+| `destroy()` | Destroy Controller instance             |
 
-***Notice:** 
-the `onInput()` will not be triggered on touch-end for controllers which property `spring` is set to `false`. 
+***Notice:**
+the `onInput()` will not be triggered on touch-end for controllers which property `spring` is set to `false`.
 
 ## Controller output values
 
 Inside the `onInput()` method you can use the `this` to retrieve this various dynamic values.  
 
-
 Alternatively, you can also use your Gamepad instance controllers like i.e: `const throttleVal = GP.controllers.throttle.value` (where `throttle` is the Controller ID you set when registering your controllers `{throttle: {...controllerOptions}}`)
-
 
 | Property        | Type    | Description                                  |
 | --------------- | ------- | -------------------------------------------- |
@@ -223,23 +216,20 @@ Alternatively, you can also use your Gamepad instance controllers like i.e: `con
 | `y_diff`        | Number  | *px* Difference y from start and move        |
 | `distance_drag` | Number  | *px* Drag distance (capped to max radius)    |
 
-
 **PS:**  
 Inspect your desired Controller ID to get more useful properties and values.
 
-
-
 To preview all your Controllers instances:
 
-```
+```js
 const GP = new Gamepad(controllerOptions_move, controllerOptions_fire_1, ...);
 console.log(GP.controllers);
 ```
 
-which will give you your controllers IDs followed by their respective Controller Subclasses.   
+which will give you your controllers IDs followed by their respective Controller Subclasses.
 Like: i.e:
 
-```
+```js
 Object {
     move: Joystick{},
     fire_1: Button{},
@@ -282,7 +272,7 @@ new Gamepad([
 ]);
 ```
 
-<hr>
+___
 
 ## Development and Example demo
 
@@ -300,16 +290,15 @@ Since **only touch events are supported**: open Dev tools, inspect, and set prev
 
 ### Test example demo from handheld device
 
-To test the example demo from a mobile device: 
+To test the example demo from a mobile device:
 
 - Run `npm run dev`
-- Set your Mobile device Settings Developer Mode ON, and turn ON **_USB Debugging_** mode  
+- Set your Mobile device Settings Developer Mode ON, and turn ON **USB Debugging** mode  
 - In your computer find your IPv4 Address using `ipconfig` or `ifconfig` from terminal.
-- Head to Chrome on your mobile to that address, i.e: http://192.168.8.106:3000/
+- Head to Chrome on your mobile to that address, i.e: <http://192.168.8.106:3000/>
 - On your computer, open chrome://inspect/#devices and wait for your device and chrome tab to appear
-- Hit: the button **_inspect fallback_**
+- Hit: the button **inspect fallback**
 
 ## Licence
 
 MIT
-
