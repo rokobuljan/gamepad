@@ -9,10 +9,6 @@ const EL = (sel, PAR) => (PAR || document).querySelector(sel);
 const TAU = Math.PI * 2;
 const norm = (rad) => rad - TAU * Math.floor(rad / TAU);
 
-const isTouchable = ('ontouchstart' in window) ||
-    (navigator.maxTouchPoints > 0) ||
-    (navigator.msMaxTouchPoints > 0);
-
 const pointer = {
     down: "touchstart",
     up: "touchend",
@@ -62,7 +58,7 @@ class Controller {
     onEnd() { }
 
     // Get relative mouse coordinates 
-    getMouseXY(evt) {
+    getPointerXY(evt) {
         const { clientX, clientY } = evt;
         const { left, top } = this.el_parent.getBoundingClientRect();
         return { x: clientX - left, y: clientY - top };
@@ -78,7 +74,9 @@ class Controller {
         const tou = evt.changedTouches[0];
         if (!tou) return;
 
-        const { x, y } = this.getMouseXY(tou);
+        evt.preventDefault();
+
+        const { x, y } = this.getPointerXY(tou);
 
         this.isPress = true;
         this.isActive = this.spring ? true : !this.isActive;
@@ -94,19 +92,18 @@ class Controller {
 
         this.el.classList.toggle("is-active", this.isJoystick ? this.isPress : this.isActive);
 
-
         this.onStart();
     }
 
     handleMove(evt) {
-        evt.preventDefault();
-
         if (!this.isPress || this.identifier < 0) return;
 
         const tou = [...evt.changedTouches].filter(ev => ev.identifier === this.identifier)[0];
         if (!tou) return;
 
-        const { x, y } = this.getMouseXY(tou);
+        evt.preventDefault();
+
+        const { x, y } = this.getPointerXY(tou);
 
         this.isDrag = true;
         this.x_drag = x;
