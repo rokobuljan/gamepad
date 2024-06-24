@@ -71,8 +71,6 @@ class Controller {
         // If a Gamepad Button was touched, don't do anything with the Joystick
         if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
 
-        console.log(evt);
-
         evt.preventDefault();
 
         this.el_parent.setPointerCapture(evt.pointerId);
