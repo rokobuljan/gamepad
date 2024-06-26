@@ -192,7 +192,7 @@ class Controller {
         // Add styles - Controller
         Object.assign(this.el.style, styles);
 
-        // Insert Elements
+        // Insert Elements to DOM
         this.el_anchor.append(this.el);
         this.el_parent.append(this.el_anchor);
 
@@ -206,12 +206,16 @@ class Controller {
     }
 
     destroy() {
+    
+        // Events
         const el_evt_starter = this.isJoystick || !this.fixed ? this.el_parent : this.el;
         el_evt_starter.removeEventListener("pointerdown", this.handleStart, { passive: false });
         if (this.isJoystick) this.el_parent.removeEventListener("pointermove", this.handleMove, { passive: false });
         this.el_parent.removeEventListener("pointerup", this.handleEnd);
         this.el_parent.removeEventListener("pointercancel", this.handleEnd);
         this.el_parent.removeEventListener("contextmenu", this._noDefault);
+
+        // Remove element from DOM
         this.el_anchor.remove();
     }
 }
