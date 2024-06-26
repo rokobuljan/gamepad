@@ -176,8 +176,6 @@ const GP = new Gamepad([
         },
         onInput() {
             if (!this.value) return;
-            console.log(this);
-
             PL.fire();
             GP.vibrate(100);
         },
@@ -206,10 +204,7 @@ const ControllerButtonSettings = new Button({
     }
 });
 
-console.log(GP.controllers);
-
 GP.add(ControllerButtonSettings);
+ControllerButtonSettings.init();
 
 // GP.requestFullScreen();
-
-ControllerButtonSettings.init();

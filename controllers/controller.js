@@ -10,6 +10,7 @@ const TAU = Math.PI * 2;
 const norm = (rad) => rad - TAU * Math.floor(rad / TAU);
 
 class Controller {
+
     constructor(options) {
 
         if (!options.id) return console.error("Gamepad: Controller is missing a unique ID");
@@ -50,8 +51,8 @@ class Controller {
     onMove() { }
     onEnd() { }
 
-    _noDefault(evt) {
-        evt.preventDefault()
+    _noDefault = (evt) => {
+        evt.preventDefault();
     }
 
     // Get relative mouse coordinates 
@@ -64,7 +65,7 @@ class Controller {
         };
     }
 
-    handleStart(evt) {
+    handleStart = (evt) => {
 
         // Is already assigned? Do nothing
         if (this.identifier > -1) return;
@@ -94,7 +95,7 @@ class Controller {
         this.onStart();
     }
 
-    handleMove(evt) {
+    handleMove = (evt) => {
 
         if (!this.el_parent.hasPointerCapture(evt.pointerId) || !this.isPress || this.identifier < 0) return;
 
@@ -115,7 +116,7 @@ class Controller {
         this.onMove();
     }
 
-    handleEnd(evt) {
+    handleEnd = (evt) => {
 
         // If touch was not registered on touch-start - do nothing
         if (this.identifier < 0) return;
@@ -194,11 +195,6 @@ class Controller {
         this.el_parent.append(this.el_anchor);
 
         // Events
-
-        this.handleStart = this.handleStart.bind(this);
-        this.handleMove = this.handleMove.bind(this);
-        this.handleEnd = this.handleEnd.bind(this);
-
         const el_evt_starter = this.isJoystick || !this.fixed ? this.el_parent : this.el;
         el_evt_starter.addEventListener("pointerdown", this.handleStart, { passive: false });
         if (this.isJoystick) this.el_parent.addEventListener("pointermove", this.handleMove, { passive: false });
