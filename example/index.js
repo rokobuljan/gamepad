@@ -52,7 +52,9 @@ class Player {
         }
 
         // Rotation
-        this.angle = lerpAngles(this.angle, this.controller.angle, 0.07);
+        if (this.speed) {
+            this.angle = lerpAngles(this.angle, this.controller.angle, 0.07);
+        }
 
         // Position
         this.x += Math.cos(this.angle) * this.speed;
@@ -163,7 +165,6 @@ const GP = new Gamepad([
         onInput() {
             PL.controller.value = this.value;
             PL.controller.angle = this.angle;
-            console.log(1);
         }
     },
     {
