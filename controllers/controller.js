@@ -44,13 +44,17 @@ class Controller {
             ...this.style
         };
         this.isJoystick = this.type === "joystick";
+
+        this.handleStart = this.handleStart.bind(this);
+        this.handleMove = this.handleMove.bind(this);
+        this.handleEnd = this.handleEnd.bind(this);
     }
 
     onStart() { }
     onMove() { }
     onEnd() { }
 
-    _noDefault (evt) {
+    _noDefault(evt) {
         evt.preventDefault();
     }
 
@@ -64,7 +68,7 @@ class Controller {
         };
     }
 
-    handleStart = (evt) => {
+    handleStart(evt) {
 
         // Is already assigned? Do nothing
         if (this.identifier > -1) return;
@@ -94,7 +98,7 @@ class Controller {
         this.onStart();
     }
 
-    handleMove = (evt) => {
+    handleMove(evt) {
 
         if (!this.el_parent.hasPointerCapture(evt.pointerId) || !this.isPress || this.identifier < 0) return;
 
@@ -114,7 +118,7 @@ class Controller {
         this.onMove();
     }
 
-    handleEnd = (evt) => {
+    handleEnd(evt) {
 
         // If touch was not registered on touch-start - do nothing
         if (this.identifier < 0) return;

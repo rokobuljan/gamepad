@@ -163,6 +163,7 @@ const GP = new Gamepad([
         onInput() {
             PL.controller.value = this.value;
             PL.controller.angle = this.angle;
+            console.log(1);
         }
     },
     {
@@ -203,6 +204,69 @@ const ControllerButtonSettings = new Button({
         EL("#app-menu").classList.toggle("is-active", this.isActive);
     }
 });
+
+console.log(GP.controllers.move);
+
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
+GP.controllers.move.destroy();
+GP.controllers.move.init();
 
 GP.add(ControllerButtonSettings);
 ControllerButtonSettings.init();
