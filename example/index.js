@@ -48,11 +48,11 @@ class Player {
         // Bring to hault
         if (this.speed && this.speed < 0.1 && !maxSpeed) {
             this.speed = 0;
-            // mycontroller.vibrate(100); // vibrate for 200ms
+            // GP.vibrate(100); // vibrate Gamepad for 200ms
         }
 
-        // Rotation
-        if (this.speed) {
+        // Rotation (only if there's thrust)
+        if (this.controller.value > 0.15) {
             this.angle = lerpAngles(this.angle, this.controller.angle, 0.07);
         }
 
@@ -150,7 +150,6 @@ engine();
 
 
 // GAMEPAD EXAMPLE:
-
 
 const GP = new Gamepad([
     {
