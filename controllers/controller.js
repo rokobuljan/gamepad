@@ -28,7 +28,6 @@ class Controller {
             isDrag: false,
             value: 0,
             angle: 0,
-            angle_norm: 0,
             x_start: 0,
             y_start: 0,
             x_diff: 0,
@@ -51,7 +50,7 @@ class Controller {
     onMove() { }
     onEnd() { }
 
-    _noDefault = (evt) => {
+    _noDefault (evt) {
         evt.preventDefault();
     }
 
@@ -112,7 +111,6 @@ class Controller {
 
         // Finally set the angle (normalized)
         this.angle = norm(Math.atan2(this.y_diff, this.x_diff));
-        this.angle_norm = norm(this.angle);
         this.onMove();
     }
 

@@ -203,8 +203,7 @@ Alternatively, you can also use your Gamepad instance controllers like i.e: `con
 | Property        | Type    | Description                                  |
 | --------------- | ------- | -------------------------------------------- |
 | `value`         | Number  | `0.0` - `1.0` (Joystick);  `0`, `1` (Button) |
-| `angle`         | Number  | Angle in radians (Joystick)                  |
-| `angle_norm`    | Number  | Normalized Angle in radians (Joystick)       |
+| `angle`         | Number  | Normalized Angle in radians (Joystick)       |
 | `isPress`       | Boolean | `true` on touch-start                        |
 | `isDrag`        | Boolean | `true` on touch-move (Joystick)              |
 | `isActive`      | Boolean | `true` if has *"is-active"* className        |
