@@ -5,6 +5,12 @@ const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
 const EL_app = EL("#app");
 
+const lerpAngles = (A, B, w) => {
+    const CS = (1 - w) * Math.cos(A) + w * Math.cos(B);
+    const SN = (1 - w) * Math.sin(A) + w * Math.sin(B);
+    return Math.atan2(SN, CS);
+};
+
 /**
  * Example:
  */
@@ -20,7 +26,9 @@ class Player {
             speed_max: 5,
             controller: { angle: 0, value: 0 },
             canFire: true,
-        }, options);
+        }, options, {
+            angleTarget: 0,
+        });
 
         this.EL = ELNew("div", { className: "player" });
         EL_app.append(this.EL);
@@ -43,16 +51,17 @@ class Player {
             // mycontroller.vibrate(100); // vibrate for 200ms
         }
 
-        this.x += Math.cos(this.controller.angle) * this.speed;
-        this.y += Math.sin(this.controller.angle) * this.speed;
+        // Rotation
+        this.angle = lerpAngles(this.angle, this.controller.angle, 0.07);
+
+        // Position
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
 
         const bcr_app = EL_app.getBoundingClientRect();
         // edge collision  
         this.x = Math.max(0, Math.min(bcr_app.width - this.radius, this.x));
         this.y = Math.max(0, Math.min(bcr_app.height - this.radius, this.y));
-
-        // Rotation
-        this.angle = this.controller.angle;
 
         // DRAW
         this.EL.style.cssText = `
