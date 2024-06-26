@@ -155,6 +155,7 @@ It automatically creates and initializes (`init()`) its Controllers.
 | `destroy()`                      | (Optional) controllerId or Controller | Destroy all associated Controller instances                   |
 | `requestFullScreen()`            |                                       | Invoke FullScreen API<br>on first touch                       |
 | `exitFullScreen()`               |                                       | Revoke FullScreen API                                         |
+| `isVibrationSupported()`         |                                       | Returns Boolean, `true` is Navigator supports vibration       |
 | `vibrate(number\|array)`         | i.e: `200` or `[200,30,100,30,200]`   | *ms* vibration time,<br>or Array of vibrate and pause pattern |
 
 Gamepad Methods are chainable, i.e: `.vibrate(400).destroy().exitFullScreen()`

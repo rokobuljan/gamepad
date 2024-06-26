@@ -18,7 +18,7 @@ class Gamepad {
     /**
      * Add Controller to Gamepad
      * @param {object|Controller} options controllerOptions or a Button or Joystick Controller instance.
-     * @returns Gamepad
+     * @returns {Gamepad}
      */
     add(...args) {
         args.forEach((options) => {
@@ -33,7 +33,7 @@ class Gamepad {
                 }[options.type](options);
             }
             this.controllers[controller.id] = controller;
-    
+
             // Initialize Controller
             controller.init();
         });
@@ -44,7 +44,7 @@ class Gamepad {
     /**
      * Remove/destroy controller by ID
      * @param {string} id Controller ID to remove
-     * @returns Gamepad
+     * @returns {Gamepad}
      */
     remove(...args) {
         args.forEach((id) => {
@@ -60,7 +60,7 @@ class Gamepad {
     /**
      * Remove/destroy all controllers (or one by ID)
      * @param {string|Controller} id (Optional) Controller ID or Controller instance
-     * @returns Gamepad
+     * @returns {Gamepad}
      */
     destroy(id) {
         // Destroy only one controller
@@ -76,11 +76,11 @@ class Gamepad {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
         }
-    }    
+    }
 
     /**
      * Call this function to add a listener to request Fullscreen API
-     * @returns Gamepad
+     * @returns {Gamepad}
      */
     requestFullScreen() {
         document.querySelector("body").addEventListener("click", this.handleFullscreen);
@@ -98,14 +98,22 @@ class Gamepad {
     }
 
     /**
+     * Check if Navigator supports vibration
+     * @returns {boolean} True if vibration is supported
+     */
+    isVibrationSupported() {
+        return (window.navigator && "vibrate" in window.navigator);
+    }
+
+    /**
      * Vibrate Gamepad!
      * Use a milliseconds integer or an array of pattern like: [200,30,100,30,200]
      * where 30 is the pause in ms.
      * @param {number|array} vibrationPattern 
-     * @returns Gamepad
+     * @returns {Gamepad}
      */
     vibrate(vibrationPattern) {
-        if ("navigator" in window) navigator.vibrate(vibrationPattern);
+        if (this.isVibrationSupported()) window.navigator.vibrate(vibrationPattern);
         return this;
     }
 }
