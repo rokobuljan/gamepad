@@ -59,27 +59,31 @@ class Gamepad {
 
     /**
      * Remove/destroy all controllers (or one by ID)
-     * @param {string|Controller} id (Optional) Controller ID
+     * @param {string|Controller} id (Optional) Controller ID or Controller instance
      * @returns Gamepad
      */
     destroy(id) {
-        // Remove one
+        // Destroy only one controller
         if (id) return this.remove(id);
-        // Remove all controllers
+        // Destroy all controllers
         Object.keys(this.controllers).forEach((id) => this.remove(id));
+        // Remove events
+        document.querySelector("body").removeEventListener("click", this.handleFullscreen);
         return this;
     }
+
+    handleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        }
+    }    
 
     /**
      * Call this function to add a listener to request Fullscreen API
      * @returns Gamepad
      */
     requestFullScreen() {
-        document.querySelector("body").addEventListener("click", (evt) => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            }
-        });
+        document.querySelector("body").addEventListener("click", this.handleFullscreen);
         return this;
     }
 
