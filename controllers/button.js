@@ -27,14 +27,6 @@ class Button extends Controller {
 
         this.onInput();
     }
-
-    init() {
-        super.init();
-    }
-
-    destroy() {
-        super.destroy();
-    }
 }
 
 export { Button };

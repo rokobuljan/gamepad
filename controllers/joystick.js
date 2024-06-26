@@ -87,10 +87,6 @@ class Joystick extends Controller {
         Object.assign(this.el_handle.style, styles);
         this.el.append(this.el_handle);
     }
-
-    destroy() {
-        super.destroy.call(this);
-    }
 }
 
 export { Joystick };
