@@ -186,6 +186,7 @@ class Controller {
             width: "0",
             height: "0",
             userSelect: "none",
+            touchAction: "none",
             ...this.position
         });
 
