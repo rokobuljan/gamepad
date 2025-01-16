@@ -6,23 +6,35 @@ Your virtual multi-touch Gamepad with **buttons** and **joystick** for JavaScrip
 
 ## Getting Started
 
+
 The `Gamepad` instance is a handy wrapper for all your `Joystick` and `Button` Controllers.  
-Although is optional (you can use the Joystick and Button Controllers as standalone) it comes of great use when building an app where you need to often change your different Gamepads. Take for example: Game-Menu vs. In-Game, or an app that has multiple games where each requires a different Gamepad.  
+Although `Gamepad` is optional (you can use the exposed `Joystick` and `Button` Controllers as standalone) it comes of great use when building an app where you need to often change your different Gamepads. Take for example: Game-Menu vs. In-Game, or an app that has multiple games where each requires a different Gamepad.  
 
 Both Joystick and Button Controllers are fixed and static on their anchor points defined by the `position` property, but can be set to `fixed: false` and will reposition on touch.
 
 The Joystick, even if left fixed, its parent Element will act as the touch-start pivot.
 (This option might change in a future release)
 
-**Usage**
+
+## Install
+
+Using NPM:
+
+```sh
+npm install @rbuljan/gamepad
+```
+
+## Usage
+
+### Gamepad Instance with controllers
 
 ```js
-import { Gamepad } from "./gamepad.js";
+import { Gamepad } from "@rbuljan/gamepad";
 
 const GP = new Gamepad([
     {
-        id: "controller-move", // MANDATORY
-        // type: "joystick", // Optional (Default is "joystick")
+        type: "joystick", // Optional (Default is "joystick")
+        id: "controller-move", // MANDATORY!
         parent: "#app-left", // Where to append the controller
         fixed: false, // Change position on touch-start
         position: { // Initial position on inside parent
@@ -40,8 +52,8 @@ const GP = new Gamepad([
             // to update your player position when the Controller triggers onInput
         }
     }, { 
-        id: "controller-fire", // MANDATORY
         type: "button", // Since type is "joystick" by default 
+        id: "controller-fire", // MANDATORY!
         parent: "#app-right",
         position: { // Anchor point position
             right: "15%",
@@ -68,7 +80,7 @@ console.log(GP.controllers); // {"controller-move: Joystick{}, "controller-fire"
 `Joystick` and `Button` Controllers can be also used as **standalone** (without the Gamepad *wrapper*)
 
 ```js
-import { Joystick, Button } from "./gamepad.js";
+import { Joystick, Button } from "@rbuljan/gamepad";
 
 const ControllerPanorama = new Joystick({
     id: "joystick-panorama",
@@ -116,7 +128,7 @@ or rather - add them to an existing **Gamepad instance** to initialize them auto
 ```js
 // ... instead of using .init() ...
 
-import { Gamepad } from "./gamepad.js";
+import { Gamepad } from "@rbuljan/gamepad";
 const GP = new Gamepad();
 
 GP.add(ControllerPanorama, ControllerMenu);
