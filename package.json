@@ -12,7 +12,14 @@
         "type": "git",
         "url": "git+https://github.com/rokobuljan/gamepad.git"
     },
-    "keywords": ["Gamepad", "Joystick", "Controller", "Touch", "Games", "IOT"],
+    "keywords": [
+        "Gamepad",
+        "Joystick",
+        "Controller",
+        "Touch",
+        "Games",
+        "IOT"
+    ],
     "author": "rbuljan",
     "license": "MIT",
     "bugs": {
@@ -21,6 +28,6 @@
     "homepage": "https://github.com/rokobuljan/gamepad#readme",
     "devDependencies": {
         "sass": "^1.42.1",
-        "vite": "^2.6.5"
+        "vite": "^6.0.7"
     }
 }
