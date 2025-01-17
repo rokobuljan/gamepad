@@ -1,5 +1,5 @@
-import './style.scss'
-import { Gamepad, Joystick, Button } from "../gamepad.js";
+import "./style.css";
+import { Gamepad, Button } from "../gamepad.js";
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
@@ -17,13 +17,12 @@ const lerpAngles = (A, B, w) => {
 class Player {
     constructor(options) {
         Object.assign(this, {
-            id: "",
             x: 100,
             y: 100,
             radius: 40,
             angle: 0,
             speed: 0,
-            speed_max: 5,
+            speedMax: 5,
             controller: { angle: 0, value: 0 },
             canFire: true,
         }, options, {
@@ -37,7 +36,7 @@ class Player {
     move() {
 
         // Throttle:
-        const maxSpeed = this.speed_max * this.controller.value;
+        const maxSpeed = this.speedMax * this.controller.value;
 
         // Start moving
         if (maxSpeed && !this.speed) this.speed = 0.2;
@@ -91,7 +90,7 @@ class Weapon {
             angle: 0,
             speed: 6,
         }, props, {
-            speed_max: 13,
+            speedMax: 13,
             life: 190,
             fireRate: 10,
             fireCoolDown: 0,
@@ -109,7 +108,7 @@ class Weapon {
         // Accelerate
         this.speed *= 1.1;
         // Top speed
-        this.speed = Math.min(this.speed, this.speed_max);
+        this.speed = Math.min(this.speed, this.speedMax);
         // Position
         this.x += Math.cos(this.angle) * this.speed;
         this.y += Math.sin(this.angle) * this.speed;

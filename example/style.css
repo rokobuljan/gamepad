@@ -13,7 +13,6 @@ body {
 
 #app {
     touch-action: none;
-
     position: absolute;
     display: flex;
     left: 0;
@@ -32,26 +31,26 @@ body {
         radial-gradient(ellipse at 90% 90%, #8f2746 0%, transparent 55%),
         radial-gradient(ellipse at 90% 10%, #395aac 0%, transparent 55%),
         radial-gradient(ellipse at 10% 10%, #35244f 0%, transparent 55%);
+}
 
-    &-left {
-        position: relative;
-        flex: 1;
-    }
+#app-left {
+    position: relative;
+    flex: 1;
+}
 
-    &-right {
-        position: relative;
-        flex: 1;
-    }
+#app-right {
+    position: relative;
+    flex: 1;
+}
 
-    &-menu {
-        pointer-events: none;
-        position: absolute;
-        padding: 20px;
-        visibility: hidden;
+#app-menu {
+    pointer-events: none;
+    position: absolute;
+    padding: 20px;
+    visibility: hidden;
 
-        &.is-active {
-            visibility: visible;
-        }
+    &.is-active {
+        visibility: visible;
     }
 }
 

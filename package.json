@@ -27,7 +27,6 @@
     },
     "homepage": "https://github.com/rokobuljan/gamepad#readme",
     "devDependencies": {
-        "sass": "^1.42.1",
         "vite": "^6.0.7"
     }
 }
