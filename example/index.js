@@ -183,6 +183,7 @@ const GP = new Gamepad([
         {
             radius: 60,
             fixed: true,
+            text: "F",
             position: {
                 right: "25%",
                 bottom: "50%",
