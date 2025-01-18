@@ -99,6 +99,6 @@ export class Joystick extends Controller {
         };
 
         Object.assign(this.elementKnob.style, styles);
-        this.gamepadController.append(this.elementKnob);
+        this.gamepadControllerElement.append(this.elementKnob);
     }
 }

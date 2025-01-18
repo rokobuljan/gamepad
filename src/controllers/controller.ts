@@ -13,7 +13,6 @@ export interface ControllerOptions {
     radius: number;
     position?: Position;
     style?: Partial<CSSStyleDeclaration>;
-    // TODO: fix fixed. fow now not available
     fixed?: boolean;
     axis?: ControllerAxisType;
     onInput?: (state: ControllerState) => void;
@@ -54,8 +53,8 @@ export enum ControllerAxisType {
 }
 
 export class Controller {
-    controllerContainer!: HTMLElement;
-    gamepadController!: HTMLElement;
+    anchorElement!: HTMLElement;
+    gamepadControllerElement!: HTMLElement;
 
     isJoystick: boolean;
     options: ControllerOptions;
@@ -78,6 +77,7 @@ export class Controller {
         pointerIdentifier: -1,
         isInitialized: false,
     };
+    parentElement: HTMLElement;
 
     constructor(options: ControllerOptions, private type: ControllerType) {
         this.options = {
@@ -104,18 +104,19 @@ export class Controller {
         this.handleMove = this.handleMove.bind(this);
         this.handleEnd = this.handleEnd.bind(this);
 
-        this.controllerContainer = createElement("div", {
-            className: "Gamepad-anchor",
-        });
-
         let axisName = ControllerAxisType[this.type];
 
-        this.gamepadController = createElement("div", {
+        this.parentElement = this.options.parentElement;
+        this.anchorElement = createElement("div", {
+            className: "Gamepad-anchor",
+        });
+        this.gamepadControllerElement = createElement("div", {
             id: this.options.elementId,
             innerHTML: this.options.text,
             className: `Gamepad-controller Gamepad-${axisName} axis-${axisName}`,
         });
     }
+
     onInput() {
         if (this.options.onInput) {
             this.options.onInput(this.state);
@@ -133,7 +134,7 @@ export class Controller {
     // Get relative mouse coordinates
     getPointerXY(evt: PointerEvent) {
         const { clientX, clientY } = evt;
-        const { left, top } = this.gamepadController.getBoundingClientRect();
+        const { left, top } = this.parentElement.getBoundingClientRect();
         return {
             x: clientX - left,
             y: clientY - top,
@@ -154,7 +155,7 @@ export class Controller {
 
         evt.preventDefault();
 
-        this.gamepadController.setPointerCapture(evt.pointerId);
+        this.parentElement.setPointerCapture(evt.pointerId);
 
         const { x, y } = this.getPointerXY(evt);
 
@@ -166,11 +167,11 @@ export class Controller {
         this.state.y_start = y;
 
         if (!this.options.fixed) {
-            this.gamepadController.style.left = `${this.state.x_start}px`;
-            this.gamepadController.style.top = `${this.state.y_start}px`;
+            this.anchorElement.style.left = `${this.state.x_start}px`;
+            this.anchorElement.style.top = `${this.state.y_start}px`;
         }
 
-        this.gamepadController.classList.toggle(
+        this.gamepadControllerElement.classList.toggle(
             "is-active",
             this.isJoystick ? this.state.isPressed : this.state.isActive
         );
@@ -180,7 +181,7 @@ export class Controller {
 
     handleMove(evt: PointerEvent) {
         if (
-            !this.gamepadController.hasPointerCapture(evt.pointerId) ||
+            !this.parentElement.hasPointerCapture(evt.pointerId) ||
             !this.state.isPressed ||
             this.state.pointerIdentifier < 0
         ) {
@@ -223,7 +224,7 @@ export class Controller {
             return;
         }
 
-        this.gamepadController.releasePointerCapture(evt.pointerId);
+        this.parentElement.releasePointerCapture(evt.pointerId);
 
         this.state.pointerIdentifier = -1;
         this.state.isDrag = false;
@@ -232,7 +233,7 @@ export class Controller {
             this.state.isActive = false;
         }
 
-        this.gamepadController.classList.toggle(
+        this.gamepadControllerElement.classList.toggle(
             "is-active",
             this.isJoystick ? this.state.isPressed : this.state.isActive
         );
@@ -288,7 +289,7 @@ export class Controller {
         };
 
         // Add styles - Controller anchor
-        Object.assign(this.controllerContainer.style, {
+        Object.assign(this.anchorElement.style, {
             position: "absolute",
             width: "0",
             height: "0",
@@ -298,74 +299,63 @@ export class Controller {
         });
 
         // Add styles - Controller
-        Object.assign(this.gamepadController.style, styles);
+        Object.assign(this.gamepadControllerElement.style, styles);
 
         // Insert Elements to DOM
-        this.controllerContainer.append(this.gamepadController);
-        this.options.parentElement.append(this.controllerContainer);
+        this.anchorElement.append(this.gamepadControllerElement);
+        this.options.parentElement.append(this.anchorElement);
 
-        // TODO: reactivate for fixed version
         // Events
-        // const el_evt_starter =
-        //   this.isJoystick || !this.options.fixed
-        //     ? this.gamepadContainer
-        //     : (this.gamepadController as HTMLElement)
-        this.gamepadController.addEventListener(
-            "pointerdown",
-            this.handleStart,
-            {
-                passive: false,
-            }
-        );
-        if (this.isJoystick)
-            this.gamepadController.addEventListener(
+        const eventStarterElement =
+            this.isJoystick || !this.options.fixed
+                ? this.parentElement
+                : this.gamepadControllerElement;
+
+        eventStarterElement.addEventListener("pointerdown", this.handleStart, {
+            passive: false,
+        });
+        if (this.isJoystick) {
+            this.parentElement.addEventListener(
                 "pointermove",
                 this.handleMove,
                 {
                     passive: false,
                 }
             );
-        this.gamepadController.addEventListener("pointerup", this.handleEnd);
-        this.gamepadController.addEventListener(
-            "pointercancel",
-            this.handleEnd
-        );
-        this.gamepadController.addEventListener("contextmenu", this._noDefault);
+        }
+        this.parentElement.addEventListener("pointerup", this.handleEnd);
+        this.parentElement.addEventListener("pointercancel", this.handleEnd);
+        this.parentElement.addEventListener("contextmenu", this._noDefault);
     }
 
     destroy() {
-        // TODO: reactivate for fixed version
         // Events
-        // const el_evt_starter =
-        //   this.isJoystick || !this.options.fixed
-        //     ? this.gamepadContainer
-        //     : this.gamepadController
-        this.gamepadController.removeEventListener(
+        const eventStarterElement =
+            this.isJoystick || !this.options.fixed
+                ? this.parentElement
+                : this.gamepadControllerElement;
+
+        eventStarterElement.removeEventListener(
             "pointerdown",
             this.handleStart,
             {
                 passive: false,
             } as EventListenerOptions
         );
-        if (this.isJoystick)
-            this.gamepadController.removeEventListener(
+        if (this.isJoystick) {
+            this.parentElement.removeEventListener(
                 "pointermove",
                 this.handleMove,
                 {
                     passive: false,
                 } as EventListenerOptions
             );
-        this.gamepadController.removeEventListener("pointerup", this.handleEnd);
-        this.gamepadController.removeEventListener(
-            "pointercancel",
-            this.handleEnd
-        );
-        this.gamepadController.removeEventListener(
-            "contextmenu",
-            this._noDefault
-        );
+        }
+        this.parentElement.removeEventListener("pointerup", this.handleEnd);
+        this.parentElement.removeEventListener("pointercancel", this.handleEnd);
+        this.parentElement.removeEventListener("contextmenu", this._noDefault);
 
         // Remove element from DOM
-        this.gamepadController.remove();
+        this.anchorElement.remove();
     }
 }
