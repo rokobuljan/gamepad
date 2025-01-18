@@ -313,4 +313,4 @@ To test the example demo from a mobile device:
 
 ## Licence
 
-MIT
+[MIT](LICENSE)
