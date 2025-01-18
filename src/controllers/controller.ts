@@ -36,7 +36,7 @@ export interface ControllerState {
     x_drag: number;
     y_drag: number;
     dragDistance: number;
-    touchFingerIdentifier: number;
+    pointerIdentifier: number;
     isInitialized: boolean;
     isPressed: boolean;
 }
@@ -74,7 +74,7 @@ export class Controller {
         x_drag: 0,
         y_drag: 0,
         dragDistance: 0,
-        touchFingerIdentifier: -1,
+        pointerIdentifier: -1,
         isInitialized: false,
     };
 
@@ -141,7 +141,7 @@ export class Controller {
 
     handleStart(evt: PointerEvent) {
         // Is already assigned? Do nothing
-        if (this.state.touchFingerIdentifier > -1) {
+        if (this.state.pointerIdentifier > -1) {
             return;
         }
 
@@ -160,7 +160,7 @@ export class Controller {
         this.state.isPressed = true;
         this.state.isActive = this.options.spring ? true : !this.state.isActive;
 
-        this.state.touchFingerIdentifier = evt.pointerId;
+        this.state.pointerIdentifier = evt.pointerId;
         this.state.x_start = x;
         this.state.y_start = y;
 
@@ -181,7 +181,7 @@ export class Controller {
         if (
             !this.gamepadController.hasPointerCapture(evt.pointerId) ||
             !this.state.isPressed ||
-            this.state.touchFingerIdentifier < 0
+            this.state.pointerIdentifier < 0
         ) {
             return;
         }
@@ -212,7 +212,7 @@ export class Controller {
 
     handleEnd(evt: PointerEvent) {
         // If touch was not registered on touch-start - do nothing
-        if (this.state.touchFingerIdentifier < 0) {
+        if (this.state.pointerIdentifier < 0) {
             return;
         }
 
@@ -224,7 +224,7 @@ export class Controller {
 
         this.gamepadController.releasePointerCapture(evt.pointerId);
 
-        this.state.touchFingerIdentifier = -1;
+        this.state.pointerIdentifier = -1;
         this.state.isDrag = false;
         this.state.isPressed = false;
         if (this.options.spring) {
