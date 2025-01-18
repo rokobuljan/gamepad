@@ -164,41 +164,39 @@ engine();
 
 // GAMEPAD EXAMPLE:
 const GP = new Gamepad([
-    new Joystick(
-        {
-            radius: 60,
-            axis: ControllerAxisType.all,
-            fixed: true,
-            position: {
-                left: "25%",
-                top: "50%",
-            },
-            onInput(state) {
-                PL.controller.value = state.value;
-                PL.controller.angle = state.angle;
-            },
+    new Joystick({
+        elementId: "LeftJoystick",
+        parentElement: document.querySelector("#app-left"),
+        radius: 60,
+        axis: ControllerAxisType.all,
+        fixed: true,
+        position: {
+            left: "25%",
+            top: "50%",
         },
-        document.querySelector("#app-left")
-    ),
-    new Button(
-        {
-            radius: 60,
-            fixed: true,
-            text: "F",
-            position: {
-                right: "25%",
-                bottom: "50%",
-            },
-            onInput(state) {
-                if (!state.value) {
-                    return;
-                }
-                PL.fire();
-                GP.vibrate([100]);
-            },
+        onInput(state) {
+            PL.controller.value = state.value;
+            PL.controller.angle = state.angle;
         },
-        document.querySelector("#app-right")
-    ),
+    }),
+    new Button({
+        elementId: "fButton",
+        parentElement: document.querySelector("#app-right"),
+        radius: 60,
+        fixed: true,
+        text: "F",
+        position: {
+            right: "25%",
+            bottom: "50%",
+        },
+        onInput(state) {
+            if (!state.value) {
+                return;
+            }
+            PL.fire();
+            GP.vibrate([100]);
+        },
+    }),
 ]);
 
 const ControllerSettingsButton = new Button(

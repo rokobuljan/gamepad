@@ -6,8 +6,8 @@ import { Controller, ControllerType, ControllerOptions } from "./controller";
  */
 
 export class Button extends Controller {
-    constructor(options: ControllerOptions, parentElement: HTMLElement) {
-        super(options, ControllerType.button, parentElement);
+    constructor(options: ControllerOptions) {
+        super(options, ControllerType.button);
     }
 
     onStart() {

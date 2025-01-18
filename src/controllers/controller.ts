@@ -6,6 +6,8 @@
 import { createElement, norm } from "./utils";
 
 export interface ControllerOptions {
+    elementId: string;
+    parentElement: HTMLElement;
     spring?: boolean;
     text?: string;
     radius: number;
@@ -52,7 +54,6 @@ export enum ControllerAxisType {
 }
 
 export class Controller {
-    id = "GameController" + Math.random().toString();
     controllerContainer!: HTMLElement;
     gamepadController!: HTMLElement;
 
@@ -78,12 +79,10 @@ export class Controller {
         isInitialized: false,
     };
 
-    constructor(
-        options: ControllerOptions,
-        private type: ControllerType,
-        public gamepadContainer: HTMLElement
-    ) {
+    constructor(options: ControllerOptions, private type: ControllerType) {
         this.options = {
+            elementId: "",
+            parentElement: document.querySelector("body")!,
             radius: 40,
             spring: true, // If true will reset/null value on touch-end, if set to false the button will act as a checkbox, or the joystick will not reset
             fixed: true, // Set to false to change controller position on touch-down
@@ -96,6 +95,7 @@ export class Controller {
                 ...options.style,
             },
         };
+
         this.options = Object.assign(this.options, options);
 
         this.isJoystick = this.type === ControllerType.joystick;
@@ -111,6 +111,7 @@ export class Controller {
         let axisName = ControllerAxisType[this.type];
 
         this.gamepadController = createElement("div", {
+            id: this.options.elementId,
             innerHTML: this.options.text,
             className: `Gamepad-controller Gamepad-${axisName} axis-${axisName}`,
         });
@@ -301,7 +302,7 @@ export class Controller {
 
         // Insert Elements to DOM
         this.controllerContainer.append(this.gamepadController);
-        this.gamepadContainer.append(this.controllerContainer);
+        this.options.parentElement.append(this.controllerContainer);
 
         // TODO: reactivate for fixed version
         // Events

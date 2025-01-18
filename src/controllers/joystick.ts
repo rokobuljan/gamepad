@@ -13,8 +13,8 @@ import { createElement } from "./utils";
 
 export class Joystick extends Controller {
     elementKnob: HTMLElement;
-    constructor(options: ControllerOptions, parentElement: HTMLDivElement) {
-        super({ ...options }, ControllerType.joystick, parentElement);
+    constructor(options: ControllerOptions) {
+        super({ ...options }, ControllerType.joystick);
 
         // Add Handle to this Controller
         this.elementKnob = createElement("div", {

@@ -23,7 +23,7 @@ class Gamepad {
      * @param  controllerOptions or a Button or Joystick Controller instance.
      */
     addController(controller: Controller) {
-        this.controllers.set(controller.id, controller);
+        this.controllers.set(controller.options.elementId, controller);
 
         controller.init();
 
