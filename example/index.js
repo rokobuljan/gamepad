@@ -165,7 +165,7 @@ engine();
 // GAMEPAD EXAMPLE:
 const GP = new Gamepad([
     new Joystick({
-        elementId: "LeftJoystick",
+        elementId: "left-joystick",
         parentElement: document.querySelector("#app-left"),
         radius: 60,
         axis: ControllerAxisType.all,
@@ -180,7 +180,7 @@ const GP = new Gamepad([
         },
     }),
     new Button({
-        elementId: "fButton",
+        elementId: "f-button",
         parentElement: document.querySelector("#app-right"),
         radius: 60,
         fixed: true,
