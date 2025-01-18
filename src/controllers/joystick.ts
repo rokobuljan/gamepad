@@ -8,7 +8,6 @@ import { createElement } from "./utils";
 
 /**
  * Gamepad - Joystick Controller
- * Author: https://github.com/rokobuljan/
  */
 
 export class Joystick extends Controller {

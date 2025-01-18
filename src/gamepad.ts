@@ -1,6 +1,5 @@
 /**
  * Gamepad
- * Author: https://github.com/rokobuljan/
  */
 
 import { Button } from "./controllers/button";
@@ -20,7 +19,7 @@ class Gamepad {
 
     /**
      * Add Controller to Gamepad
-     * @param  controllerOptions or a Button or Joystick Controller instance.
+     * @param controller or a Button or Joystick Controller instance.
      */
     addController(controller: Controller) {
         this.controllers.set(controller.options.elementId, controller);
@@ -32,7 +31,7 @@ class Gamepad {
 
     /**
      * Remove/destroy controller by ID
-     * @param  id Controller ID to remove
+     * @param id Controller ID to remove
      */
     remove(id: string) {
         this.controllers.get(id)!.destroy();
@@ -96,8 +95,9 @@ class Gamepad {
      * where 30 is the pause in ms.
      */
     vibrate(vibrationPatternMsArray: number[]) {
-        if (this.isVibrationSupported())
+        if (this.isVibrationSupported()) {
             window.navigator.vibrate(vibrationPatternMsArray);
+        }
         return this;
     }
 }

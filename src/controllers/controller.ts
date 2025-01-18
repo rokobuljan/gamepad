@@ -1,12 +1,9 @@
+import { createElement, normalize } from "./utils";
+
 /**
  * Gamepad - Base Controller
- * Author: https://github.com/rokobuljan/
  */
 
-import { createElement, norm } from "./utils";
-
-/**
- */
 export interface ControllerOptions {
     /**
      * The ID of the html element
@@ -251,7 +248,7 @@ export class Controller {
         );
 
         // Finally set the angle (normalized)
-        this.state.angle = norm(
+        this.state.angle = normalize(
             Math.atan2(this.state.y_diff, this.state.x_diff)
         );
         this.onMove();

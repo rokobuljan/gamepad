@@ -2,7 +2,6 @@ import { Controller, ControllerType, ControllerOptions } from "./controller";
 
 /**
  * Gamepad - Button Controller
- * Author: https://github.com/rokobuljan/
  */
 
 export class Button extends Controller {

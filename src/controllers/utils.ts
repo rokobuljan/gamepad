@@ -5,4 +5,4 @@ export const createElement = (
 
 export const TAU = Math.PI * 2;
 
-export const norm = (rad: number) => rad - TAU * Math.floor(rad / TAU);
+export const normalize = (rad: number) => rad - TAU * Math.floor(rad / TAU);
