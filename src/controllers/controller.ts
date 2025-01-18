@@ -5,16 +5,57 @@
 
 import { createElement, norm } from "./utils";
 
+/**
+ */
 export interface ControllerOptions {
+    /**
+     * The ID of the html element
+     * Needed in case a controller should get destroyed or to add CSS styles
+     * @example "left-controller"
+     */
     elementId: string;
+    /**
+     * The parent HTML element to which the controller is attached.
+     */
     parentElement: HTMLElement;
+    /**
+     * If true will reset/null value on touch-end,
+     * if set to false the button will act as a checkbox, or the joystick will not reset
+     * @default true */
     spring?: boolean;
-    text?: string;
-    radius: number;
-    position?: Position;
-    style?: Partial<CSSStyleDeclaration>;
+    /**
+     * Set to false to change controller position on touch-down
+     * @default true
+     */
     fixed?: boolean;
+    /**
+     * Optional text layered on top of the controller.
+     */
+    text?: string;
+    /**
+     * Optional size the controller.
+     * @default 40
+     */
+    radius: number;
+    /**
+     * Optional position of the controller.
+     * @default { top: "50%", left: "50%" }
+     */
+    position?: Position;
+    /**
+     * Optional css styles applied to the controller.
+     */
+    style?: Partial<CSSStyleDeclaration>;
+    /**
+     * The axis on which the controller operates.
+     *
+     * @default ControllerAxisType.all (other options: x, y)
+     */
     axis?: ControllerAxisType;
+    /**
+     * Callback function invoked on input.
+     * @param state The current state of the controller.
+     */
     onInput?: (state: ControllerState) => void;
 }
 
@@ -26,6 +67,9 @@ export interface Position {
 }
 
 export interface ControllerState {
+    /**
+     * true if has "is-active" state / className
+     */
     isActive: boolean;
     isDrag: boolean;
     value: number;
@@ -39,6 +83,9 @@ export interface ControllerState {
     dragDistance: number;
     pointerIdentifier: number;
     isInitialized: boolean;
+    /**
+     * true if the controller is currently pressed
+     */
     isPressed: boolean;
 }
 
@@ -60,9 +107,7 @@ export class Controller {
     options: ControllerOptions;
 
     protected state: ControllerState = {
-        // true if the controller is currently pressed
         isPressed: false,
-        // true if has "is-active" state / className
         isActive: false,
         isDrag: false,
         value: 0,
@@ -84,9 +129,9 @@ export class Controller {
             elementId: "",
             parentElement: document.querySelector("body")!,
             radius: 40,
-            spring: true, // If true will reset/null value on touch-end, if set to false the button will act as a checkbox, or the joystick will not reset
-            fixed: true, // Set to false to change controller position on touch-down
-            position: { top: "50%", left: "50%" }, // For the anchor point
+            spring: true,
+            fixed: true,
+            position: { top: "50%", left: "50%" },
             axis: ControllerAxisType.all,
             text: "",
             style: {
