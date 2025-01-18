@@ -1,3 +1,4 @@
+import "./style.scss";
 import { ControllerAxisType } from "../src/controllers/controller";
 import { Gamepad, Joystick, Button } from "../src/gamepad";
 

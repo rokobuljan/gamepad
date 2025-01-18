@@ -3,7 +3,6 @@
  * Author: https://github.com/rokobuljan/
  */
 
-import "./style.scss";
 import { Button } from "./controllers/button";
 import { Controller } from "./controllers/controller";
 import { Joystick } from "./controllers/joystick";
