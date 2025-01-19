@@ -1,5 +1,5 @@
 import "./style.css";
-import { Gamepad, Button } from "../gamepad.js";
+import { Gamepad, Button, Joystick, ControllerAxisType } from "../src/gamepad";
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);

@@ -3,10 +3,10 @@
  */
 
 import { Button } from "./controllers/button";
-import { Controller } from "./controllers/controller";
+import { Controller, ControllerAxisType } from "./controllers/controller";
 import { Joystick } from "./controllers/joystick";
 
-export { Gamepad, Button, Joystick };
+export { Gamepad, Button, Joystick, ControllerAxisType };
 
 class Gamepad {
     controllers = new Map<string, Controller>();
