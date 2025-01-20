@@ -1,5 +1,5 @@
 import "./style.css";
-import { Gamepad, Button } from "../gamepad.js";
+import { Gamepad, Button, Joystick, ControllerAxisType } from "../src/gamepad";
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
@@ -16,25 +16,29 @@ const lerpAngles = (A, B, w) => {
  */
 class Player {
     constructor(options) {
-        Object.assign(this, {
-            x: 100,
-            y: 100,
-            radius: 40,
-            angle: 0,
-            speed: 0,
-            speedMax: 5,
-            controller: { angle: 0, value: 0 },
-            canFire: true,
-        }, options, {
-            angleTarget: 0,
-        });
+        Object.assign(
+            this,
+            {
+                x: 100,
+                y: 100,
+                radius: 40,
+                angle: 0,
+                speed: 0,
+                speedMax: 5,
+                controller: { angle: 0, value: 0 },
+                canFire: true,
+            },
+            options,
+            {
+                angleTarget: 0,
+            }
+        );
 
         this.EL = ELNew("div", { className: "player" });
         EL_app.append(this.EL);
     }
 
     move() {
-
         // Throttle:
         const maxSpeed = this.speedMax * this.controller.value;
 
@@ -42,7 +46,7 @@ class Player {
         if (maxSpeed && !this.speed) this.speed = 0.2;
 
         // accelerate / decelerate
-        this.speed *= (this.speed < maxSpeed) ? 1.1 : 0.95
+        this.speed *= this.speed < maxSpeed ? 1.1 : 0.95;
 
         // Bring to hault
         if (this.speed && this.speed < 0.1 && !maxSpeed) {
@@ -60,21 +64,23 @@ class Player {
         this.y += Math.sin(this.angle) * this.speed;
 
         const bcr_app = EL_app.getBoundingClientRect();
-        // edge collision  
+        // edge collision
         this.x = Math.max(0, Math.min(bcr_app.width - this.radius, this.x));
         this.y = Math.max(0, Math.min(bcr_app.height - this.radius, this.y));
 
         // DRAW
         this.EL.style.cssText = `
-            transform: translate(${this.x}px, ${this.y}px) rotate(${this.angle + Math.PI / 2}rad);
+            transform: translate(${this.x}px, ${this.y}px) rotate(${
+            this.angle + Math.PI / 2
+        }rad);
         `;
     }
 
     fire() {
         if (!this.canFire) return;
         new Weapon({
-            x: this.x + (this.radius / 2) + 4,
-            y: this.y + (this.radius / 2) - 3,
+            x: this.x + this.radius / 2 + 4,
+            y: this.y + this.radius / 2 - 3,
             angle: this.angle,
             speed: this.speed,
         });
@@ -84,18 +90,23 @@ class Player {
 const weapons = [];
 class Weapon {
     constructor(props) {
-        Object.assign(this, {
-            x: 0,
-            y: 0,
-            angle: 0,
-            speed: 6,
-        }, props, {
-            speedMax: 13,
-            life: 190,
-            fireRate: 10,
-            fireCoolDown: 0,
-            EL: ELNew("div", { className: "missile" }),
-        });
+        Object.assign(
+            this,
+            {
+                x: 0,
+                y: 0,
+                angle: 0,
+                speed: 6,
+            },
+            props,
+            {
+                speedMax: 13,
+                life: 190,
+                fireRate: 10,
+                fireCoolDown: 0,
+                EL: ELNew("div", { className: "missile" }),
+            }
+        );
 
         const speed_min = 3;
         this.speed += speed_min;
@@ -117,7 +128,9 @@ class Weapon {
 
         // DRAW
         this.EL.style.cssText = `
-            transform: translate(${this.x}px, ${this.y}px) rotate(${this.angle + Math.PI / 2}rad);
+            transform: translate(${this.x}px, ${this.y}px) rotate(${
+            this.angle + Math.PI / 2
+        }rad);
         `;
     }
 
@@ -140,71 +153,76 @@ const PL = new Player({
 
 const engine = () => {
     PL.move();
-    weapons.forEach(weapon => weapon.move());
+    weapons.forEach((weapon) => weapon.move());
     // Loop RAF
     requestAnimationFrame(engine);
 };
 
 engine();
 
-
 // GAMEPAD EXAMPLE:
-
 const GP = new Gamepad([
-    {
-        id: "move",
-        parent: "#app-left",
-        axis: "all",
-        fixed: false,
+    new Joystick({
+        elementId: "left-joystick",
+        parentElement: document.querySelector("#app-left"),
+        radius: 60,
+        axis: ControllerAxisType.all,
+        fixed: true,
         position: {
             left: "25%",
             top: "50%",
         },
-        onInput() {
-            PL.controller.value = this.value;
-            PL.controller.angle = this.angle;
-        }
-    },
-    {
-        id: "fire",
-        parent: "#app-right",
-        type: "button",
-        fixed: false,
+        onInput(state) {
+            PL.controller.value = state.value;
+            PL.controller.angle = state.angle;
+        },
+    }),
+    new Button({
+        elementId: "f-button",
+        parentElement: document.querySelector("#app-right"),
+        radius: 60,
+        fixed: true,
+        text: "F",
         position: {
             right: "25%",
             bottom: "50%",
         },
-        onInput() {
-            if (!this.value) return;
+        onInput(state) {
+            if (!state.value) {
+                return;
+            }
             PL.fire();
-            GP.vibrate(100);
+            GP.vibrate([100]);
         },
-    }
+    }),
 ]);
 
-const ControllerButtonSettings = new Button({
-    id: "settings",
-    parent: "#app",
-    type: "button",
-    text: "☰",
-    radius: 20,
-    spring: false,
-    position: {
-        right: "35px",
-        top: "35px",
-    },
-    style: {
-        border: "0",
-        color: "#fff",
-        background: "transparent",
-    },
-    onInput() {
-        // Open some settings panel
-        EL("#app-menu").classList.toggle("is-active", this.isActive);
-    }
-});
+const ControllerSettingsButton = new Button(
+    {
+        type: "button",
+        text: "☰",
+        radius: 20,
+        spring: false,
+        position: {
+            right: "35px",
+            top: "35px",
+        },
+        style: {
+            border: "0",
+            color: "#fff",
+            background: "transparent",
+        },
+        onInput() {
+            console.log("asda");
 
-GP.add(ControllerButtonSettings);
-ControllerButtonSettings.init();
+            // Open some settings panel
+            EL("#app-menu").classList.toggle("is-active", this.isActive);
+        },
+    },
+    document.querySelector("#app-right")
+);
+
+GP.addController(ControllerSettingsButton);
+ControllerSettingsButton.init();
 
 // GP.requestFullScreen();
