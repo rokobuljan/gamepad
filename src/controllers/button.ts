@@ -1,4 +1,4 @@
-import { Controller, ControllerType, ControllerOptions } from "./controller";
+import { Controller, ControllerOptions } from "./controller";
 
 /**
  * Gamepad - Button Controller
@@ -6,7 +6,7 @@ import { Controller, ControllerType, ControllerOptions } from "./controller";
 
 export class Button extends Controller {
     constructor(options: ControllerOptions) {
-        super(options, ControllerType.button);
+        super(options, "button");
     }
 
     onStart() {

@@ -1,5 +1,5 @@
 import "./style.css";
-import { Gamepad, Button, Joystick, ControllerAxisType } from "../src/gamepad";
+import { Gamepad, Button, Joystick } from "../src/gamepad";
 
 const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 const EL = (sel, PAR) => (PAR || document).querySelector(sel);
@@ -166,7 +166,7 @@ const GP = new Gamepad([
         elementId: "left-joystick",
         parentElement: document.querySelector("#app-left"),
         radius: 60,
-        axis: ControllerAxisType.all,
+        axis: "all",
         fixed: true,
         position: {
             left: "25%",

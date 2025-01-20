@@ -86,15 +86,9 @@ export interface ControllerState {
     isPressed: boolean;
 }
 
-export enum ControllerType {
-    "joystick",
-    "button",
-}
-export enum ControllerAxisType {
-    "all",
-    "x",
-    "y",
-}
+export type ControllerType = "joystick" | "button";
+
+export type ControllerAxisType = "all" | "x" | "y";
 
 export class Controller {
     anchorElement!: HTMLElement;
@@ -129,7 +123,7 @@ export class Controller {
             spring: true,
             fixed: true,
             position: { top: "50%", left: "50%" },
-            axis: ControllerAxisType.all,
+            axis: "all",
             text: "",
             style: {
                 color: "hsla(0, 90%, 100%, 0.5)",
@@ -140,13 +134,13 @@ export class Controller {
 
         this.options = Object.assign(this.options, options);
 
-        this.isJoystick = this.type === ControllerType.joystick;
+        this.isJoystick = this.type === "joystick";
 
         this.handleStart = this.handleStart.bind(this);
         this.handleMove = this.handleMove.bind(this);
         this.handleEnd = this.handleEnd.bind(this);
 
-        let axisName = ControllerAxisType[this.type];
+        let axisName: ControllerType = this.type;
 
         this.parentElement = this.options.parentElement;
         this.anchorElement = createElement("div", {
@@ -308,13 +302,13 @@ export class Controller {
             height: `${this.options.radius * 2}px`,
         };
 
-        if (this.options.axis === ControllerAxisType.x) {
+        if (this.options.axis === "x") {
             stylesByAxisType = {
                 width: `${this.options.radius * 2}px`,
                 height: `6px`,
             };
         }
-        if (this.options.axis === ControllerAxisType.y) {
+        if (this.options.axis === "y") {
             stylesByAxisType = {
                 height: `${this.options.radius * 2}px`,
                 width: `6px`,

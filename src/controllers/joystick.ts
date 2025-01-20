@@ -1,9 +1,4 @@
-import {
-    Controller,
-    ControllerType,
-    ControllerOptions,
-    ControllerAxisType,
-} from "./controller";
+import { Controller, ControllerOptions } from "./controller";
 import { createElement } from "./utils";
 
 /**
@@ -13,7 +8,7 @@ import { createElement } from "./utils";
 export class Joystick extends Controller {
     elementKnob: HTMLElement;
     constructor(options: ControllerOptions) {
-        super({ ...options }, ControllerType.joystick);
+        super({ ...options }, "joystick");
 
         // Add Handle to this Controller
         this.elementKnob = createElement("div", {
@@ -30,7 +25,7 @@ export class Joystick extends Controller {
     onMove() {
         super.onMove();
 
-        if (this.options.axis === ControllerAxisType.all) {
+        if (this.options.axis === "all") {
             this.state.value = this.state.dragDistance / this.options.radius;
 
             const x_pos =
@@ -43,7 +38,7 @@ export class Joystick extends Controller {
             this.elementKnob.style.top = `${y_pos}px`;
         }
 
-        if (this.options.axis === ControllerAxisType.x) {
+        if (this.options.axis === "x") {
             this.state.value = Math.max(
                 Math.min(this.state.x_diff / this.options.radius, 1),
                 -1
@@ -54,7 +49,7 @@ export class Joystick extends Controller {
             this.elementKnob.style.left = `${x_pos}px`;
         }
 
-        if (this.options.axis === ControllerAxisType.y) {
+        if (this.options.axis === "y") {
             this.state.value = Math.max(
                 Math.min(-this.state.y_diff / this.options.radius, 1),
                 -1
