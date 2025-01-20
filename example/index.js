@@ -167,7 +167,7 @@ const GP = new Gamepad([
         parentElement: document.querySelector("#app-left"),
         radius: 60,
         axis: "all",
-        fixed: true,
+        fixed: false,
         position: {
             left: "25%",
             top: "50%",
@@ -181,7 +181,7 @@ const GP = new Gamepad([
         elementId: "f-button",
         parentElement: document.querySelector("#app-right"),
         radius: 60,
-        fixed: true,
+        fixed: false,
         text: "F",
         position: {
             right: "25%",
