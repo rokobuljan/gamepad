@@ -1,6 +1,6 @@
 {
     "name": "@rbuljan/gamepad",
-    "version": "1.3.7",
+    "version": "2.0.0",
     "description": "Multi-touch gamepad with buttons and joystick for JavaScript games, apps, IOT",
     "main": "dist/gamepad.js",
     "types": "dist/gamepad.d.ts",
