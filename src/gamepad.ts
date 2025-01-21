@@ -12,20 +12,19 @@ class Gamepad {
     controllers = new Map<string, Controller>();
 
     constructor(controllersArray: Controller[] = []) {
-        controllersArray.forEach((controller) =>
-            this.addController(controller)
-        );
+        controllersArray.forEach((controller) => this.add(controller));
     }
 
     /**
      * Add Controller to Gamepad
-     * @param controller or a Button or Joystick Controller instance.
+     * @param controllers or a Button or Joystick Controller instance.
      */
-    addController(controller: Controller) {
-        this.controllers.set(controller.options.elementId, controller);
+    add(...controllers: Controller[]) {
+        for (let controller of controllers) {
+            this.controllers.set(controller.options.elementId, controller);
 
-        controller.init();
-
+            controller.init();
+        }
         return this;
     }
 
