@@ -1,60 +1,6 @@
+import { ControllerOptions } from "./ControllerOptions";
+import { ControllerState } from "./ControllerState";
 import { createElement, normalize } from "./utils";
-
-/**
- * Gamepad - Base Controller
- */
-
-export interface ControllerOptions {
-    /**
-     * The ID of the html element
-     * Needed in case a controller should get destroyed or to add CSS styles
-     * @example "left-controller"
-     */
-    elementId: string;
-    /**
-     * The parent HTML element to which the controller is attached.
-     */
-    parentElement: HTMLElement;
-    /**
-     * If true will reset/null value on touch-end,
-     * if set to false the button will act as a checkbox, or the joystick will not reset
-     * @default true */
-    spring?: boolean;
-    /**
-     * Set to false to change controller position on touch-down
-     * @default true
-     */
-    fixed?: boolean;
-    /**
-     * Optional text layered on top of the controller.
-     */
-    text?: string;
-    /**
-     * Optional size the controller.
-     * @default 40
-     */
-    radius: number;
-    /**
-     * Optional position of the controller.
-     * @default { top: "50%", left: "50%" }
-     */
-    position?: Position;
-    /**
-     * Optional css styles applied to the controller.
-     */
-    style?: Partial<CSSStyleDeclaration>;
-    /**
-     * The axis on which the controller operates.
-     *
-     * @default ControllerAxisType.all (other options: x, y)
-     */
-    axis?: ControllerAxisType;
-    /**
-     * Callback function invoked on input.
-     * @param state The current state of the controller.
-     */
-    onInput?: (state: ControllerState) => void;
-}
 
 export interface Position {
     top?: string;
@@ -63,40 +9,25 @@ export interface Position {
     bottom?: string;
 }
 
-export interface ControllerState {
-    /**
-     * true if has "is-active" state / className
-     */
-    isActive: boolean;
-    isDrag: boolean;
-    value: number;
-    angle: number;
-    x_start: number;
-    y_start: number;
-    x_diff: number;
-    y_diff: number;
-    x_drag: number;
-    y_drag: number;
-    dragDistance: number;
-    pointerIdentifier: number;
-    isInitialized: boolean;
-    /**
-     * true if the controller is currently pressed
-     */
-    isPressed: boolean;
-}
-
 export type ControllerType = "joystick" | "button";
 
 export type ControllerAxisType = "all" | "x" | "y";
 
 export class Controller {
+    /**
+     * parentElement -> anchorElement -> gamepadControllerElement
+     */
+    parentElement: HTMLElement;
     anchorElement!: HTMLElement;
     gamepadControllerElement!: HTMLElement;
 
     isJoystick: boolean;
+    /** contains oll the initial options */
     options: ControllerOptions;
 
+    /**
+     * the current and changing state of the controller
+     */
     protected state: ControllerState = {
         isPressed: false,
         isActive: false,
@@ -113,7 +44,6 @@ export class Controller {
         pointerIdentifier: -1,
         isInitialized: false,
     };
-    parentElement: HTMLElement;
 
     constructor(options: ControllerOptions, private type: ControllerType) {
         this.options = {

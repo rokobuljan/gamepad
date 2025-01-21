@@ -1,24 +1,22 @@
 # Gamepad
 
-Your virtual multi-touch Gamepad with **buttons** and **joystick** for JavaScript games, apps and IOT!  
+Your virtual multi-touch Gamepad with **buttons** and **joystick** for JavaScript / Typescript games, apps and IOT!
 
 ![JavaScript Virtual Gamepad Controller With Joystick](https://raw.githubusercontent.com/rokobuljan/gamepad/main/example/gamepad-js.png)
 
 ## Getting Started
 
-
 The `Gamepad` instance is a handy wrapper for all your `Joystick` and `Button` Controllers.  
-Although `Gamepad` is optional (you can use the exposed `Joystick` and `Button` Controllers as standalone) it comes of great use when building an app where you need to often change your different Gamepads. Take for example: Game-Menu vs. In-Game, or an app that has multiple games where each requires a different Gamepad.  
+Although `Gamepad` is optional (you can use the exposed `Joystick` and `Button` Controllers as standalone) it comes of great use when building an app where you need to often change your different Gamepads. Take for example: Game-Menu vs. In-Game, or an app that has multiple games where each requires a different Gamepad.
 
 Both Joystick and Button Controllers are fixed and static on their anchor points defined by the `position` property, but can be set to `fixed: false` and will reposition on touch.
 
 The Joystick, even if left fixed, its parent Element will act as the touch-start pivot.
 (This option might change in a future release)
 
-
 ## Install
 
-Using NPM:
+Using NPM (types are included):
 
 ```sh
 npm install @rbuljan/gamepad
@@ -32,43 +30,46 @@ npm install @rbuljan/gamepad
 import { Gamepad } from "@rbuljan/gamepad";
 
 const GP = new Gamepad([
-    {
-        type: "joystick", // Optional (Default is "joystick")
-        id: "controller-move", // MANDATORY!
-        parent: "#app-left", // Where to append the controller
+    new Joystick({
+        elementId: "controller-move", // MANDATORY!
+        parentElement: document.querySelector("#app-left"), // Where to append the controller
         fixed: false, // Change position on touch-start
-        position: { // Initial position on inside parent
+        position: {
+            // Initial position on inside parent
             left: "15%",
             top: "50%",
         },
-        onInput() { // Triggered on angle or value change.
-            // // If you update your Player position and angle continuosly inside a
+        onInput(state) {
+            // Triggered on angle or value change.
+            // // If you update your Player position and angle continuously inside a
             // // requestAnimationFrame you're good to go with i.e:
-            // Player.controller.value = this.value;
-            // Player.controller.angle = this.angle;
+            // Player.controller.value = state.value;
+            // Player.controller.angle = state.angle;
             //
             // // otherwise use here something like:
-            // Player.move(this.value, this.angle);
+            // Player.move(state.value, state.angle);
             // to update your player position when the Controller triggers onInput
-        }
-    }, { 
-        type: "button", // Since type is "joystick" by default 
-        id: "controller-fire", // MANDATORY!
-        parent: "#app-right",
-        position: { // Anchor point position
+        },
+    }),
+    new Button({
+        elementId: "controller-fire", // MANDATORY!
+        parentElement: document.querySelector("#app-right"),
+        position: {
+            // Anchor point position
             right: "15%",
             bottom: "50%",
         },
-        onInput() { // Triggered on value change.
+        onInput(state) {
+            // Triggered on value change.
             // // If value is 1 - Player should fire!
-            // if (!this.value) return;
+            // if (!state.value) return;
             // Player.fire();
             //
-            GP.vibrate(100); // Vibrate the Gamepad for 100ms
+            GP.vibrate([100]); // Vibrate the Gamepad for 100ms
             // // You can also use a pattern with pauses of 30ms:
-            // GP.vibrate([200, 30, 100, 30, 200]) 
-        }
-    }
+            // GP.vibrate([200, 30, 100, 30, 200])
+        },
+    }),
 ]);
 
 // Retrieve all your Controllers instances
@@ -77,28 +78,28 @@ console.log(GP.controllers); // {"controller-move: Joystick{}, "controller-fire"
 
 ## Standalone Controllers
 
-`Joystick` and `Button` Controllers can be also used as **standalone** (without the Gamepad *wrapper*)
+`Joystick` and `Button` Controllers can be also used as **standalone** (without the Gamepad _wrapper_)
 
 ```js
 import { Joystick, Button } from "@rbuljan/gamepad";
 
 const ControllerPanorama = new Joystick({
-    id: "joystick-panorama",
+    elementId: "joystick-panorama",
+    parentElement: document.querySelector("#app"),
     axis: "x",
-    parent: "#app",
     spring: false, // Don't reset (center) joystick on touch-end
-    onInput() {
-        // App.panorama.rotateX(this.value);
-    }
+    onInput(state) {
+        // App.panorama.rotateX(state.value);
+    },
 });
 
-const ControllerMenu = new Button({ 
-    id: "button-menu",
-    parent: "#app",
+const ControllerMenu = new Button({
+    elementId: "button-menu",
+    parentElement: document.querySelector("#app"),
     spring: false, // Act as a checkbox
     text: "☰",
     radius: 20,
-    position: { 
+    position: {
         left: "50%",
         top: "35px",
     },
@@ -106,9 +107,9 @@ const ControllerMenu = new Button({
         color: "#fff",
         background: "rgba(0,0,0,0.2)",
     },
-    onInput() {
-        // App.menu.toggle(this.isActive);
-    }
+    onInput(state) {
+        // App.menu.toggle(state.isActive);
+    },
 });
 ```
 
@@ -138,7 +139,7 @@ GP.add(ControllerPanorama, ControllerMenu);
 
 ## CSS: Active state
 
-To add *active* state styles, use CSS like:
+To add _active_ state styles, use CSS like:
 
 ```css
 .Gamepad-controller.is-active {
@@ -152,7 +153,7 @@ To add *active* state styles, use CSS like:
 
 ```js
 new Gamepad();
-new Gamepad( [{controllerOptions}|Controller, ...] );
+new Gamepad( [Controller, ...] );
 ```
 
 Accepts an argument Array of either controllerOptions or Controller instances  
@@ -164,69 +165,69 @@ It automatically creates and initializes (`init()`) its Controllers.
 | -------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
 | `add(object\|Controller,...)`    | controllerOptions or Controller       | Add and initialize controllers                                |
 | `remove(string\|Controller,...)` | controllerId or Controller            | Remove (and destroy) specific Controlles                      |
-| `destroy()`                      | (Optional) controllerId or Controller | Destroy all associated Controller instances                   |
+| `destroy(id?)`                   | (Optional) controllerId or Controller | Destroy all associated Controller instances                   |
 | `requestFullScreen()`            |                                       | Invoke FullScreen API<br>on first touch                       |
 | `exitFullScreen()`               |                                       | Revoke FullScreen API                                         |
 | `isVibrationSupported()`         |                                       | Returns Boolean, `true` is Navigator supports vibration       |
-| `vibrate(number\|array)`         | i.e: `200` or `[200,30,100,30,200]`   | *ms* vibration time,<br>or Array of vibrate and pause pattern |
+| `vibrate(number\|array)`         | i.e: `[200]` or `[200,30,100,30,200]` | _ms_ vibration time,<br>or Array of vibrate and pause pattern |
 
 Gamepad Methods are chainable, i.e: `.vibrate(400).destroy().exitFullScreen()`
 
-## Controller (*Joystick, Button*)
+## Controller (_Joystick, Button_)
 
 **Standalone syntax**
 
 ```js
-new Joystick({controllerOptions})
-new Button({controllerOptions})
+new Joystick({ controllerOptions });
+new Button({ controllerOptions });
 ```
 
 ### controllerOptions
 
-| Property           | Type     | Value                               | Description                                                 |
-| ------------------ | -------- | ----------------------------------- | ----------------------------------------------------------- |
-| `id` **MANDATORY** | String   |                                     | Unique ID name (Mandatory)                                  |
-| `type`             | String   | `"joystick"`(Default)<br>`"button"` | Type of controller (Not necessary in standalone)            |
-| `axis`             | String   | `"all"`(Default)<br>`"x"`<br>`"y"`  | Movement axis constraint (Joystick)                         |
-| `fixed`            | Boolean  | `true`                              | Set to `false` to change position on touch-start            |
-| `parent`           | String   | `"body"`                            | Parent Selector to insert into                              |
-| `position`         | Object   | `{top: "50%", left: "50%"}`         | Controller initial position inside parent                   |
-| `radius`           | Number   | `50`                                | Controller radius in *px*                                   |
-| `spring`           | Object   | `true`                              | Set to `false` to keep state and values on touch-end/cancel |
-| `style`            | Object   | `{}`                                | Custom CSS styles                                           |
-| `text`             | String   | `""`                                | Button text or inner HTML                                   |
-| `onInput()`        | Function |                                     | Callback on touch-start/move/end/cancel                     |
+| Property                  | Type     | Value                                          | Description                                                 |
+| ------------------------- | -------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| `elementId` **MANDATORY** | String   |                                                | Unique ID name (Mandatory)                                  |
+| `type`                    | String   | `"joystick"`(Default)<br>`"button"`            | Type of controller (Not necessary in standalone)            |
+| `axis`                    | String   | `"all"`(Default)<br>`"x"`<br>`"y"`             | Movement axis constraint (Joystick)                         |
+| `fixed`                   | Boolean  | `true`                                         | Set to `false` to change position on touch-start            |
+| `parentElement`           | String   | `"body"`                                       | Parent Selector to insert into                              |
+| `position`                | Object   | `{top: "50%", left: "50%"}`                    | Controller initial position inside parent                   |
+| `radius`                  | Number   | `50`                                           | Controller radius in _px_                                   |
+| `spring`                  | Object   | `true`                                         | Set to `false` to keep state and values on touch-end/cancel |
+| `style`                   | Object   | `{}`                                           | Custom CSS styles                                           |
+| `text`                    | String   | `""`                                           | Button text or inner HTML                                   |
+| `onInput(state)`          | Function | `contains the current state of the controller` | Callback on touch-start/move/end/cancel                     |
 
 ### Controller Methods
 
-| Method       | Description                             |
-| ------------ | --------------------------------------- |
+| Method      | Description                             |
+| ----------- | --------------------------------------- |
 | `init()`    | Manually initialize Controller instance |
 | `destroy()` | Destroy Controller instance             |
 
-***Notice:**
-the `onInput()` will not be triggered on touch-end for controllers which property `spring` is set to `false`.
+**\*Notice:**
+the `onInput(state)` will not be triggered on touch-end for controllers which property `spring` is set to `false`.
 
 ## Controller output values
 
-Inside the `onInput()` method you can use the `this` to retrieve this various dynamic values.  
+Inside the `onInput(state)` method you can use the `state` to retrieve this various dynamic values.
 
 Alternatively, you can also use your Gamepad instance controllers like i.e: `const throttleVal = GP.controllers.throttle.value` (where `throttle` is the Controller ID you set when registering your controllers `{throttle: {...controllerOptions}}`)
 
-| Property        | Type    | Description                                  |
-| --------------- | ------- | -------------------------------------------- |
-| `value`         | Number  | `0.0` - `1.0` (Joystick);  `0`, `1` (Button) |
-| `angle`         | Number  | Normalized Angle in radians (Joystick)       |
-| `isPress`       | Boolean | `true` on touch-start                        |
-| `isDrag`        | Boolean | `true` on touch-move (Joystick)              |
-| `isActive`      | Boolean | `true` if has *"is-active"* className        |
-| `x_start`       | Number  | *px* Relative x touch-start coordinates      |
-| `y_start`       | Number  | *px* Relative y touch-start coordinates      |
-| `x_drag`        | Number  | *px* Relative x touch-move coordinates       |
-| `y_drag`        | Number  | *px* Relative y touch-move coordinates       |
-| `x_diff`        | Number  | *px* Difference x from start and move        |
-| `y_diff`        | Number  | *px* Difference y from start and move        |
-| `distance_drag` | Number  | *px* Drag distance (capped to max radius)    |
+| Property        | Type    | Description                                 |
+| --------------- | ------- | ------------------------------------------- |
+| `value`         | Number  | `0.0` - `1.0` (Joystick); `0`, `1` (Button) |
+| `angle`         | Number  | Normalized Angle in radians (Joystick)      |
+| `isPress`       | Boolean | `true` on touch-start                       |
+| `isDrag`        | Boolean | `true` on touch-move (Joystick)             |
+| `isActive`      | Boolean | `true` if has _"is-active"_ className       |
+| `x_start`       | Number  | _px_ Relative x touch-start coordinates     |
+| `y_start`       | Number  | _px_ Relative y touch-start coordinates     |
+| `x_drag`        | Number  | _px_ Relative x touch-move coordinates      |
+| `y_drag`        | Number  | _px_ Relative y touch-move coordinates      |
+| `x_diff`        | Number  | _px_ Difference x from start and move       |
+| `y_diff`        | Number  | _px_ Difference y from start and move       |
+| `distance_drag` | Number  | _px_ Drag distance (capped to max radius)   |
 
 **PS:**  
 Inspect your desired Controller ID to get more useful properties and values.
@@ -234,7 +235,7 @@ Inspect your desired Controller ID to get more useful properties and values.
 To preview all your Controllers instances:
 
 ```js
-const GP = new Gamepad(controllerOptions_move, controllerOptions_fire_1, ...);
+const GP = new Gamepad([controllerOptions_move, controllerOptions_fire_1, ...]);
 console.log(GP.controllers);
 ```
 
@@ -252,7 +253,7 @@ Object {
 
 ## UI Strategies
 
-Controller's anchor points (`position`) are fixed by default. In such case you can set all your Controllers `parent` to the same DOM selector (i.e: `parent: "#app"`).  
+Controller's anchor points (`position`) are fixed by default. In such case you can set all your Controllers `parentElement` to the same DOM selector (i.e: `parentElement: "#app"`).
 
 ### Non-fixed controllers
 
@@ -262,29 +263,29 @@ In such case, to prevent your controllers to overlap each-other the best strateg
 
 ```html
 <div id="app">
-  <div id="app-touchArea-left"></div>
-  <div id="app-touchArea-right"></div>
+    <div id="app-touchArea-left"></div>
+    <div id="app-touchArea-right"></div>
 </div>
 ```
 
 ```js
 new Gamepad([
-    {
-        id: "move",
-        parent: "#app-touchArea-left",
+    new Joystick({
+        elementId: "move",
+        parentElement: document.querySelector("#app-touchArea-left"),
         fixed: false,
         //...
-    },
-    {
-        id: "fire",
-        parent: "#app-touchArea-right",
+    }),
+    new Button({
+        elementId: "fire",
+        parentElement: document.querySelector("#app-touchArea-right"),
         fixed: false,
         //...
-    },
+    }),
 ]);
 ```
 
-___
+---
 
 ## Development and Example demo
 
@@ -294,22 +295,23 @@ npm run dev # and head to http://localhost:3000
 
 # To build the example
 npm run build
+
 # To serve the built project from /dist
 npm run serve  # http://localhost:5000
 ```
 
-Since **only touch events are supported**: open Dev tools, inspect, and set preview as *Mobile*  
+Since **only touch events are supported**: open Dev tools, inspect, and set preview as _Mobile_
 
 ### Test example demo from handheld device
 
 To test the example demo from a mobile device:
 
-- Run `npm run dev`
-- Set your Mobile device Settings Developer Mode ON, and turn ON **USB Debugging** mode  
-- In your computer find your IPv4 Address using `ipconfig` or `ifconfig` from terminal.
-- Head to Chrome on your mobile to that address, i.e: <http://192.168.8.106:3000/>
-- On your computer, open chrome://inspect/#devices and wait for your device and chrome tab to appear
-- Hit: the button **inspect fallback**
+-   Run `npm run dev`
+-   Set your Mobile device Settings Developer Mode ON, and turn ON **USB Debugging** mode
+-   In your computer find your IPv4 Address using `ipconfig` or `ifconfig` from terminal.
+-   Head to Chrome on your mobile to that address, i.e: <http://192.168.8.106:3000/>
+-   On your computer, open chrome://inspect/#devices and wait for your device and chrome tab to appear
+-   Hit: the button **inspect fallback**
 
 ## Licence
 
