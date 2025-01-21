@@ -1,4 +1,5 @@
-import { Controller, ControllerOptions } from "./controller";
+import { Controller } from "./controller";
+import { ControllerOptions } from "./ControllerOptions";
 import { createElement } from "./utils";
 
 /**

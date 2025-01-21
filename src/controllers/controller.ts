@@ -1,126 +1,12 @@
+import { ControllerOptions } from "./ControllerOptions";
+import { ControllerState } from "./ControllerState";
 import { createElement, normalize } from "./utils";
-
-/**
- * Gamepad - Base Controller
- */
-
-export interface ControllerOptions {
-    /**
-     * The ID of the html element.
-     * Needed in case a controller should get destroyed or to add CSS styles
-     * @example "left-controller"
-     */
-    elementId: string;
-    /**
-     * The parent HTML element to which the controller is attached.
-     */
-    parentElement: HTMLElement;
-    /**
-     * If true will reset/null value on touch-end,
-     * if set to false the button will act as a checkbox, or the joystick will not reset
-     * @default true */
-    spring?: boolean;
-    /**
-     * Set to false to change controller position on touch-down
-     * @default true
-     */
-    fixed?: boolean;
-    /**
-     * Optional text layered on top of the controller.
-     */
-    text?: string;
-    /**
-     * Optional size the controller.
-     * @default 40
-     */
-    radius: number;
-    /**
-     * Optional position of the controller.
-     * @default { top: "50%", left: "50%" }
-     */
-    position?: Position;
-    /**
-     * Optional css styles applied to the controller.
-     */
-    style?: Partial<CSSStyleDeclaration>;
-    /**
-     * The axis on which the controller operates.
-     *
-     * @default 'all' (other options: x, y)
-     */
-    axis?: ControllerAxisType;
-    /**
-     * Callback function invoked on input.
-     * @param state The current state of the controller.
-     */
-    onInput?: (state: ControllerState) => void;
-}
 
 export interface Position {
     top?: string;
     left?: string;
     right?: string;
     bottom?: string;
-}
-
-export interface ControllerState {
-    /**
-     * true if has "is-active" state / className
-     */
-    isActive: boolean;
-    /**
-     * true on touch-move (Joystick)
-     */
-    isDrag: boolean;
-    /**
-     * Joystick: Number ranging from 0.0 - 1.0;
-     * Button: Number 0 or 1
-     */
-    value: number;
-    /**
-     * Joystick: Normalized Angle in radians
-     */
-    angle: number;
-    /**
-     * _px_ Relative x touch-start coordinates
-     */
-    x_start: number;
-    /**
-     * _px_ Relative y touch-start coordinates
-     */
-    y_start: number;
-    /**
-     * _px_ Relative x touch-move coordinates
-     */
-    x_drag: number;
-    /**
-     * _px_ Relative y touch-move coordinates
-     */
-    y_drag: number;
-    /**
-     * _px_ Difference x from start and move
-     */
-    x_diff: number;
-    /**
-     * _px_ Difference y from start and move
-     */
-    y_diff: number;
-    /**
-     * _px_ Drag distance (capped to max radius)
-     */
-    dragDistance: number;
-    /**
-     * The touch events Id
-     */
-    pointerIdentifier: number;
-    /**
-     * Is currently isInitialized
-     */
-    isInitialized: boolean;
-    /**
-     * true if the controller is currently pressed
-     */
-    isPressed: boolean;
 }
 
 export type ControllerType = "joystick" | "button";
