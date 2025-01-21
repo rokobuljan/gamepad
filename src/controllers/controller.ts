@@ -1,6 +1,10 @@
 import { ControllerOptions } from "./ControllerOptions";
 import { ControllerState } from "./ControllerState";
-import { createElement, normalize } from "./utils";
+import {
+    createElement,
+    normalize,
+    userSelectNoneForAllBrowsers,
+} from "./utils";
 
 export interface Position {
     top?: string;
@@ -223,7 +227,8 @@ export class Controller {
             display: "inline-flex",
             justifyContent: "center",
             alignItems: "center",
-            userSelect: "none",
+            cursor: "default",
+            ...userSelectNoneForAllBrowsers,
         };
 
         // Styles depending on controller type/axis
@@ -245,7 +250,7 @@ export class Controller {
             };
         }
 
-        const styles = {
+        const gamepadControllerStyles = {
             // Default styles
             ...stylesCommon,
             // Styles by controller Axis type
@@ -259,13 +264,16 @@ export class Controller {
             position: "absolute",
             width: "0",
             height: "0",
-            userSelect: "none",
             touchAction: "none",
+            ...userSelectNoneForAllBrowsers,
             ...this.options.position,
         });
 
         // Add styles - Controller
-        Object.assign(this.gamepadControllerElement.style, styles);
+        Object.assign(
+            this.gamepadControllerElement.style,
+            gamepadControllerStyles
+        );
 
         // Insert Elements to DOM
         this.anchorElement.append(this.gamepadControllerElement);
