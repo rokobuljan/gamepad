@@ -6,7 +6,7 @@ import { createElement, normalize } from "./utils";
 
 export interface ControllerOptions {
     /**
-     * The ID of the html element
+     * The ID of the html element.
      * Needed in case a controller should get destroyed or to add CSS styles
      * @example "left-controller"
      */
@@ -46,7 +46,7 @@ export interface ControllerOptions {
     /**
      * The axis on which the controller operates.
      *
-     * @default ControllerAxisType.all (other options: x, y)
+     * @default 'all' (other options: x, y)
      */
     axis?: ControllerAxisType;
     /**

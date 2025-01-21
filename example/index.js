@@ -154,13 +154,14 @@ const PL = new Player({
 const engine = () => {
     PL.move();
     weapons.forEach((weapon) => weapon.move());
+
     // Loop RAF
     requestAnimationFrame(engine);
 };
 
 engine();
 
-// GAMEPAD EXAMPLE:
+// Gamepad Example:
 const GP = new Gamepad([
     new Joystick({
         elementId: "left-joystick",
@@ -197,32 +198,30 @@ const GP = new Gamepad([
     }),
 ]);
 
-const ControllerSettingsButton = new Button(
-    {
-        type: "button",
-        text: "☰",
-        radius: 20,
-        spring: false,
-        position: {
-            right: "35px",
-            top: "35px",
-        },
-        style: {
-            border: "0",
-            color: "#fff",
-            background: "transparent",
-        },
-        onInput() {
-            console.log("asda");
-
-            // Open some settings panel
-            EL("#app-menu").classList.toggle("is-active", this.isActive);
-        },
+const ControllerSettingsButton = new Button({
+    elementId: "menu-button",
+    parentElement: document.querySelector("#app-right"),
+    text: "☰",
+    radius: 20,
+    spring: false,
+    position: {
+        right: "35px",
+        top: "35px",
     },
-    document.querySelector("#app-right")
-);
+    style: {
+        border: "0",
+        color: "#fff",
+        background: "transparent",
+    },
+    onInput(state) {
+        console.log("button state changed", state.isActive);
 
-GP.addController(ControllerSettingsButton);
+        // Open some settings panel
+        EL("#app-menu").classList.toggle("is-active", this.isActive);
+    },
+});
+
+GP.add(ControllerSettingsButton);
 ControllerSettingsButton.init();
 
 // GP.requestFullScreen();
