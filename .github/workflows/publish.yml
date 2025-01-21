@@ -9,6 +9,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
     contents: write
+    workflows: read
     pull-requests: write
 
 jobs:
