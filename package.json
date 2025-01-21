@@ -5,15 +5,16 @@
     "main": "dist/gamepad.js",
     "types": "dist/gamepad.d.ts",
     "scripts": {
-        "dev": "vite",
+        "dev": "vite --open",
         "build": "tsc -p .",
-        "prepublishOnly": "npm run build",
+        "release": "npm run build && changeset publish",
+        "lint": "tsc",
         "serve": "vite preview"
     },
     "files": [
-      "dist/", 
-      "src/"
-    ],  
+        "dist/",
+        "src/"
+    ],
     "repository": {
         "type": "git",
         "url": "git+https://github.com/rokobuljan/gamepad.git"
@@ -24,7 +25,11 @@
         "Controller",
         "Touch",
         "Games",
-        "IOT"
+        "Ui",
+        "Responsive",
+        "IOT",
+        "clean",
+        "easy to use"
     ],
     "author": {
         "name": "rbuljan",
