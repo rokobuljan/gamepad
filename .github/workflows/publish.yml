@@ -1,9 +1,12 @@
 name: Publish
+# on:
+#     workflow_run:
+#         workflows: [CI]
+#         branches: [main, 11-feature-npm-cicd-pipeline]
+#         types: [completed]
 on:
-    workflow_run:
-        workflows: [CI]
-        branches: [main, 11-feature-npm-cicd-pipeline]
-        types: [completed]
+    release:
+        types: [created]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
