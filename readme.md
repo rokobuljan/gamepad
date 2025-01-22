@@ -190,7 +190,7 @@ new Button({ controllerOptions });
 | `type`                    | String   | `"joystick"`(Default)<br>`"button"`            | Type of controller (Not necessary in standalone)            |
 | `axis`                    | String   | `"all"`(Default)<br>`"x"`<br>`"y"`             | Movement axis constraint (Joystick)                         |
 | `fixed`                   | Boolean  | `true`                                         | Set to `false` to change position on touch-start            |
-| `parentElement`           | String   | `"body"`                                       | Parent Selector to insert into                              |
+| `parentElement`           | String   | `an HTMLElement`                               | Parent Selector to insert into                              |
 | `position`                | Object   | `{top: "50%", left: "50%"}`                    | Controller initial position inside parent                   |
 | `radius`                  | Number   | `50`                                           | Controller radius in _px_                                   |
 | `spring`                  | Object   | `true`                                         | Set to `false` to keep state and values on touch-end/cancel |
@@ -253,7 +253,7 @@ Object {
 
 ## UI Strategies
 
-Controller's anchor points (`position`) are fixed by default. In such case you can set all your Controllers `parentElement` to the same DOM selector (i.e: `parentElement: "#app"`).
+Controller's anchor points (`position`) are fixed by default. In such case you can set all your Controllers `parentElement` to the same DOM Element.
 
 ### Non-fixed controllers
 
