@@ -1,18 +1,14 @@
-name: Publish
-# on:
-#     workflow_run:
-#         workflows: [CI]
-#         branches: [main, 11-feature-npm-cicd-pipeline]
-#         types: [completed]
+name: Publish to npm
+
 on:
-    release:
-        types: [created]
+    push:
+        tags:
+            - "v*.*.*" # Trigger only when a new version tag is pushed
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
     contents: write
-    workflows: read
     pull-requests: write
 
 jobs:
