@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 
 const commonConfig = {
     root: "example",
     build: {
-        outDir: '../dist'
+        outDir: "../dist",
     },
 };
 
@@ -13,8 +13,8 @@ export default defineConfig(({ command, mode }) => {
         return {
             ...commonConfig,
             server: {
-                host: true
-            }
+                host: true,
+            },
         };
     } else {
         return {
