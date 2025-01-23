@@ -161,15 +161,15 @@ It automatically creates and initializes (`init()`) its Controllers.
 
 ### Gamepad Methods
 
-| Method                           | Arguments                             | Description                                                   |
-| -------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
-| `add(object\|Controller,...)`    | controllerOptions or Controller       | Add and initialize controllers                                |
-| `remove(string\|Controller,...)` | controllerId or Controller            | Remove (and destroy) specific Controlles                      |
-| `destroy(id?)`                   | (Optional) controllerId or Controller | Destroy all associated Controller instances                   |
-| `requestFullScreen()`            |                                       | Invoke FullScreen API<br>on first touch                       |
-| `exitFullScreen()`               |                                       | Revoke FullScreen API                                         |
-| `isVibrationSupported()`         |                                       | Returns Boolean, `true` is Navigator supports vibration       |
-| `vibrate(number\|array)`         | i.e: `[200]` or `[200,30,100,30,200]` | _ms_ vibration time,<br>or Array of vibrate and pause pattern |
+| Method                           | Arguments                             | Description                                             |
+| -------------------------------- | ------------------------------------- | ------------------------------------------------------- |
+| `add(Controller,...)`            | Controller                            | Add and initialize controllers                          |
+| `remove(string\|Controller,...)` | controllerId or Controller            | Remove (and destroy) specific Controllers               |
+| `destroy(id?)`                   | (Optional) controllerId or Controller | Destroy all associated Controller instances             |
+| `requestFullScreen()`            |                                       | Invoke FullScreen API<br>on first touch                 |
+| `exitFullScreen()`               |                                       | Revoke FullScreen API                                   |
+| `isVibrationSupported()`         |                                       | Returns Boolean, `true` is Navigator supports vibration |
+| `vibrate(number[])`              | i.e: `[200]` or `[200,30,100,30,200]` | _ms_ vibration time Array of vibrate and pause pattern  |
 
 Gamepad Methods are chainable, i.e: `.vibrate(400).destroy().exitFullScreen()`
 
@@ -184,19 +184,19 @@ new Button({ controllerOptions });
 
 ### controllerOptions
 
-| Property                  | Type     | Value                                          | Description                                                 |
-| ------------------------- | -------- | ---------------------------------------------- | ----------------------------------------------------------- |
-| `elementId` **MANDATORY** | String   |                                                | Unique ID name (Mandatory)                                  |
-| `type`                    | String   | `"joystick"`(Default)<br>`"button"`            | Type of controller (Not necessary in standalone)            |
-| `axis`                    | String   | `"all"`(Default)<br>`"x"`<br>`"y"`             | Movement axis constraint (Joystick)                         |
-| `fixed`                   | Boolean  | `true`                                         | Set to `false` to change position on touch-start            |
-| `parentElement`           | String   | `an HTMLElement`                               | Parent to insert into                                       |
-| `position`                | Object   | `{top: "50%", left: "50%"}`                    | Controller initial position inside parent                   |
-| `radius`                  | Number   | `50`                                           | Controller radius in _px_                                   |
-| `spring`                  | Object   | `true`                                         | Set to `false` to keep state and values on touch-end/cancel |
-| `style`                   | Object   | `{}`                                           | Custom CSS styles                                           |
-| `text`                    | String   | `""`                                           | Button text or inner HTML                                   |
-| `onInput(state)`          | Function | `contains the current state of the controller` | Callback on touch-start/move/end/cancel                     |
+| Property                  | Type       | Value                                          | Description                                                 |
+| ------------------------- | ---------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| `elementId` **MANDATORY** | String     |                                                | Unique ID name (Mandatory)                                  |
+| `type`                    | String     | `"joystick"`(Default)<br>`"button"`            | Type of controller (Not necessary in standalone)            |
+| `axis`                    | String     | `"all"`(Default)<br>`"x"`<br>`"y"`             | Movement axis constraint (Joystick)                         |
+| `fixed`                   | Boolean    | `true`                                         | Set to `false` to change position on touch-start            |
+| `parentElement`           | String     | `an HTMLElement`                               | Parent to insert into                                       |
+| `position`                | CSS Object | `{top: "50%", left: "50%"}`                    | Controller initial position inside parent                   |
+| `radius`                  | Number     | `50`                                           | Controller radius in _px_                                   |
+| `spring`                  | boolean    | `true`                                         | Set to `false` to keep state and values on touch-end/cancel |
+| `style`                   | CSS Object | `{}`                                           | Custom CSS styles                                           |
+| `text`                    | String     | `""`                                           | Button text or inner HTML                                   |
+| `onInput(state)`          | Function   | `contains the current state of the controller` | Callback on touch-start/move/end/cancel                     |
 
 ### Controller Methods
 
@@ -214,20 +214,20 @@ Inside the `onInput(state)` method you can use the `state` to retrieve this vari
 
 Alternatively, you can also use your Gamepad instance controllers like i.e: `const throttleVal = GP.controllers.throttle.value` (where `throttle` is the Controller ID you set when registering your controllers `{throttle: {...controllerOptions}}`)
 
-| Property        | Type    | Description                                 |
-| --------------- | ------- | ------------------------------------------- |
-| `value`         | Number  | `0.0` - `1.0` (Joystick); `0`, `1` (Button) |
-| `angle`         | Number  | Normalized Angle in radians (Joystick)      |
-| `isPress`       | Boolean | `true` on touch-start                       |
-| `isDrag`        | Boolean | `true` on touch-move (Joystick)             |
-| `isActive`      | Boolean | `true` if has _"is-active"_ className       |
-| `x_start`       | Number  | _px_ Relative x touch-start coordinates     |
-| `y_start`       | Number  | _px_ Relative y touch-start coordinates     |
-| `x_drag`        | Number  | _px_ Relative x touch-move coordinates      |
-| `y_drag`        | Number  | _px_ Relative y touch-move coordinates      |
-| `x_diff`        | Number  | _px_ Difference x from start and move       |
-| `y_diff`        | Number  | _px_ Difference y from start and move       |
-| `distance_drag` | Number  | _px_ Drag distance (capped to max radius)   |
+| Property        | Type    | Description                                    |
+| --------------- | ------- | ---------------------------------------------- |
+| `value`         | Number  | `0.0` - `1.0` (Joystick)<br> `0`, `1` (Button) |
+| `angle`         | Number  | Normalized Angle in radians (Joystick)         |
+| `isPress`       | Boolean | `true` on touch-start                          |
+| `isDrag`        | Boolean | `true` on touch-move (Joystick)                |
+| `isActive`      | Boolean | `true` if has _"is-active"_ className          |
+| `x_start`       | Number  | _px_ Relative x touch-start coordinates        |
+| `y_start`       | Number  | _px_ Relative y touch-start coordinates        |
+| `x_drag`        | Number  | _px_ Relative x touch-move coordinates         |
+| `y_drag`        | Number  | _px_ Relative y touch-move coordinates         |
+| `x_diff`        | Number  | _px_ Difference x from start and move          |
+| `y_diff`        | Number  | _px_ Difference y from start and move          |
+| `distance_drag` | Number  | _px_ Drag distance (capped to max radius)      |
 
 **PS:**  
 Inspect your desired Controller ID to get more useful properties and values.
@@ -237,18 +237,18 @@ To preview all your Controllers instances:
 ```js
 const GP = new Gamepad([controllerOptions_move, controllerOptions_fire_1, ...]);
 console.log(GP.controllers);
-```
 
-which will give you your controllers IDs followed by their respective Controller Subclasses.
-Like: i.e:
+/*
+Example output: an object with key-value pairs of all controllers.
+{ id: Controller }
 
-```js
-Object {
+{
     move: Joystick{},
     fire_1: Button{},
     fire_2: Button{},
     settings: Button{}
 }
+*/
 ```
 
 ## UI Strategies
@@ -291,13 +291,11 @@ new Gamepad([
 
 ```sh
 npm i
-npm run dev # and head to http://localhost:3000
+# to run the "/example/index.html" and start developing
+npm run dev
 
 # To build the example
 npm run build
-
-# To serve the built project from /dist
-npm run serve  # http://localhost:5000
 ```
 
 Since **only touch events are supported**: open Dev tools, inspect, and set preview as _Mobile_
