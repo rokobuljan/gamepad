@@ -51,7 +51,7 @@ export class Controller {
 
     constructor(options: ControllerOptions, private type: ControllerType) {
         this.options = {
-            elementId: "",
+            id: "",
             parentElement: document.querySelector("body")!,
             radius: 40,
             spring: true,
@@ -81,7 +81,7 @@ export class Controller {
             className: "Gamepad-anchor",
         });
         this.gamepadControllerElement = createElement("div", {
-            id: this.options.elementId,
+            id: this.options.id,
             innerHTML: this.options.text,
             className: `Gamepad-controller Gamepad-${axisName} axis-${axisName}`,
         });

@@ -31,7 +31,7 @@ import { Gamepad } from "@rbuljan/gamepad";
 
 const GP = new Gamepad([
     new Joystick({
-        elementId: "controller-move", // MANDATORY!
+        id: "controller-move", // MANDATORY!
         parentElement: document.querySelector("#app-left"), // Where to append the controller
         fixed: false, // Change position on touch-start
         position: {
@@ -52,7 +52,7 @@ const GP = new Gamepad([
         },
     }),
     new Button({
-        elementId: "controller-fire", // MANDATORY!
+        id: "controller-fire", // MANDATORY!
         parentElement: document.querySelector("#app-right"),
         position: {
             // Anchor point position
@@ -84,7 +84,7 @@ console.log(GP.controllers); // {"controller-move: Joystick{}, "controller-fire"
 import { Joystick, Button } from "@rbuljan/gamepad";
 
 const ControllerPanorama = new Joystick({
-    elementId: "joystick-panorama",
+    id: "joystick-panorama",
     parentElement: document.querySelector("#app"),
     axis: "x",
     spring: false, // Don't reset (center) joystick on touch-end
@@ -94,7 +94,7 @@ const ControllerPanorama = new Joystick({
 });
 
 const ControllerMenu = new Button({
-    elementId: "button-menu",
+    id: "button-menu",
     parentElement: document.querySelector("#app"),
     spring: false, // Act as a checkbox
     text: "☰",
@@ -186,7 +186,7 @@ new Button({ controllerOptions });
 
 | Property                  | Type       | Value                                          | Description                                                 |
 | ------------------------- | ---------- | ---------------------------------------------- | ----------------------------------------------------------- |
-| `elementId` **MANDATORY** | String     |                                                | Unique ID name (Mandatory)                                  |
+| `id` **MANDATORY** | String     |                                                | Unique ID name (Mandatory)                                  |
 | `type`                    | String     | `"joystick"`(Default)<br>`"button"`            | Type of controller (Not necessary in standalone)            |
 | `axis`                    | String     | `"all"`(Default)<br>`"x"`<br>`"y"`             | Movement axis constraint (Joystick)                         |
 | `fixed`                   | Boolean    | `true`                                         | Set to `false` to change position on touch-start            |
@@ -271,13 +271,13 @@ In such case, to prevent your controllers to overlap each-other the best strateg
 ```js
 new Gamepad([
     new Joystick({
-        elementId: "move",
+        id: "move",
         parentElement: document.querySelector("#app-touchArea-left"),
         fixed: false,
         //...
     }),
     new Button({
-        elementId: "fire",
+        id: "fire",
         parentElement: document.querySelector("#app-touchArea-right"),
         fixed: false,
         //...
