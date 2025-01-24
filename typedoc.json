@@ -1,0 +1,9 @@
+{
+    "entryPoints": ["src/gamepad.ts"], // Specify the starting files
+    "out": "docs",                  // Directory where documentation will be generated
+    "excludePrivate": false,        // Include private members in the docs
+    "excludeProtected": false,      // Include protected members in the docs
+    "excludeExternals": false,      // Include external modules in the docs
+    "exclude": ["**/node_modules/**", "**/*.test.ts"], // Files to exclude
+    "includeVersion": true          // Add version number to the docs
+  }

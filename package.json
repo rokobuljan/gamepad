@@ -10,7 +10,7 @@
         "dev": "vite --open",
         "build": "tsc -p .",
         "lint": "tsc",
-        "generate-docs": "typedoc"
+        "generate-docs": "typedoc --plugin typedoc-plugin-missing-exports"
     },
     "files": [
         "dist/",
@@ -50,6 +50,7 @@
     "devDependencies": {
         "sass": "^1.83.4",
         "typedoc": "^0.27.6",
+        "typedoc-plugin-missing-exports": "^3.1.0",
         "typescript": "^5.7.3",
         "vite": "^6.0.11"
     }
