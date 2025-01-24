@@ -11,7 +11,7 @@ export interface ControllerOptions {
      * Needed in case a controller should get destroyed or to add CSS styles
      * @example "left-controller"
      */
-    elementId: string;
+    id: string;
     /**
      * The parent HTML element to which the controller is attached.
      */

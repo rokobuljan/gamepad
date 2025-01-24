@@ -21,7 +21,7 @@ class Gamepad {
      */
     add(...controllers: Controller[]) {
         for (let controller of controllers) {
-            this.controllers.set(controller.options.elementId, controller);
+            this.controllers.set(controller.options.id, controller);
 
             controller.init();
         }

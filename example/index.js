@@ -164,7 +164,7 @@ engine();
 // Gamepad Example:
 const GP = new Gamepad([
     new Joystick({
-        elementId: "left-joystick",
+        id: "move",
         parentElement: document.querySelector("#app-left"),
         radius: 60,
         axis: "all",
@@ -179,7 +179,7 @@ const GP = new Gamepad([
         },
     }),
     new Button({
-        elementId: "f-button",
+        id: "fire",
         parentElement: document.querySelector("#app-right"),
         radius: 60,
         fixed: false,
@@ -199,7 +199,7 @@ const GP = new Gamepad([
 ]);
 
 const ControllerSettingsButton = new Button({
-    elementId: "menu-button",
+    id: "menu-button",
     parentElement: document.querySelector("#app-right"),
     text: "☰",
     radius: 20,
