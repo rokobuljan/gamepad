@@ -159,20 +159,6 @@ new Gamepad( [Controller, ...] );
 Accepts an argument Array of either controllerOptions or Controller instances  
 It automatically creates and initializes (`init()`) its Controllers.
 
-### Gamepad Methods
-
-| Method                           | Arguments                             | Description                                             |
-| -------------------------------- | ------------------------------------- | ------------------------------------------------------- |
-| `add(Controller,...)`            | Controller                            | Add and initialize controllers                          |
-| `remove(string\|Controller,...)` | controllerId or Controller            | Remove (and destroy) specific Controllers               |
-| `destroy(id?)`                   | (Optional) controllerId or Controller | Destroy all associated Controller instances             |
-| `requestFullScreen()`            |                                       | Invoke FullScreen API<br>on first touch                 |
-| `exitFullScreen()`               |                                       | Revoke FullScreen API                                   |
-| `isVibrationSupported()`         |                                       | Returns Boolean, `true` is Navigator supports vibration |
-| `vibrate(number[])`              | i.e: `[200]` or `[200,30,100,30,200]` | _ms_ vibration time Array of vibrate and pause pattern  |
-
-Gamepad Methods are chainable, i.e: `.vibrate(400).destroy().exitFullScreen()`
-
 ## Controller (_Joystick, Button_)
 
 **Standalone syntax**
@@ -182,52 +168,8 @@ new Joystick({ controllerOptions });
 new Button({ controllerOptions });
 ```
 
-### controllerOptions
-
-| Property                  | Type       | Value                                          | Description                                                 |
-| ------------------------- | ---------- | ---------------------------------------------- | ----------------------------------------------------------- |
-| `id` **MANDATORY** | String     |                                                | Unique ID name (Mandatory)                                  |
-| `type`                    | String     | `"joystick"`(Default)<br>`"button"`            | Type of controller (Not necessary in standalone)            |
-| `axis`                    | String     | `"all"`(Default)<br>`"x"`<br>`"y"`             | Movement axis constraint (Joystick)                         |
-| `fixed`                   | Boolean    | `true`                                         | Set to `false` to change position on touch-start            |
-| `parentElement`           | String     | `an HTMLElement`                               | Parent to insert into                                       |
-| `position`                | CSS Object | `{top: "50%", left: "50%"}`                    | Controller initial position inside parent                   |
-| `radius`                  | Number     | `50`                                           | Controller radius in _px_                                   |
-| `spring`                  | boolean    | `true`                                         | Set to `false` to keep state and values on touch-end/cancel |
-| `style`                   | CSS Object | `{}`                                           | Custom CSS styles                                           |
-| `text`                    | String     | `""`                                           | Button text or inner HTML                                   |
-| `onInput(state)`          | Function   | `contains the current state of the controller` | Callback on touch-start/move/end/cancel                     |
-
-### Controller Methods
-
-| Method      | Description                             |
-| ----------- | --------------------------------------- |
-| `init()`    | Manually initialize Controller instance |
-| `destroy()` | Destroy Controller instance             |
-
 **\*Notice:**
 the `onInput(state)` will not be triggered on touch-end for controllers which property `spring` is set to `false`.
-
-## Controller output values
-
-Inside the `onInput(state)` method you can use the `state` to retrieve this various dynamic values.
-
-Alternatively, you can also use your Gamepad instance controllers like i.e: `const throttleVal = GP.controllers.throttle.value` (where `throttle` is the Controller ID you set when registering your controllers `{throttle: {...controllerOptions}}`)
-
-| Property        | Type    | Description                                    |
-| --------------- | ------- | ---------------------------------------------- |
-| `value`         | Number  | `0.0` - `1.0` (Joystick)<br> `0`, `1` (Button) |
-| `angle`         | Number  | Normalized Angle in radians (Joystick)         |
-| `isPress`       | Boolean | `true` on touch-start                          |
-| `isDrag`        | Boolean | `true` on touch-move (Joystick)                |
-| `isActive`      | Boolean | `true` if has _"is-active"_ className          |
-| `x_start`       | Number  | _px_ Relative x touch-start coordinates        |
-| `y_start`       | Number  | _px_ Relative y touch-start coordinates        |
-| `x_drag`        | Number  | _px_ Relative x touch-move coordinates         |
-| `y_drag`        | Number  | _px_ Relative y touch-move coordinates         |
-| `x_diff`        | Number  | _px_ Difference x from start and move          |
-| `y_diff`        | Number  | _px_ Difference y from start and move          |
-| `distance_drag` | Number  | _px_ Drag distance (capped to max radius)      |
 
 **PS:**  
 Inspect your desired Controller ID to get more useful properties and values.
