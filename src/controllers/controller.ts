@@ -117,12 +117,6 @@ export class Controller {
             return;
         }
 
-        // If a Gamepad Button was touched, don't do anything with the Joystick
-        const target = evt.target as HTMLElement;
-        if (this.isJoystick && target.closest(".Gamepad-Button")) {
-            return;
-        }
-
         evt.preventDefault();
 
         this.parentElement.setPointerCapture(evt.pointerId);
@@ -185,12 +179,6 @@ export class Controller {
     handleEnd(evt: PointerEvent) {
         // If touch was not registered on touch-start - do nothing
         if (this.state.pointerIdentifier < 0) {
-            return;
-        }
-
-        // If a Gamepad Button was touched, don't do anything with the Joystick
-        const target = evt.target as HTMLElement;
-        if (this.isJoystick && target.closest(".Gamepad-Button")) {
             return;
         }
 
