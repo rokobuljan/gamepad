@@ -16,8 +16,8 @@ class Gamepad {
     }
 
     /**
-     * Add Controller to Gamepad
-     * @param controllers or a Button or Joystick Controller instance.
+     * Add Controller to Gamepad and initialize it!
+     * @param controllers or a Button or Joystick Controller instance
      */
     add(...controllers: Controller[]) {
         for (let controller of controllers) {
@@ -32,7 +32,7 @@ class Gamepad {
      * Remove/destroy controller by ID
      * @param id Controller ID to remove
      */
-    remove(id: string) {
+    remove(id: string) {        
         this.controllers.get(id)!.destroy();
         this.controllers.delete(id);
     }
@@ -42,12 +42,16 @@ class Gamepad {
      * @param id (Optional) Controller ID or Controller instance
      */
     destroy(id: string) {
+        
         // Destroy only one controller
         if (id) {
             return this.remove(id);
-        }
+        }        
+        
         // Destroy all controllers
-        Object.keys(this.controllers).forEach((id) => this.remove(id));
+        this.controllers.forEach((controller) => {
+            this.remove(controller.options.id);
+        });
         // Remove events
         document
             .querySelector("body")!
