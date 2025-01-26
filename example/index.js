@@ -1,9 +1,9 @@
 import "./style.css";
 import { Gamepad, Button, Joystick } from "../src/gamepad";
 
-const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
-const EL = (sel, PAR) => (PAR || document).querySelector(sel);
-const EL_app = EL("#app");
+const elNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
+const el = (sel, PAR) => (PAR || document).querySelector(sel);
+const elApp = el("#app");
 
 const lerpAngles = (A, B, w) => {
     const CS = (1 - w) * Math.cos(A) + w * Math.cos(B);
@@ -34,8 +34,8 @@ class Player {
             }
         );
 
-        this.EL = ELNew("div", { className: "player" });
-        EL_app.append(this.EL);
+        this.el = elNew("div", { className: "player" });
+        elApp.append(this.el);
     }
 
     move() {
@@ -63,13 +63,13 @@ class Player {
         this.x += Math.cos(this.angle) * this.speed;
         this.y += Math.sin(this.angle) * this.speed;
 
-        const bcr_app = EL_app.getBoundingClientRect();
+        const bcr_app = elApp.getBoundingClientRect();
         // edge collision
         this.x = Math.max(0, Math.min(bcr_app.width - this.radius, this.x));
         this.y = Math.max(0, Math.min(bcr_app.height - this.radius, this.y));
 
         // DRAW
-        this.EL.style.cssText = `
+        this.el.style.cssText = `
             transform: translate(${this.x}px, ${this.y}px) rotate(${
             this.angle + Math.PI / 2
         }rad);
@@ -104,7 +104,7 @@ class Weapon {
                 life: 190,
                 fireRate: 10,
                 fireCoolDown: 0,
-                EL: ELNew("div", { className: "missile" }),
+                el: elNew("div", { className: "missile" }),
             }
         );
 
@@ -127,7 +127,7 @@ class Weapon {
         this.life -= 1;
 
         // DRAW
-        this.EL.style.cssText = `
+        this.el.style.cssText = `
             transform: translate(${this.x}px, ${this.y}px) rotate(${
             this.angle + Math.PI / 2
         }rad);
@@ -136,12 +136,12 @@ class Weapon {
 
     init() {
         this.move(); // Move to ship position
-        EL_app.append(this.EL);
+        elApp.append(this.el);
         weapons.push(this);
     }
 
     destroy() {
-        this.EL.remove();
+        this.el.remove();
         weapons.splice(weapons.indexOf(this), 1);
     }
 }
@@ -164,11 +164,11 @@ engine();
 // Gamepad Example:
 const GP = new Gamepad([
     new Joystick({
-        elementId: "left-joystick",
-        parentElement: document.querySelector("#app-left"),
+        id: "move",
+        parentElement: el("#app-left"),
         radius: 60,
         axis: "all",
-        fixed: true,
+        fixed: false,
         position: {
             left: "25%",
             top: "50%",
@@ -176,28 +176,14 @@ const GP = new Gamepad([
         onInput(state) {
             PL.controller.value = state.value;
             PL.controller.angle = state.angle;
-        },
-    }),
-    new Joystick({
-        elementId: "left-joystick",
-        parentElement: document.querySelector("#app-left"),
-        radius: 60,
-        axis: "all",
-        fixed: true,
-        position: {
-            left: "55%",
-            top: "50%",
-        },
-        onInput(state) {
-            PL.controller.value = state.value;
-            PL.controller.angle = state.angle;
+            console.log("Joystick 1");
         },
     }),
     new Button({
-        elementId: "f-button",
-        parentElement: document.querySelector("#app-right"),
+        id: "fire",
+        parentElement: el("#app-right"),
         radius: 60,
-        fixed: false,
+        fixed: true,
         text: "F",
         position: {
             right: "25%",
@@ -214,7 +200,7 @@ const GP = new Gamepad([
 ]);
 
 const ControllerSettingsButton = new Button({
-    elementId: "menu-button",
+    id: "menu-button",
     parentElement: document.querySelector("#app-right"),
     text: "☰",
     radius: 20,
@@ -229,14 +215,11 @@ const ControllerSettingsButton = new Button({
         background: "transparent",
     },
     onInput(state) {
-        console.log("button state changed", state.isActive);
-
+        console.log(`button state changed: ${state}`);
         // Open some settings panel
-        EL("#app-menu").classList.toggle("is-active", this.isActive);
+        el("#app-menu").classList.toggle("is-active", this.isActive);
     },
 });
 
 GP.add(ControllerSettingsButton);
-ControllerSettingsButton.init();
-
 // GP.requestFullScreen();
