@@ -32,10 +32,12 @@ export class Controller {
     /**
      * the current and changing state of the controller
      */
-    protected state: ControllerState = {
+    public state: ControllerState = {
         isPressed: false,
         isActive: false,
         isDrag: false,
+        apiCompliantAxisXValue: 0,
+        apiCompliantAxisYValue: 0,
         value: 0,
         angle: 0,
         x_start: 0,
