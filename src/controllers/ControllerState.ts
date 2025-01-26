@@ -47,7 +47,7 @@ export interface ControllerState {
     /**
      * The touch events Id
      */
-    pointerIdentifier: number;
+    pointerId: number;
     /**
      * Is currently isInitialized
      */

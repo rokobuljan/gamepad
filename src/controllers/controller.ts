@@ -24,6 +24,7 @@ export class Controller {
     parentElement: HTMLElement;
     anchorElement!: HTMLElement;
     gamepadControllerElement!: HTMLElement;
+    elEventStarter!: HTMLElement;
 
     isJoystick: boolean;
     /** contains oll the initial options */
@@ -45,7 +46,7 @@ export class Controller {
         x_drag: 0,
         y_drag: 0,
         dragDistance: 0,
-        pointerIdentifier: -1,
+        pointerId: -1,
         isInitialized: false,
     };
 
@@ -113,20 +114,20 @@ export class Controller {
 
     handleStart(evt: PointerEvent) {
         // Is already assigned? Do nothing
-        if (this.state.pointerIdentifier > -1) {
+        if (this.state.pointerId > -1) {
             return;
         }
 
         evt.preventDefault();
 
-        this.parentElement.setPointerCapture(evt.pointerId);
+        this.elEventStarter.setPointerCapture(evt.pointerId);
 
         const { x, y } = this.getPointerXY(evt);
 
         this.state.isPressed = true;
         this.state.isActive = this.options.spring ? true : !this.state.isActive;
 
-        this.state.pointerIdentifier = evt.pointerId;
+        this.state.pointerId = evt.pointerId;
         this.state.x_start = x;
         this.state.y_start = y;
 
@@ -145,9 +146,9 @@ export class Controller {
 
     handleMove(evt: PointerEvent) {
         if (
-            !this.parentElement.hasPointerCapture(evt.pointerId) ||
+            !this.elEventStarter.hasPointerCapture(evt.pointerId) ||
             !this.state.isPressed ||
-            this.state.pointerIdentifier < 0
+            this.state.pointerId < 0
         ) {
             return;
         }
@@ -173,18 +174,19 @@ export class Controller {
         this.state.angle = normalize(
             Math.atan2(this.state.y_diff, this.state.x_diff)
         );
+
         this.onMove();
     }
 
     handleEnd(evt: PointerEvent) {
         // If touch was not registered on touch-start - do nothing
-        if (this.state.pointerIdentifier < 0) {
+        if (this.state.pointerId < 0) {
             return;
         }
 
         this.parentElement.releasePointerCapture(evt.pointerId);
 
-        this.state.pointerIdentifier = -1;
+        this.state.pointerId = -1;
         this.state.isDrag = false;
         this.state.isPressed = false;
         if (this.options.spring) {
@@ -197,6 +199,8 @@ export class Controller {
         );
 
         this.onEnd();
+
+        
     }
 
     init() {
@@ -268,16 +272,16 @@ export class Controller {
         this.options.parentElement.append(this.anchorElement);
 
         // Events
-        const eventStarterElement =
-            this.isJoystick || !this.options.fixed
-                ? this.parentElement
-                : this.gamepadControllerElement;
+        this.elEventStarter =
+            this.options.fixed
+                ? this.gamepadControllerElement
+                : this.parentElement;
 
-        eventStarterElement.addEventListener("pointerdown", this.handleStart, {
+        this.elEventStarter.addEventListener("pointerdown", this.handleStart, {
             passive: false,
         });
         if (this.isJoystick) {
-            this.parentElement.addEventListener(
+            this.elEventStarter.addEventListener(
                 "pointermove",
                 this.handleMove,
                 {
@@ -285,19 +289,13 @@ export class Controller {
                 }
             );
         }
-        this.parentElement.addEventListener("pointerup", this.handleEnd);
-        this.parentElement.addEventListener("pointercancel", this.handleEnd);
-        this.parentElement.addEventListener("contextmenu", this._noDefault);
+        this.elEventStarter.addEventListener("pointerup", this.handleEnd);
+        this.elEventStarter.addEventListener("pointercancel", this.handleEnd);
+        this.elEventStarter.addEventListener("contextmenu", this._noDefault);
     }
 
     destroy() {
-        // Events
-        const eventStarterElement =
-            this.isJoystick || !this.options.fixed
-                ? this.parentElement
-                : this.gamepadControllerElement;
-
-        eventStarterElement.removeEventListener(
+        this.elEventStarter.removeEventListener(
             "pointerdown",
             this.handleStart,
             {
@@ -305,7 +303,7 @@ export class Controller {
             } as EventListenerOptions
         );
         if (this.isJoystick) {
-            this.parentElement.removeEventListener(
+            this.elEventStarter.removeEventListener(
                 "pointermove",
                 this.handleMove,
                 {
@@ -313,9 +311,9 @@ export class Controller {
                 } as EventListenerOptions
             );
         }
-        this.parentElement.removeEventListener("pointerup", this.handleEnd);
-        this.parentElement.removeEventListener("pointercancel", this.handleEnd);
-        this.parentElement.removeEventListener("contextmenu", this._noDefault);
+        this.elEventStarter.removeEventListener("pointerup", this.handleEnd);
+        this.elEventStarter.removeEventListener("pointercancel", this.handleEnd);
+        this.elEventStarter.removeEventListener("contextmenu", this._noDefault);
 
         // Remove element from DOM
         this.anchorElement.remove();
