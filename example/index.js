@@ -1,19 +1,12 @@
-import './style.scss'
-import { Gamepad, Joystick, Button } from "../gamepad.js";
-
-const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
-const EL = (sel, PAR) => (PAR || document).querySelector(sel);
-const EL_app = EL("#app");
-
-const lerpAngles = (A, B, w) => {
-    const CS = (1 - w) * Math.cos(A) + w * Math.cos(B);
-    const SN = (1 - w) * Math.sin(A) + w * Math.sin(B);
-    return Math.atan2(SN, CS);
-};
+import './style.css'
+import { Gamepad, Button } from "../gamepad.js";
+import { elNew, el, lerpAngles, TAU } from "../utils.js";
 
 /**
  * Example:
  */
+
+const elApp = el("#app");
 class Player {
     constructor(options) {
         Object.assign(this, {
@@ -21,17 +14,18 @@ class Player {
             x: 100,
             y: 100,
             radius: 40,
-            angle: 0,
+            angle: Math.PI + Math.PI / 2,
             speed: 0,
             speed_max: 5,
-            controller: { angle: 0, value: 0 },
+            controllerType: "joystick",
+            controller: { angle: 0, value: 0, direction: 0 },
             canFire: true,
         }, options, {
             angleTarget: 0,
         });
 
-        this.EL = ELNew("div", { className: "player" });
-        EL_app.append(this.EL);
+        this.el = elNew("div", { className: "player" });
+        elApp.append(this.el);
     }
 
     move() {
@@ -43,7 +37,7 @@ class Player {
         if (maxSpeed && !this.speed) this.speed = 0.2;
 
         // accelerate / decelerate
-        this.speed *= (this.speed < maxSpeed) ? 1.1 : 0.95
+        this.speed *= (this.speed < maxSpeed) ? 1.1 : 0.95;
 
         // Bring to hault
         if (this.speed && this.speed < 0.1 && !maxSpeed) {
@@ -52,21 +46,25 @@ class Player {
         }
 
         // Rotation (only if there's thrust)
-        if (this.controller.value > 0.15) {
+        if (PL.controller.type === "joystick" && this.controller.value > 0.15) {
+            // Position
             this.angle = lerpAngles(this.angle, this.controller.angle, 0.07);
+            this.x += Math.cos(this.angle) * this.speed;
+            this.y += Math.sin(this.angle) * this.speed;
+        }
+        else if (PL.controller.type === "dpad") {
+            // Position
+            this.x += Math.cos(this.controller.angleDirection) * this.speed;
+            this.y += Math.sin(this.controller.angleDirection) * this.speed;
         }
 
-        // Position
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed;
-
-        const bcr_app = EL_app.getBoundingClientRect();
+        const bcr_app = elApp.getBoundingClientRect();
         // edge collision  
         this.x = Math.max(0, Math.min(bcr_app.width - this.radius, this.x));
         this.y = Math.max(0, Math.min(bcr_app.height - this.radius, this.y));
 
         // DRAW
-        this.EL.style.cssText = `
+        this.el.style.cssText = `
             transform: translate(${this.x}px, ${this.y}px) rotate(${this.angle + Math.PI / 2}rad);
         `;
     }
@@ -95,7 +93,7 @@ class Weapon {
             life: 190,
             fireRate: 10,
             fireCoolDown: 0,
-            EL: ELNew("div", { className: "missile" }),
+            el: elNew("div", { className: "missile" }),
         });
 
         const speed_min = 3;
@@ -117,19 +115,19 @@ class Weapon {
         this.life -= 1;
 
         // DRAW
-        this.EL.style.cssText = `
+        this.el.style.cssText = `
             transform: translate(${this.x}px, ${this.y}px) rotate(${this.angle + Math.PI / 2}rad);
         `;
     }
 
     init() {
         this.move(); // Move to ship position
-        EL_app.append(this.EL);
+        elApp.append(this.el);
         weapons.push(this);
     }
 
     destroy() {
-        this.EL.remove();
+        this.el.remove();
         weapons.splice(weapons.indexOf(this), 1);
     }
 }
@@ -153,6 +151,7 @@ engine();
 
 const GP = new Gamepad([
     {
+        type: "dpad",
         id: "move",
         parent: "#app-left",
         axis: "all",
@@ -162,14 +161,31 @@ const GP = new Gamepad([
             top: "50%",
         },
         onInput() {
-            PL.controller.value = this.value;
-            PL.controller.angle = this.angle;
+            PL.controller = this;
+            // PL.controllerType = this.type;
+            // PL.controller.value = this.value;
+            // PL.controller.angle = this.angleDirection;
+            // console.log(this.direction);
         }
     },
     {
+        type: "joystick",
+        id: "move-2",
+        parent: "#app-right",
+        axis: "all",
+        fixed: true,
+        position: {
+            left: "45%",
+            top: "50%",
+        },
+        onInput() {
+            PL.controller = this;
+        }
+    },
+    {
+        type: "button",
         id: "fire",
         parent: "#app-right",
-        type: "button",
         fixed: false,
         position: {
             right: "25%",
@@ -184,9 +200,9 @@ const GP = new Gamepad([
 ]);
 
 const ControllerButtonSettings = new Button({
+    type: "button",
     id: "settings",
     parent: "#app",
-    type: "button",
     text: "☰",
     radius: 20,
     spring: false,
@@ -200,8 +216,8 @@ const ControllerButtonSettings = new Button({
         background: "transparent",
     },
     onInput() {
-        // Open some settings panel
-        EL("#app-menu").classList.toggle("is-active", this.isActive);
+        // Open some settings panel        
+        el("#app-menu").classList.toggle("is-active", this.isActive);
     }
 });
 

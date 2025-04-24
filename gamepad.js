@@ -5,9 +5,10 @@
 
 import { Button } from "./controllers/button.js";
 import { Joystick } from "./controllers/joystick.js";
+import { DPad } from "./controllers/dpad.js";
 
 const isController = (ob) => ob instanceof Button || ob instanceof Joystick;
-const DEFAULT_TYPE = "joystick";
+const TYPE = "joystick";
 
 class Gamepad {
     constructor(controllersArray = []) {
@@ -26,10 +27,11 @@ class Gamepad {
             if (isController(options)) {
                 controller = options;
             } else {
-                options.type = (options.type || DEFAULT_TYPE).trim().toLowerCase();
+                options.type = (options.type || TYPE).trim().toLowerCase();
                 controller = new {
                     button: Button,
                     joystick: Joystick,
+                    dpad: DPad,
                 }[options.type](options);
             }
             this.controllers[controller.id] = controller;
@@ -68,7 +70,7 @@ class Gamepad {
         // Destroy all controllers
         Object.keys(this.controllers).forEach((id) => this.remove(id));
         // Remove events
-        document.querySelector("body").removeEventListener("click", this.handleFullscreen);
+        removeEventListener("click", this.handleFullscreen);
         return this;
     }
 
@@ -83,7 +85,7 @@ class Gamepad {
      * @returns {Gamepad}
      */
     requestFullScreen() {
-        document.querySelector("body").addEventListener("click", this.handleFullscreen);
+        addEventListener("click", this.handleFullscreen);
         return this;
     }
 
@@ -118,4 +120,9 @@ class Gamepad {
     }
 }
 
-export { Gamepad, Button, Joystick };
+export {
+    Gamepad,
+    Button,
+    Joystick,
+    DPad
+};

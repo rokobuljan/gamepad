@@ -5,7 +5,7 @@ import { Controller } from "./controller.js";
  * Author: https://github.com/rokobuljan/ 
  */
 
-const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
+import { elNew } from "../utils.js";
 
 class Joystick extends Controller {
 
@@ -27,26 +27,26 @@ class Joystick extends Controller {
 
         if (this.axis === "all") {
 
-            this.value = this.distance_drag / this.radius;
+            this.value = this.distanceDrag / this.radius;
 
-            const x_pos = this.distance_drag * Math.cos(this.angle) + this.radius;
-            const y_pos = this.distance_drag * Math.sin(this.angle) + this.radius;
-            this.el_handle.style.left = `${x_pos}px`;
-            this.el_handle.style.top = `${y_pos}px`;
+            const x_pos = this.distanceDrag * Math.cos(this.angle) + this.radius;
+            const y_pos = this.distanceDrag * Math.sin(this.angle) + this.radius;
+            this.elHandle.style.left = `${x_pos}px`;
+            this.elHandle.style.top = `${y_pos}px`;
 
         } else if (this.axis === "x") {
 
             this.value = Math.max(Math.min(this.x_diff / this.radius, 1), -1);
 
             const x_pos = this.value * this.radius + this.radius;
-            this.el_handle.style.left = `${x_pos}px`;
+            this.elHandle.style.left = `${x_pos}px`;
 
         } else if (this.axis === "y") {
 
             this.value = Math.max(Math.min(-this.y_diff / this.radius, 1), -1);
-
+            
             const y_pos = -this.value * this.radius + this.radius;
-            this.el_handle.style.top = `${y_pos}px`;
+            this.elHandle.style.top = `${y_pos}px`;
 
         }
 
@@ -58,8 +58,8 @@ class Joystick extends Controller {
         if (!this.spring) return;
 
         this.value = 0;
-        this.el_handle.style.left = `50%`;
-        this.el_handle.style.top = `50%`;
+        this.elHandle.style.left = `50%`;
+        this.elHandle.style.top = `50%`;
 
         this.onInput();
     }
@@ -68,7 +68,7 @@ class Joystick extends Controller {
         super.init();
 
         // Add Handle to this Controller
-        this.el_handle = ELNew("div", {
+        this.elHandle = elNew("div", {
             className: "Gamepad-joystick-handle"
         });
 
@@ -84,8 +84,8 @@ class Joystick extends Controller {
             borderRadius: "inherit",
         };
 
-        Object.assign(this.el_handle.style, styles);
-        this.el.append(this.el_handle);
+        Object.assign(this.elHandle.style, styles);
+        this.el.append(this.elHandle);
     }
 }
 

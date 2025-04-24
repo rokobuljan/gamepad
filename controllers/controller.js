@@ -3,11 +3,7 @@
  * Author: https://github.com/rokobuljan/ 
  */
 
-const ELNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
-const EL = (sel, PAR) => (PAR || document).querySelector(sel);
-
-const TAU = Math.PI * 2;
-const norm = (rad) => rad - TAU * Math.floor(rad / TAU);
+import { el, elNew, norm, TAU } from "../utils.js";
 
 class Controller {
 
@@ -28,14 +24,18 @@ class Controller {
             isDrag: false,
             value: 0,
             angle: 0,
+            angleDirection: 0, // 0=right, like angle but capped by direction
+            direction: 0, // int, directions (for joystick and dpad) 0=right, clockwise
+            directionsTot: 8, // Subdivide circle to 8 direction regions
             x_start: 0,
             y_start: 0,
             x_diff: 0,
             y_diff: 0,
-            distance_drag: 0,
+            distanceDrag: 0,
             onInput() { },
         }, options, {
-            identifier: -1, // Touch finger identifier
+            pointerId: null, // Touch finger pointerId
+            elEventStarter: null,
             isInitialized: false,
         });
         this.style = {
@@ -43,13 +43,14 @@ class Controller {
             border: "2px solid currentColor",
             ...this.style
         };
-        this.isJoystick = this.type === "joystick";
+        this.isTouchMovable = this.type === "joystick" || this.type === "dpad";
 
         this.handleStart = this.handleStart.bind(this);
         this.handleMove = this.handleMove.bind(this);
         this.handleEnd = this.handleEnd.bind(this);
     }
 
+    onInit() { }
     onStart() { }
     onMove() { }
     onEnd() { }
@@ -61,7 +62,7 @@ class Controller {
     // Get relative mouse coordinates 
     getPointerXY(evt) {
         const { clientX, clientY } = evt;
-        const { left, top } = this.el_parent.getBoundingClientRect();
+        const { left, top } = this.elParent.getBoundingClientRect();
         return {
             x: clientX - left,
             y: clientY - top
@@ -69,38 +70,36 @@ class Controller {
     }
 
     handleStart(evt) {
-
         // Is already assigned? Do nothing
-        if (this.identifier > -1) return;
+        if (this.isTouchMovable && this.pointerId) return;
+        this.pointerId = evt.pointerId;
+
         // If a Gamepad Button was touched, don't do anything with the Joystick
-        if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
+        if (this.isTouchMovable && evt.target.closest(".Gamepad-Button")) return;
 
         evt.preventDefault();
-
-        this.el_parent.setPointerCapture(evt.pointerId);
+        this.elEventStarter.setPointerCapture(evt.pointerId);
 
         const { x, y } = this.getPointerXY(evt);
 
         this.isPress = true;
         this.isActive = this.spring ? true : !this.isActive;
 
-        this.identifier = evt.pointerId;
         this.x_start = x;
         this.y_start = y;
 
         if (!this.fixed) {
-            this.el_anchor.style.left = `${this.x_start}px`;
-            this.el_anchor.style.top = `${this.y_start}px`;
+            this.elAnchor.style.left = `${this.x_start}px`;
+            this.elAnchor.style.top = `${this.y_start}px`;
         }
 
-        this.el.classList.toggle("is-active", this.isJoystick ? this.isPress : this.isActive);
+        this.el.classList.toggle("is-active", this.isTouchMovable ? this.isPress : this.isActive);
 
         this.onStart();
     }
 
     handleMove(evt) {
-
-        if (!this.el_parent.hasPointerCapture(evt.pointerId) || !this.isPress || this.identifier < 0) return;
+        if (this.isTouchMovable && evt.pointerId !== this.pointerId) return;
 
         evt.preventDefault();
 
@@ -111,41 +110,49 @@ class Controller {
         this.y_drag = y;
         this.x_diff = this.x_drag - this.x_start;
         this.y_diff = this.y_drag - this.y_start;
-        this.distance_drag = Math.min(this.radius, Math.sqrt(this.x_diff * this.x_diff + this.y_diff * this.y_diff));
+        this.distanceDrag = Math.min(this.radius, Math.sqrt(this.x_diff * this.x_diff + this.y_diff * this.y_diff));
 
         // Finally set the angle (normalized)
         this.angle = norm(Math.atan2(this.y_diff, this.x_diff));
+        this.direction = Math.round(this.angle / (TAU / this.directionsTot)) % this.directionsTot; // Normalize to 0-7
+        this.angleDirection = TAU * this.direction / this.directionsTot; // Angle of the direction
+
         this.onMove();
     }
 
     handleEnd(evt) {
 
         // If touch was not registered on touch-start - do nothing
-        if (this.identifier < 0) return;
+        if (evt.pointerId !== this.pointerId) return;
 
         // If a Gamepad Button was touched, don't do anything with the Joystick
-        if (this.isJoystick && evt.target.closest(".Gamepad-Button")) return;
+        if (this.isTouchMovable && evt.target.closest(".Gamepad-Button")) return;
 
-        this.el_parent.releasePointerCapture(evt.pointerId);
+        this.elParent.releasePointerCapture(evt.pointerId);
 
-        this.identifier = -1;
+        this.pointerId = null;
         this.isDrag = false;
         this.isPress = false;
         if (this.spring) this.isActive = false;
 
-        this.el.classList.toggle("is-active", this.isJoystick ? this.isPress : this.isActive);
+        this.el.classList.toggle("is-active", this.isTouchMovable ? this.isPress : this.isActive);
 
         this.onEnd();
     }
 
     init() {
+        if (this.isInitialized) {
+            this.destroy();
+        }
 
-        if (this.isInitialized) this.destroy();
         this.isInitialized = true;
+        this.pointerId = null;
 
-        this.el_parent = EL(this.parent);
-        this.el_anchor = ELNew("div", { className: "Gamepad-anchor" });
-        this.el = ELNew("div", {
+        this.elParent = el(this.parent);
+        this.elAnchor = elNew("div", {
+            className: "Gamepad-anchor"
+        });
+        this.el = elNew("div", {
             id: this.id,
             innerHTML: this.text,
             className: `Gamepad-controller Gamepad-${this.type} axis-${this.axis}`,
@@ -181,7 +188,7 @@ class Controller {
         };
 
         // Add styles - Controller anchor
-        Object.assign(this.el_anchor.style, {
+        Object.assign(this.elAnchor.style, {
             position: "absolute",
             width: "0",
             height: "0",
@@ -194,30 +201,34 @@ class Controller {
         Object.assign(this.el.style, styles);
 
         // Insert Elements to DOM
-        this.el_anchor.append(this.el);
-        this.el_parent.append(this.el_anchor);
+        this.elAnchor.append(this.el);
+        this.elParent.append(this.elAnchor);
 
         // Events
-        const el_evt_starter = this.isJoystick || !this.fixed ? this.el_parent : this.el;
-        el_evt_starter.addEventListener("pointerdown", this.handleStart, { passive: false });
-        if (this.isJoystick) this.el_parent.addEventListener("pointermove", this.handleMove, { passive: false });
-        this.el_parent.addEventListener("pointerup", this.handleEnd);
-        this.el_parent.addEventListener("pointercancel", this.handleEnd);
-        this.el_parent.addEventListener("contextmenu", this._noDefault);
+        this.elEventStarter = this.fixed ? this.el : this.elParent;
+
+        this.elEventStarter.addEventListener("pointerdown", this.handleStart, { passive: false });
+        if (this.isTouchMovable) this.elEventStarter.addEventListener("pointermove", this.handleMove, { passive: false });
+        this.elEventStarter.addEventListener("pointerup", this.handleEnd);
+        this.elEventStarter.addEventListener("pointercancel", this.handleEnd);
+        this.elEventStarter.addEventListener("contextmenu", this._noDefault);
+
+        this.onInit();
     }
 
     destroy() {
-    
+        this.isInitialized = false;
+        this.pointerId = null;
+
         // Events
-        const el_evt_starter = this.isJoystick || !this.fixed ? this.el_parent : this.el;
-        el_evt_starter.removeEventListener("pointerdown", this.handleStart, { passive: false });
-        if (this.isJoystick) this.el_parent.removeEventListener("pointermove", this.handleMove, { passive: false });
-        this.el_parent.removeEventListener("pointerup", this.handleEnd);
-        this.el_parent.removeEventListener("pointercancel", this.handleEnd);
-        this.el_parent.removeEventListener("contextmenu", this._noDefault);
+        this.elEventStarter.removeEventListener("pointerdown", this.handleStart, { passive: false });
+        if (this.isTouchMovable) this.elEventStarter.removeEventListener("pointermove", this.handleMove, { passive: false });
+        this.elEventStarter.removeEventListener("pointerup", this.handleEnd);
+        this.elEventStarter.removeEventListener("pointercancel", this.handleEnd);
+        this.elEventStarter.removeEventListener("contextmenu", this._noDefault);
 
         // Remove element from DOM
-        this.el_anchor.remove();
+        this.elAnchor.remove();
     }
 }
 

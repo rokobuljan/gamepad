@@ -226,7 +226,7 @@ Alternatively, you can also use your Gamepad instance controllers like i.e: `con
 | `y_drag`        | Number  | *px* Relative y touch-move coordinates       |
 | `x_diff`        | Number  | *px* Difference x from start and move        |
 | `y_diff`        | Number  | *px* Difference y from start and move        |
-| `distance_drag` | Number  | *px* Drag distance (capped to max radius)    |
+| `distanceDrag` | Number  | *px* Drag distance (capped to max radius)    |
 
 **PS:**  
 Inspect your desired Controller ID to get more useful properties and values.
