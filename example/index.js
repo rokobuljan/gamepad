@@ -1,52 +1,43 @@
-import "./style.css";
-import { Gamepad, Button, Joystick } from "../src/gamepad";
-
-const elNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
-const el = (sel, PAR) => (PAR || document).querySelector(sel);
-const elApp = el("#app");
-
-const lerpAngles = (A, B, w) => {
-    const CS = (1 - w) * Math.cos(A) + w * Math.cos(B);
-    const SN = (1 - w) * Math.sin(A) + w * Math.sin(B);
-    return Math.atan2(SN, CS);
-};
+import './style.css'
+import { Gamepad, Button } from "../gamepad.js";
+import { elNew, el, lerpAngles, TAU } from "../utils.js";
 
 /**
  * Example:
  */
+
+const elApp = el("#app");
 class Player {
     constructor(options) {
-        Object.assign(
-            this,
-            {
-                x: 100,
-                y: 100,
-                radius: 40,
-                angle: 0,
-                speed: 0,
-                speedMax: 5,
-                controller: { angle: 0, value: 0 },
-                canFire: true,
-            },
-            options,
-            {
-                angleTarget: 0,
-            }
-        );
+        Object.assign(this, {
+            id: "",
+            x: 100,
+            y: 100,
+            radius: 40,
+            angle: Math.PI + Math.PI / 2,
+            speed: 0,
+            speed_max: 5,
+            controllerType: "joystick",
+            controller: { angle: 0, value: 0, direction: 0 },
+            canFire: true,
+        }, options, {
+            angleTarget: 0,
+        });
 
         this.el = elNew("div", { className: "player" });
         elApp.append(this.el);
     }
 
     move() {
+
         // Throttle:
-        const maxSpeed = this.speedMax * this.controller.value;
+        const maxSpeed = this.speed_max * this.controller.value;
 
         // Start moving
         if (maxSpeed && !this.speed) this.speed = 0.2;
 
         // accelerate / decelerate
-        this.speed *= this.speed < maxSpeed ? 1.1 : 0.95;
+        this.speed *= (this.speed < maxSpeed) ? 1.1 : 0.95;
 
         // Bring to hault
         if (this.speed && this.speed < 0.1 && !maxSpeed) {
@@ -55,32 +46,34 @@ class Player {
         }
 
         // Rotation (only if there's thrust)
-        if (this.controller.value > 0.15) {
+        if (PL.controller.type === "joystick" && this.controller.value > 0.15) {
+            // Position
             this.angle = lerpAngles(this.angle, this.controller.angle, 0.07);
+            this.x += Math.cos(this.angle) * this.speed;
+            this.y += Math.sin(this.angle) * this.speed;
+        }
+        else if (PL.controller.type === "dpad") {
+            // Position
+            this.x += Math.cos(this.controller.angleDirection) * this.speed;
+            this.y += Math.sin(this.controller.angleDirection) * this.speed;
         }
 
-        // Position
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed;
-
         const bcr_app = elApp.getBoundingClientRect();
-        // edge collision
+        // edge collision  
         this.x = Math.max(0, Math.min(bcr_app.width - this.radius, this.x));
         this.y = Math.max(0, Math.min(bcr_app.height - this.radius, this.y));
 
         // DRAW
         this.el.style.cssText = `
-            transform: translate(${this.x}px, ${this.y}px) rotate(${
-            this.angle + Math.PI / 2
-        }rad);
+            transform: translate(${this.x}px, ${this.y}px) rotate(${this.angle + Math.PI / 2}rad);
         `;
     }
 
     fire() {
         if (!this.canFire) return;
         new Weapon({
-            x: this.x + this.radius / 2 + 4,
-            y: this.y + this.radius / 2 - 3,
+            x: this.x + (this.radius / 2) + 4,
+            y: this.y + (this.radius / 2) - 3,
             angle: this.angle,
             speed: this.speed,
         });
@@ -90,23 +83,18 @@ class Player {
 const weapons = [];
 class Weapon {
     constructor(props) {
-        Object.assign(
-            this,
-            {
-                x: 0,
-                y: 0,
-                angle: 0,
-                speed: 6,
-            },
-            props,
-            {
-                speedMax: 13,
-                life: 190,
-                fireRate: 10,
-                fireCoolDown: 0,
-                el: elNew("div", { className: "missile" }),
-            }
-        );
+        Object.assign(this, {
+            x: 0,
+            y: 0,
+            angle: 0,
+            speed: 6,
+        }, props, {
+            speed_max: 13,
+            life: 190,
+            fireRate: 10,
+            fireCoolDown: 0,
+            el: elNew("div", { className: "missile" }),
+        });
 
         const speed_min = 3;
         this.speed += speed_min;
@@ -119,7 +107,7 @@ class Weapon {
         // Accelerate
         this.speed *= 1.1;
         // Top speed
-        this.speed = Math.min(this.speed, this.speedMax);
+        this.speed = Math.min(this.speed, this.speed_max);
         // Position
         this.x += Math.cos(this.angle) * this.speed;
         this.y += Math.sin(this.angle) * this.speed;
@@ -128,9 +116,7 @@ class Weapon {
 
         // DRAW
         this.el.style.cssText = `
-            transform: translate(${this.x}px, ${this.y}px) rotate(${
-            this.angle + Math.PI / 2
-        }rad);
+            transform: translate(${this.x}px, ${this.y}px) rotate(${this.angle + Math.PI / 2}rad);
         `;
     }
 
@@ -153,55 +139,70 @@ const PL = new Player({
 
 const engine = () => {
     PL.move();
-    weapons.forEach((weapon) => weapon.move());
-
+    weapons.forEach(weapon => weapon.move());
     // Loop RAF
     requestAnimationFrame(engine);
 };
 
 engine();
 
-// Gamepad Example:
+
+// GAMEPAD EXAMPLE:
+
 const GP = new Gamepad([
-    new Joystick({
+    {
+        type: "dpad",
         id: "move",
-        parentElement: el("#app-left"),
-        radius: 60,
+        parent: "#app-left",
         axis: "all",
         fixed: false,
         position: {
             left: "25%",
             top: "50%",
         },
-        onInput(state) {
-            PL.controller.value = state.value;
-            PL.controller.angle = state.angle;
-            console.log("Joystick 1");
-        },
-    }),
-    new Button({
-        id: "fire",
-        parentElement: el("#app-right"),
-        radius: 60,
+        onInput() {
+            PL.controller = this;
+            // PL.controllerType = this.type;
+            // PL.controller.value = this.value;
+            // PL.controller.angle = this.angleDirection;
+            // console.log(this.direction);
+        }
+    },
+    {
+        type: "joystick",
+        id: "move-2",
+        parent: "#app-right",
+        axis: "all",
         fixed: true,
-        text: "F",
+        position: {
+            left: "45%",
+            top: "50%",
+        },
+        onInput() {
+            PL.controller = this;
+        }
+    },
+    {
+        type: "button",
+        id: "fire",
+        parent: "#app-right",
+        fixed: false,
         position: {
             right: "25%",
             bottom: "50%",
         },
-        onInput(state) {
-            if (!state.value) {
-                return;
-            }
+        onInput() {
+            if (!this.value) return;
             PL.fire();
-            GP.vibrate([100]);
+            GP.vibrate(100);
         },
-    }),
+    }
 ]);
 
-const ControllerSettingsButton = new Button({
-    id: "menu-button",
-    parentElement: document.querySelector("#app-right"),
+const ControllerButtonSettings = new Button({
+    type: "button",
+    id: "settings",
+    parent: "#app",
     text: "☰",
     radius: 20,
     spring: false,
@@ -214,12 +215,13 @@ const ControllerSettingsButton = new Button({
         color: "#fff",
         background: "transparent",
     },
-    onInput(state) {
-        console.log(`button state changed: ${state}`);
-        // Open some settings panel
+    onInput() {
+        // Open some settings panel        
         el("#app-menu").classList.toggle("is-active", this.isActive);
-    },
+    }
 });
 
-GP.add(ControllerSettingsButton);
+GP.add(ControllerButtonSettings);
+ControllerButtonSettings.init();
+
 // GP.requestFullScreen();
