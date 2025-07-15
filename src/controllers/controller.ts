@@ -148,7 +148,7 @@ export class Controller {
         if (
             !this.elEventStarter.hasPointerCapture(evt.pointerId) ||
             !this.state.isPressed ||
-            this.state.pointerId < 0
+            this.state.pointerId !== evt.pointerId
         ) {
             return;
         }
@@ -180,7 +180,7 @@ export class Controller {
 
     handleEnd(evt: PointerEvent) {
         // If touch was not registered on touch-start - do nothing
-        if (this.state.pointerId < 0) {
+        if (this.state.pointerId !== evt.pointerId) {
             return;
         }
 
