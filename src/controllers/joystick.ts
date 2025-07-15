@@ -20,6 +20,8 @@ export class Joystick extends Controller {
     onStart() {
         super.onStart();
         this.state.value = 0;
+        this.state.apiCompliantAxisXValue = 0;
+        this.state.apiCompliantAxisYValue = 0;
         this.onInput();
     }
 
@@ -35,6 +37,18 @@ export class Joystick extends Controller {
             const y_pos =
                 this.state.dragDistance * Math.sin(this.state.angle) +
                 this.options.radius;
+
+            /**
+             * As per official API we need a value between -1.0 to 1.0 per axis
+             * Hint: dragging the controller top left will be [-.74, -.74] (_not_ [-1, -1]),
+             * because the joystick is contained by the ring.
+             */
+            this.state.apiCompliantAxisXValue =
+                (x_pos - this.options.radius) / this.options.radius;
+
+            this.state.apiCompliantAxisYValue =
+                (y_pos - this.options.radius) / this.options.radius;
+
             this.elementKnob.style.left = `${x_pos}px`;
             this.elementKnob.style.top = `${y_pos}px`;
         }
@@ -72,6 +86,8 @@ export class Joystick extends Controller {
         }
 
         this.state.value = 0;
+        this.state.apiCompliantAxisXValue = 0;
+        this.state.apiCompliantAxisYValue = 0;
         this.elementKnob.style.left = `50%`;
         this.elementKnob.style.top = `50%`;
 

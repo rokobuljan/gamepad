@@ -6,15 +6,70 @@ import { Button } from "./controllers/button";
 import { Controller } from "./controllers/controller";
 import { Joystick } from "./controllers/joystick";
 
-export { Gamepad, Button, Joystick };
-
-class Gamepad {
+export { VirtualGamepad, Button, Joystick };
+let indexOfGamepads = -1;
+class VirtualGamepad {
     controllers = new Map<string, Controller>();
+    mockGamepad: Gamepad = {
+        id: "",
+        index: 0,
+        connected: true,
+        mapping: "standard",
+        // instead of [[x1,y1], [x2,y2]] the official API uses [x1, x2, x2, y2]
+        buttons: new Array(17).fill({ pressed: false, value: 0 }),
+        axes: new Array(4).fill(0),
+        timestamp: Date.now(),
+        // @ts-ignore
+        // TODO: check for solution
+        hapticActuators: null,
+        // @ts-ignore
+        // TODO: maybe add the this.vibrate function
+        vibrationActuator: null,
+    };
 
     constructor(controllersArray: Controller[] = []) {
+        indexOfGamepads++;
         controllersArray.forEach((controller) => this.add(controller));
+        let mockGamepad = this.mockGamepad;
     }
 
+    getEmulatedState() {
+        let buttons: GamepadButton[] = [];
+        let axes: number[] = [];
+        this.controllers.forEach((e) => {
+            if (e instanceof Button) {
+                buttons.push({
+                    pressed: e.state.isPressed,
+                    touched: e.state.isPressed,
+                    value: e.state.value,
+                });
+            }
+            if (e instanceof Joystick) {
+                axes.push(
+                    e.state.apiCompliantAxisXValue,
+                    e.state.apiCompliantAxisYValue
+                );
+            }
+        });
+        const mockGamepad: Gamepad = {
+            id: "Emulated Gamepad " + indexOfGamepads,
+            index: 0,
+            connected: true,
+            mapping: "standard",
+            // instead of [[x1,y1], [x2,y2]] the official API uses [x1, x2, x2, y2]
+            axes,
+            buttons,
+            timestamp: Date.now(),
+
+            // @ts-ignore
+            hapticActuators: null,
+            // @ts-ignore
+            // TODO: maybe add the this.vibrate function
+            vibrationActuator: null,
+        };
+
+        return mockGamepad;
+    }
     /**
      * Add Controller to Gamepad and initialize it!
      * @param controllers or a Button or Joystick Controller instance

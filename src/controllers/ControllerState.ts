@@ -8,7 +8,15 @@ export interface ControllerState {
      */
     isDrag: boolean;
     /**
-     * Joystick: Number ranging from 0.0 - 1.0;
+     * Joystick: Number ranging from -1.0 to 1.0
+     */
+    apiCompliantAxisXValue: number;
+    /**
+     * Joystick: Number ranging from -1.0 to 1.0
+     */
+    apiCompliantAxisYValue: number;
+    /**
+     * Joystick: Number ranging from 0.0 to 1.0;
      * Button: Number 0 or 1
      */
     value: number;
