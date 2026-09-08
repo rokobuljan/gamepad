@@ -7,6 +7,13 @@ import { el, elNew, norm, TAU } from "../utils.js";
 
 class Controller {
 
+    #elEventStarter = null;
+    #pointerId = null;
+    #isInitialized = false;
+    #isTouchMovable = false;
+    
+    elParent = null;
+
     constructor(options) {
 
         if (!options.id) return console.error("Gamepad: Controller is missing a unique ID");
@@ -17,33 +24,31 @@ class Controller {
             radius: 50,
             text: "",
             position: { top: "50%", left: "50%" }, // For the anchor point
-            fixed: true, // Set to false to change controller position on touch-down
+            fixed: true, // Set to false to change controller position on touch start
             spring: true, // If true will reset/null value on touch-end, if set to false the button will act as a checkbox, or the joystick will not reset
             isPress: false, // true if the controller is currently pressed
-            isActive: false, // true if has "is-active" state / className 
+            isActive: false, // true if the controller has "is-active" state / className
             isDrag: false,
+            deadZone: 0, // Inactive center, as a fraction of the radius
             value: 0,
             angle: 0,
             angleDirection: 0, // 0=right, like angle but capped by direction
             direction: 0, // int, directions (for joystick and dpad) 0=right, clockwise
             directionsTot: 8, // Subdivide circle to 8 direction regions
-            x_start: 0,
-            y_start: 0,
-            x_diff: 0,
-            y_diff: 0,
+            xStart: 0,
+            yStart: 0,
+            xDiff: 0,
+            yDiff: 0,
             distanceDrag: 0,
             onInput() { },
-        }, options, {
-            pointerId: null, // Touch finger pointerId
-            elEventStarter: null,
-            isInitialized: false,
-        });
+        }, options);
+
         this.style = {
-            color: "hsla(0, 90%, 100%, 0.5)",
             border: "2px solid currentColor",
             ...this.style
         };
-        this.isTouchMovable = this.type === "joystick" || this.type === "dpad";
+
+        this.#isTouchMovable = this.type === "joystick" || this.type === "dpad";
 
         this.handleStart = this.handleStart.bind(this);
         this.handleMove = this.handleMove.bind(this);
@@ -60,62 +65,80 @@ class Controller {
     }
 
     // Get relative mouse coordinates 
-    getPointerXY(evt) {
+    #getPointerXY(evt, el) {
         const { clientX, clientY } = evt;
-        const { left, top } = this.elParent.getBoundingClientRect();
+        const { left, top } = el.getBoundingClientRect();
         return {
             x: clientX - left,
             y: clientY - top
         };
     }
 
+    #calculate(evt) {
+        const { x, y } = this.#getPointerXY(evt, this.elParent);
+        this.xDrag = x;
+        this.yDrag = y;
+        this.xDiff = this.xDrag - this.xStart;
+        this.yDiff = this.yDrag - this.yStart;
+        // Single-axis D-pads ignore movement perpendicular to their arm.
+        if (this.type === "dpad") {
+            if (this.axis === "x") this.yDiff = 0;
+            if (this.axis === "y") this.xDiff = 0;
+        }
+        this.distanceDrag = Math.min(this.radius, Math.sqrt(this.xDiff ** 2 + this.yDiff ** 2));
+
+        // Finally set the angle (normalized)
+        this.angle = norm(Math.atan2(this.yDiff, this.xDiff));
+        this.direction = Math.round(this.angle / (TAU / this.directionsTot)) % this.directionsTot; // Normalize to 0-7
+        this.angleDirection = TAU * this.direction / this.directionsTot; // Angle of the direction
+    }
+
     handleStart(evt) {
         // Is already assigned? Do nothing
-        if (this.isTouchMovable && this.pointerId) return;
-        this.pointerId = evt.pointerId;
+        if (this.#isTouchMovable && this.#pointerId !== null) return;
+        this.#pointerId = evt.pointerId;
 
         // If a Gamepad Button was touched, don't do anything with the Joystick
-        if (this.isTouchMovable && evt.target.closest(".Gamepad-Button")) return;
+        if (this.#isTouchMovable && evt.target.closest(".Gamepad-Button")) return;
 
         evt.preventDefault();
-        this.elEventStarter.setPointerCapture(evt.pointerId);
+        this.#elEventStarter.setPointerCapture(this.#pointerId);
 
-        const { x, y } = this.getPointerXY(evt);
+        const { x, y } = this.#getPointerXY(evt, this.elParent);
 
         this.isPress = true;
         this.isActive = this.spring ? true : !this.isActive;
 
-        this.x_start = x;
-        this.y_start = y;
+        this.xStart = x;
+        this.yStart = y;
 
-        if (!this.fixed) {
-            this.elAnchor.style.left = `${this.x_start}px`;
-            this.elAnchor.style.top = `${this.y_start}px`;
+        // A D-pad measures presses and drags from its fixed visual center.
+        if (this.type === "dpad") {
+            const rect = this.el.getBoundingClientRect();
+            const parentRect = this.elParent.getBoundingClientRect();
+            this.xStart = rect.left + rect.width / 2 - parentRect.left;
+            this.yStart = rect.top + rect.height / 2 - parentRect.top;
         }
 
-        this.el.classList.toggle("is-active", this.isTouchMovable ? this.isPress : this.isActive);
+        this.#calculate(evt);
+
+        if (!this.fixed) {
+            this.elAnchor.style.left = `${this.xStart}px`;
+            this.elAnchor.style.top = `${this.yStart}px`;
+        }
+
+        this.el.classList.toggle("is-active", this.#isTouchMovable ? this.isPress : this.isActive);
 
         this.onStart();
     }
 
     handleMove(evt) {
-        if (this.isTouchMovable && evt.pointerId !== this.pointerId) return;
+        if (this.#isTouchMovable && evt.pointerId !== this.#pointerId) return;
 
         evt.preventDefault();
-
-        const { x, y } = this.getPointerXY(evt);
-
         this.isDrag = true;
-        this.x_drag = x;
-        this.y_drag = y;
-        this.x_diff = this.x_drag - this.x_start;
-        this.y_diff = this.y_drag - this.y_start;
-        this.distanceDrag = Math.min(this.radius, Math.sqrt(this.x_diff * this.x_diff + this.y_diff * this.y_diff));
 
-        // Finally set the angle (normalized)
-        this.angle = norm(Math.atan2(this.y_diff, this.x_diff));
-        this.direction = Math.round(this.angle / (TAU / this.directionsTot)) % this.directionsTot; // Normalize to 0-7
-        this.angleDirection = TAU * this.direction / this.directionsTot; // Angle of the direction
+        this.#calculate(evt);
 
         this.onMove();
     }
@@ -123,30 +146,30 @@ class Controller {
     handleEnd(evt) {
 
         // If touch was not registered on touch-start - do nothing
-        if (evt.pointerId !== this.pointerId) return;
+        if (evt.pointerId !== this.#pointerId) return;
 
         // If a Gamepad Button was touched, don't do anything with the Joystick
-        if (this.isTouchMovable && evt.target.closest(".Gamepad-Button")) return;
+        if (this.#isTouchMovable && evt.target.closest(".Gamepad-Button")) return;
 
-        this.elParent.releasePointerCapture(evt.pointerId);
+        this.#elEventStarter.releasePointerCapture(this.#pointerId);
 
-        this.pointerId = null;
+        this.#pointerId = null;
         this.isDrag = false;
         this.isPress = false;
         if (this.spring) this.isActive = false;
 
-        this.el.classList.toggle("is-active", this.isTouchMovable ? this.isPress : this.isActive);
+        this.el.classList.toggle("is-active", this.#isTouchMovable ? this.isPress : this.isActive);
 
         this.onEnd();
     }
 
     init() {
-        if (this.isInitialized) {
+        if (this.#isInitialized) {
             this.destroy();
         }
 
-        this.isInitialized = true;
-        this.pointerId = null;
+        this.#isInitialized = true;
+        this.#pointerId = null;
 
         this.elParent = el(this.parent);
         this.elAnchor = elNew("div", {
@@ -205,27 +228,27 @@ class Controller {
         this.elParent.append(this.elAnchor);
 
         // Events
-        this.elEventStarter = this.fixed ? this.el : this.elParent;
+        this.#elEventStarter = this.fixed ? this.el : this.elParent;
 
-        this.elEventStarter.addEventListener("pointerdown", this.handleStart, { passive: false });
-        if (this.isTouchMovable) this.elEventStarter.addEventListener("pointermove", this.handleMove, { passive: false });
-        this.elEventStarter.addEventListener("pointerup", this.handleEnd);
-        this.elEventStarter.addEventListener("pointercancel", this.handleEnd);
-        this.elEventStarter.addEventListener("contextmenu", this._noDefault);
+        this.#elEventStarter.addEventListener("pointerdown", this.handleStart, { passive: false });
+        if (this.#isTouchMovable) this.#elEventStarter.addEventListener("pointermove", this.handleMove, { passive: false });
+        this.#elEventStarter.addEventListener("pointerup", this.handleEnd);
+        this.#elEventStarter.addEventListener("pointercancel", this.handleEnd);
+        this.#elEventStarter.addEventListener("contextmenu", this._noDefault);
 
         this.onInit();
     }
 
     destroy() {
-        this.isInitialized = false;
-        this.pointerId = null;
+        this.#isInitialized = false;
+        this.#pointerId = null;
 
         // Events
-        this.elEventStarter.removeEventListener("pointerdown", this.handleStart, { passive: false });
-        if (this.isTouchMovable) this.elEventStarter.removeEventListener("pointermove", this.handleMove, { passive: false });
-        this.elEventStarter.removeEventListener("pointerup", this.handleEnd);
-        this.elEventStarter.removeEventListener("pointercancel", this.handleEnd);
-        this.elEventStarter.removeEventListener("contextmenu", this._noDefault);
+        this.#elEventStarter.removeEventListener("pointerdown", this.handleStart, { passive: false });
+        if (this.#isTouchMovable) this.#elEventStarter.removeEventListener("pointermove", this.handleMove, { passive: false });
+        this.#elEventStarter.removeEventListener("pointerup", this.handleEnd);
+        this.#elEventStarter.removeEventListener("pointercancel", this.handleEnd);
+        this.#elEventStarter.removeEventListener("contextmenu", this._noDefault);
 
         // Remove element from DOM
         this.elAnchor.remove();

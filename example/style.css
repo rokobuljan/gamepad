@@ -34,14 +34,16 @@ body {
         radial-gradient(ellipse at 10% 10%, #35244f 0%, transparent 55%);
 }
 
-#app-left {
+#controls-left,
+#controls-right {
     position: relative;
     flex: 1;
-}
+    color: #fff;
+    z-index: 2;
 
-#app-right {
-    position: relative;
-    flex: 1;
+    &> * {
+        opacity: 0.5;
+    }
 }
 
 #app-menu {
@@ -57,7 +59,6 @@ body {
 
 .player {
     position: absolute;
-    z-index: 2;
     left: 0;
     top: 0;
     font-size: 3em;

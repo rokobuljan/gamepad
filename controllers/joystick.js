@@ -29,24 +29,24 @@ class Joystick extends Controller {
 
             this.value = this.distanceDrag / this.radius;
 
-            const x_pos = this.distanceDrag * Math.cos(this.angle) + this.radius;
-            const y_pos = this.distanceDrag * Math.sin(this.angle) + this.radius;
-            this.elHandle.style.left = `${x_pos}px`;
-            this.elHandle.style.top = `${y_pos}px`;
+            const xPos = this.distanceDrag * Math.cos(this.angle) + this.radius;
+            const yPos = this.distanceDrag * Math.sin(this.angle) + this.radius;
+            this.elHandle.style.left = `${xPos}px`;
+            this.elHandle.style.top = `${yPos}px`;
 
         } else if (this.axis === "x") {
 
-            this.value = Math.max(Math.min(this.x_diff / this.radius, 1), -1);
+            this.value = Math.max(Math.min(this.xDiff / this.radius, 1), -1);
 
-            const x_pos = this.value * this.radius + this.radius;
-            this.elHandle.style.left = `${x_pos}px`;
+            const xPos = this.value * this.radius + this.radius;
+            this.elHandle.style.left = `${xPos}px`;
 
         } else if (this.axis === "y") {
 
-            this.value = Math.max(Math.min(-this.y_diff / this.radius, 1), -1);
+            this.value = Math.max(Math.min(-this.yDiff / this.radius, 1), -1);
             
-            const y_pos = -this.value * this.radius + this.radius;
-            this.elHandle.style.top = `${y_pos}px`;
+            const yPos = -this.value * this.radius + this.radius;
+            this.elHandle.style.top = `${yPos}px`;
 
         }
 

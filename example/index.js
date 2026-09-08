@@ -1,6 +1,6 @@
 import './style.css'
 import { Gamepad, Button } from "../gamepad.js";
-import { elNew, el, lerpAngles, TAU } from "../utils.js";
+import { elNew, el, lerpAngles } from "../utils.js";
 
 /**
  * Example:
@@ -17,51 +17,74 @@ class Player {
             angle: Math.PI + Math.PI / 2,
             speed: 0,
             speed_max: 5,
-            controllerType: "joystick",
-            controller: { angle: 0, value: 0, direction: 0 },
+            vx: 0,
+            vy: 0,
+            damping: 0.9, // Velocity retained per frame when the controls are released
             canFire: true,
-        }, options, {
-            angleTarget: 0,
-        });
+        }, options);
 
         this.el = elNew("div", { className: "player" });
         elApp.append(this.el);
     }
 
-    move() {
+    move(controllers, frame = 1) {
+        let steerX = 0;
+        let steerY = 0;
+        let localX = 0;
+        let localY = 0;
 
-        // Throttle:
-        const maxSpeed = this.speed_max * this.controller.value;
-
-        // Start moving
-        if (maxSpeed && !this.speed) this.speed = 0.2;
-
-        // accelerate / decelerate
-        this.speed *= (this.speed < maxSpeed) ? 1.1 : 0.95;
-
-        // Bring to hault
-        if (this.speed && this.speed < 0.1 && !maxSpeed) {
-            this.speed = 0;
-            // GP.vibrate(100); // vibrate Gamepad for 200ms
+        // Read every movement controller, so releasing one cannot replace another.
+        for (const controller of controllers) {
+            if (!controller.value) continue;
+            if (controller.type === "joystick") {
+                if (controller.axis === "x") localX += controller.value;
+                else if (controller.axis === "y") localY -= controller.value;
+                else {
+                    steerX += Math.cos(controller.angle) * controller.value;
+                    steerY += Math.sin(controller.angle) * controller.value;
+                }
+            } else if (controller.type === "dpad") {
+                localX += Math.cos(controller.angleDirection) * controller.value;
+                localY += Math.sin(controller.angleDirection) * controller.value;
+            }
         }
 
-        // Rotation (only if there's thrust)
-        if (PL.controller.type === "joystick" && this.controller.value > 0.15) {
-            // Position
-            this.angle = lerpAngles(this.angle, this.controller.angle, 0.07);
-            this.x += Math.cos(this.angle) * this.speed;
-            this.y += Math.sin(this.angle) * this.speed;
+        const thrust = Math.min(1, Math.hypot(steerX, steerY));
+        if (thrust > 0.001) {
+            this.angle = lerpAngles(this.angle, Math.atan2(steerY, steerX), 1 - 0.93 ** frame);
+            localY -= thrust;
         }
-        else if (PL.controller.type === "dpad") {
-            // Position
-            this.x += Math.cos(this.controller.angleDirection) * this.speed;
-            this.y += Math.sin(this.controller.angleDirection) * this.speed;
+
+        // Cap combined input, including diagonal and overlapping controls.
+        const magnitude = Math.max(1, Math.hypot(localX, localY));
+        localX /= magnitude;
+        localY /= magnitude;
+
+        // Local up points forward; local right strafes to the ship's right.
+        const rotation = this.angle + Math.PI / 2;
+        const targetVX = (localX * Math.cos(rotation) - localY * Math.sin(rotation)) * this.speed_max;
+        const targetVY = (localX * Math.sin(rotation) + localY * Math.cos(rotation)) * this.speed_max;
+        const damping = this.damping ** frame;
+        this.vx = targetVX + (this.vx - targetVX) * damping;
+        this.vy = targetVY + (this.vy - targetVY) * damping;
+
+        // Velocity persists after release, independently of the ship's heading.
+        if (Math.hypot(localX, localY) < 0.001 && Math.hypot(this.vx, this.vy) < 0.01) {
+            this.vx = 0;
+            this.vy = 0;
         }
+        this.x += this.vx * frame;
+        this.y += this.vy * frame;
 
         const bcr_app = elApp.getBoundingClientRect();
         // edge collision  
-        this.x = Math.max(0, Math.min(bcr_app.width - this.radius, this.x));
-        this.y = Math.max(0, Math.min(bcr_app.height - this.radius, this.y));
+        const maxX = Math.max(0, bcr_app.width - this.radius);
+        const maxY = Math.max(0, bcr_app.height - this.radius);
+        if (this.x < 0 || this.x > maxX) this.vx = 0;
+        if (this.y < 0 || this.y > maxY) this.vy = 0;
+        this.x = Math.max(0, Math.min(maxX, this.x));
+        this.y = Math.max(0, Math.min(maxY, this.y));
+        this.speed = Math.hypot(this.vx, this.vy);
 
         // DRAW
         this.el.style.cssText = `
@@ -87,7 +110,7 @@ class Weapon {
             x: 0,
             y: 0,
             angle: 0,
-            speed: 6,
+            speed: 0,
         }, props, {
             speed_max: 13,
             life: 190,
@@ -102,17 +125,17 @@ class Weapon {
         this.init();
     }
 
-    move() {
+    move(frame = 1) {
         if (this.life < 0) return this.destroy();
         // Accelerate
-        this.speed *= 1.1;
+        this.speed *= 1.1 ** frame;
         // Top speed
         this.speed = Math.min(this.speed, this.speed_max);
         // Position
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed;
+        this.x += Math.cos(this.angle) * this.speed * frame;
+        this.y += Math.sin(this.angle) * this.speed * frame;
         // Life
-        this.life -= 1;
+        this.life -= frame;
 
         // DRAW
         this.el.style.cssText = `
@@ -137,59 +160,69 @@ const PL = new Player({
     y: 50,
 });
 
-const engine = () => {
-    PL.move();
-    weapons.forEach(weapon => weapon.move());
+let lastTime;
+const engine = (time) => {
+    const frame = lastTime === undefined ? 1 : Math.min((time - lastTime) / (1000 / 60), 3);
+    lastTime = time;
+    PL.move(Object.values(GP.controllers), frame);
+    weapons.forEach(weapon => weapon.move(frame));
     // Loop RAF
     requestAnimationFrame(engine);
 };
-
-engine();
-
 
 // GAMEPAD EXAMPLE:
 
 const GP = new Gamepad([
     {
-        type: "dpad",
         id: "move",
-        parent: "#app-left",
+        type: "dpad",
+        parent: "#controls-left",
         axis: "all",
-        fixed: false,
         position: {
-            left: "25%",
+            left: "100px",
             top: "50%",
         },
-        onInput() {
-            PL.controller = this;
-            // PL.controllerType = this.type;
-            // PL.controller.value = this.value;
-            // PL.controller.angle = this.angleDirection;
-            // console.log(this.direction);
-        }
     },
     {
+        id: "move-x",
+        type: "dpad",
+        parent: "#controls-left",
+        axis: "x",
+        deadZone: 0,
+        position: {
+            left: "250px",
+            top: "50%",
+        },
+    },
+    {
+        id: "move-y",
+        type: "dpad",
+        parent: "#controls-left",
+        axis: "y",
+        deadZone: 0,
+        position: {
+            left: "65%",
+            top: "50%",
+        },
+    },
+    {
+        id: "move-joystick",
         type: "joystick",
-        id: "move-2",
-        parent: "#app-right",
+        parent: "#controls-right",
         axis: "all",
-        fixed: true,
         position: {
             left: "45%",
             top: "50%",
         },
-        onInput() {
-            PL.controller = this;
-        }
     },
     {
         type: "button",
         id: "fire",
-        parent: "#app-right",
-        fixed: false,
+        text: "F",
+        parent: "#controls-right",
         position: {
             right: "25%",
-            bottom: "50%",
+            top: "50%",
         },
         onInput() {
             if (!this.value) return;
@@ -216,7 +249,7 @@ const ControllerButtonSettings = new Button({
         background: "transparent",
     },
     onInput() {
-        // Open some settings panel        
+        // Open Settings panel        
         el("#app-menu").classList.toggle("is-active", this.isActive);
     }
 });
@@ -225,3 +258,5 @@ GP.add(ControllerButtonSettings);
 ControllerButtonSettings.init();
 
 // GP.requestFullScreen();
+
+requestAnimationFrame(engine);

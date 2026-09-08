@@ -7,7 +7,7 @@ import { Button } from "./controllers/button.js";
 import { Joystick } from "./controllers/joystick.js";
 import { DPad } from "./controllers/dpad.js";
 
-const isController = (ob) => ob instanceof Button || ob instanceof Joystick;
+const isController = (ob) => ob instanceof Button || ob instanceof Joystick || ob instanceof DPad;
 const TYPE = "joystick";
 
 class Gamepad {
@@ -18,7 +18,7 @@ class Gamepad {
 
     /**
      * Add Controller to Gamepad
-     * @param {object|Controller} options controllerOptions or a Button or Joystick Controller instance.
+     * @param {object|Controller} options controllerOptions or a Button, Joystick or DPad Controller instance.
      * @returns {Gamepad}
      */
     add(...args) {

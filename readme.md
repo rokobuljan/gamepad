@@ -75,6 +75,29 @@ const GP = new Gamepad([
 console.log(GP.controllers); // {"controller-move: Joystick{}, "controller-fire": Button{}}
 ```
 
+## D-pad
+
+Use `type: "dpad"` in a Gamepad configuration, or initialize a standalone `DPad` instance.
+D-pads always use `fixed: true`. The default `axis: "all"` supports eight directions.
+Use `axis: "x"` for a horizontal left/right pad or `axis: "y"` for a vertical up/down pad.
+Only the selected arm is shown; movement and the dead zone are measured along that axis.
+Pressing a direction immediately sets `value` to `1`; dragging updates the direction relative
+to the D-pad center. Use `deadZone: 0.2` (default) or `deadZone: 0.3` to make the central
+20% or 30% of its radius inactive (`value: 0`, no highlights), on both press and drag.
+`deadZone` ranges from `0` to `1`; `0` disables the dead zone except at the exact center.
+Release or cancellation resets
+the value and highlights, unless `spring: false` is set, as with the joystick.
+
+`direction` runs clockwise: `0` right, `1` down-right, `2` down, `3` down-left,
+`4` left, `5` up-left, `6` up, `7` up-right. Use `angleDirection` for the corresponding
+snapped angle in radians. The horizontal and vertical arms highlight together for diagonals.
+Single-axis pads keep these direction numbers (`0`/`4` for X, `2`/`6` for Y), and
+`value` remains `0` or `1`. `directionsTot` stays at `8` to preserve this numbering.
+
+```js
+new Gamepad([{ type: "dpad", id: "move", axis: "x", deadZone: 0.2 }]);
+```
+
 ## Standalone Controllers
 
 `Joystick` and `Button` Controllers can be also used as **standalone** (without the Gamepad *wrapper*)
@@ -187,7 +210,7 @@ new Button({controllerOptions})
 | ------------------ | -------- | ----------------------------------- | ----------------------------------------------------------- |
 | `id` **MANDATORY** | String   |                                     | Unique ID name (Mandatory)                                  |
 | `type`             | String   | `"joystick"`(Default)<br>`"button"` | Type of controller (Not necessary in standalone)            |
-| `axis`             | String   | `"all"`(Default)<br>`"x"`<br>`"y"`  | Movement axis constraint (Joystick)                         |
+| `axis`             | String   | `"all"`(Default)<br>`"x"`<br>`"y"`  | Movement axis constraint (Joystick and D-pad)               |
 | `fixed`            | Boolean  | `true`                              | Set to `false` to change position on touch-start            |
 | `parent`           | String   | `"body"`                            | Parent Selector to insert into                              |
 | `position`         | Object   | `{top: "50%", left: "50%"}`         | Controller initial position inside parent                   |
@@ -220,12 +243,12 @@ Alternatively, you can also use your Gamepad instance controllers like i.e: `con
 | `isPress`       | Boolean | `true` on touch-start                        |
 | `isDrag`        | Boolean | `true` on touch-move (Joystick)              |
 | `isActive`      | Boolean | `true` if has *"is-active"* className        |
-| `x_start`       | Number  | *px* Relative x touch-start coordinates      |
-| `y_start`       | Number  | *px* Relative y touch-start coordinates      |
-| `x_drag`        | Number  | *px* Relative x touch-move coordinates       |
-| `y_drag`        | Number  | *px* Relative y touch-move coordinates       |
-| `x_diff`        | Number  | *px* Difference x from start and move        |
-| `y_diff`        | Number  | *px* Difference y from start and move        |
+| `xStart`       | Number  | *px* Relative x touch-start coordinates      |
+| `yStart`       | Number  | *px* Relative y touch-start coordinates      |
+| `xDrag`        | Number  | *px* Relative x touch-move coordinates       |
+| `yDrag`        | Number  | *px* Relative y touch-move coordinates       |
+| `xDiff`        | Number  | *px* Difference x from start and move        |
+| `yDiff`        | Number  | *px* Difference y from start and move        |
 | `distanceDrag` | Number  | *px* Drag distance (capped to max radius)    |
 
 **PS:**  
