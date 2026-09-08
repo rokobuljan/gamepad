@@ -213,8 +213,7 @@ npm run build      # Build the library and example
 npm run build:pages # Build the GitHub Pages demo
 ```
 
-The [live demo](https://rokobuljan.github.io/gamepad/) deploys automatically from
-`main` through GitHub Actions.
+See [live demo](https://rokobuljan.github.io/gamepad/)
 
 ## License
 
