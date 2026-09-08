@@ -10,7 +10,23 @@ import { elNew } from "../utils.js";
 /** Fixed directional pad with a digital 0/1 value and highlighted direction arms. */
 class DPad extends Controller {
 
-    /** @param {import("./controller.js").ControllerOptions} options D-pad configuration; fixed is always true. */
+    /**
+     * Horizontal arm owned by this D-pad.
+     * @internal
+     * @type {HTMLDivElement | null}
+     */
+    #elX = null;
+
+    /**
+     * Vertical arm owned by this D-pad.
+     * @internal
+     * @type {HTMLDivElement | null}
+     */
+    #elY = null;
+
+    /**
+     * @param {import("./controller.js").ControllerOptions} options D-pad configuration; fixed is always true.
+     */
     constructor(options) {
         options.type = "dpad";
         options.fixed = true;
@@ -20,41 +36,64 @@ class DPad extends Controller {
         }
     }
 
-    /** Update direction output immediately on press. @returns {void} */
+    /**
+     * Update direction output immediately on press.
+     * @protected
+     * @override
+     * @returns {void}
+     */
     onStart() {
         super.onStart();
 
-        this.update();
+        this.#update();
     }
 
-    /** Update direction output while dragging. @returns {void} */
+    /**
+     * Update direction output while dragging.
+     * @protected
+     * @override
+     * @returns {void}
+     */
     onMove() {
         super.onMove();
 
-        this.update();
+        this.#update();
     }
 
-    /** Clear a spring D-pad's value and highlights on release. @returns {void} */
+    /**
+     * Clear a spring D-pad's value and highlights on release.
+     * @protected
+     * @override
+     * @returns {void}
+     */
     onEnd() {
         super.onEnd();
         if (!this.spring) return;
 
         this.value = 0;
-        this.highlight();
+        this.#highlight();
 
         this.onInput();
     }
 
-    /** Apply the dead zone, refresh highlights and notify onInput. @returns {void} */
-    update() {
+    /**
+     * Apply the dead zone, refresh highlights and notify onInput.
+     * @internal
+     * @returns {void}
+     */
+    #update() {
         this.value = this.distanceDrag > this.radius * this.deadZone ? 1 : 0;
-        this.highlight();
+        this.#highlight();
         this.onInput();
     }
 
-    /** Highlight the arms matching the current snapped direction and value. @returns {void} */
-    highlight() {
-        if (!this.elX || !this.elY) return;
+    /**
+     * Highlight the arms matching the current snapped direction and value.
+     * @internal
+     * @returns {void}
+     */
+    #highlight() {
+        if (!this.#elX || !this.#elY) return;
         const x = this.value ? Math.round(Math.cos(this.angleDirection)) : 0;
         const y = this.value ? Math.round(Math.sin(this.angleDirection)) : 0;
         /**
@@ -65,12 +104,16 @@ class DPad extends Controller {
             ? `linear-gradient(to ${side < 0 ? "right" : "left"}, currentColor 0%, currentColor 50%, transparent 50%, transparent 100%)`
             : "none";
 
-        this.elX.style.backgroundImage = gradient(x);
+        this.#elX.style.backgroundImage = gradient(x);
         // The Y arm is rotated 90 degrees: its left side points up.
-        this.elY.style.backgroundImage = gradient(y);
+        this.#elY.style.backgroundImage = gradient(y);
     }
 
-    /** Initialize the controller and create the directional arms. @returns {void} */
+    /**
+     * Initialize the controller and create the directional arms.
+     * @override
+     * @returns {void}
+     */
     init() {
         super.init();
         if (!this.el) return;
@@ -103,12 +146,18 @@ class DPad extends Controller {
             "position": "absolute",
         };
 
-        /** Horizontal arm, available after init(). @type {HTMLDivElement} */
-        const elX = this.elX = elNew("div", {
+        /**
+         * Horizontal arm, available after init().
+         * @type {HTMLDivElement}
+         */
+        const elX = this.#elX = elNew("div", {
             className: "Gamepad-dpad-x",
         });
-        /** Vertical arm (rotated 90 degrees), available after init(). @type {HTMLDivElement} */
-        const elY = this.elY = elNew("div", {
+        /**
+         * Vertical arm (rotated 90 degrees), available after init().
+         * @type {HTMLDivElement}
+         */
+        const elY = this.#elY = elNew("div", {
             className: "Gamepad-dpad-y",
         });
 
@@ -122,7 +171,18 @@ class DPad extends Controller {
         elY.style.setProperty("--shape", stylesGPxy["--shape"]);
 
         this.el.append(elX, elY);
-        this.highlight();
+        this.#highlight();
+    }
+
+    /**
+     * Remove the controller and release its private arm references.
+     * @override
+     * @returns {void}
+     */
+    destroy() {
+        super.destroy();
+        this.#elX = null;
+        this.#elY = null;
     }
 }
 

@@ -309,6 +309,30 @@ new Gamepad([
 
 ___
 
+## Public API and subclass hooks
+
+Use `Gamepad` to manage controllers, `init()` and `destroy()` for standalone
+controllers, and `onInput()` to consume their public output values.
+Configuration and output properties listed above remain public.
+
+Pointer handlers, the fullscreen click listener, D-pad rendering helpers, and
+DOM references owned by a single class use JavaScript `#private` members. The old
+`handleStart`, `handleMove`, `handleEnd`, `_noDefault`, `handleFullscreen`,
+`update`, `highlight`, `elParent`, `elAnchor`, `elHandle`, `elX`, and `elY`
+members are no longer accessible on instances.
+
+The shared controller element `el` and the `onInit()`, `onStart()`, `onMove()`,
+and `onEnd()` hooks are marked `@protected` for subclasses. JavaScript private
+members cannot be overridden by subclasses, so these extension points retain
+their names; JSDoc type checking restricts access from ordinary instance calls.
+Override them when extending a controller, and call the superclass hook to
+preserve its input behavior. Supplying a hook in the options replaces that
+behavior; use `onInput()` for normal application callbacks.
+
+`destroy()` detaches listeners and clears DOM references. It is safe before
+initialization and on repeated calls. Call `init()` to reuse a controller;
+its configuration and output values are retained.
+
 ## Development and Example demo
 
 The library is JavaScript with JSDoc types for controller options, callbacks and
@@ -317,11 +341,16 @@ output state. Editors that support JavaScript type checking use `jsconfig.json`;
 
 ```sh
 npm run typecheck
+npm test
 ```
 
 This runs strict type checking without generating files or converting JavaScript
 to TypeScript. Only the library is checked; the demo and Vite configuration are
 excluded. TypeScript is used solely as a development-time checker.
+
+The tests exercise pointer input and listener cleanup, and verify that JSDoc
+rejects access to private/protected members while preserving typed callbacks
+and subclass hooks. The tests use Node.js's built-in test runner and were verified on Node.js 24.
 
 ```sh
 npm i

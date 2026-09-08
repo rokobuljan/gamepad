@@ -5,12 +5,20 @@
 
 import { el, elNew, norm, TAU } from "../utils.js";
 
+/** @typedef {"button" | "joystick" | "dpad"} ControllerType */
+
+/** @typedef {"all" | "x" | "y"} ControllerAxis */
+
+/** @typedef {Partial<CSSStyleDeclaration> & Record<`--${string}`, string>} ControllerStyle */
+
 /**
- * @typedef {"button" | "joystick" | "dpad"} ControllerType
- * @typedef {"all" | "x" | "y"} ControllerAxis
- * @typedef {Partial<CSSStyleDeclaration> & Record<`--${string}`, string>} ControllerStyle
- * @typedef {(this: Controller) => void} ControllerCallback
- *
+ * Callback invoked with the current controller as `this` and no arguments.
+ * @callback ControllerCallback
+ * @this {Controller}
+ * @returns {void}
+ */
+
+/**
  * @typedef {object} ControllerOptions
  * @property {string} id Unique controller ID, also used as its DOM ID.
  * @property {ControllerType} [type="joystick"] Kind created by Gamepad; standalone classes set this themselves.
@@ -39,7 +47,7 @@ import { el, elNew, norm, TAU } from "../utils.js";
  * @property {number} [yDiff=0] Initial vertical displacement in pixels.
  * @property {number} [distanceDrag=0] Initial drag distance in pixels, capped at the radius.
  * @property {ControllerCallback} [onInput] Called when input updates; `this` is the controller.
- * @property {ControllerCallback} [onInit] Override the initialization hook.
+ * @property {ControllerCallback} [onInit] Override the hook after base DOM creation, before subclass rendering.
  * @property {ControllerCallback} [onStart] Override the press hook, including subclass input handling.
  * @property {ControllerCallback} [onMove] Override the drag hook, including subclass input handling.
  * @property {ControllerCallback} [onEnd] Override the release hook, including subclass input handling.
@@ -48,17 +56,55 @@ import { el, elNew, norm, TAU } from "../utils.js";
 /** Shared pointer handling and state for touch controllers. Call init() before use. */
 class Controller {
 
-    /** @type {HTMLElement | null} */
+    /**
+     * Pointer listener target.
+     * @internal
+     * @type {HTMLElement | null}
+     */
     #elEventStarter = null;
-    /** @type {number | null} */
+    /**
+     * Captured pointer, or null when idle.
+     * @internal
+     * @type {number | null}
+     */
     #pointerId = null;
+    /**
+     * Whether the controller DOM and listeners are installed.
+     * @internal
+     * @type {boolean}
+     */
     #isInitialized = false;
+    /**
+     * Whether this controller accepts pointer movement.
+     * @internal
+     * @type {boolean}
+     */
     #isTouchMovable = false;
     
-    /** Parent HTML element, resolved during init(). @type {HTMLElement | null} */
-    elParent = null;
+    /**
+     * Parent HTML element, resolved during init().
+     * @internal
+     * @type {HTMLElement | null}
+     */
+    #elParent = null;
 
-    /** @param {ControllerOptions} options Controller configuration and initial state. */
+    /**
+     * Anchor element owned by this controller.
+     * @internal
+     * @type {HTMLDivElement | null}
+     */
+    #elAnchor = null;
+
+    /**
+     * Visible element shared with subclasses; null before init() and after destroy().
+     * @protected
+     * @type {HTMLDivElement | null}
+     */
+    el = null;
+
+    /**
+     * @param {ControllerOptions} options Controller configuration and initial state.
+     */
     constructor(options) {
 
         if (!options.id) {
@@ -66,94 +112,189 @@ class Controller {
             return;
         }
 
-        /** Unique controller and DOM ID. @type {string} */
+        /**
+         * Unique controller and DOM ID.
+         * @type {string}
+         */
         this.id = options.id;
-        /** Controller kind, set by the concrete subclass. @type {ControllerType | undefined} */
+        /**
+         * Controller kind, set by the concrete subclass.
+         * @type {ControllerType | undefined}
+         */
         this.type = options.type;
-        /** Parent CSS selector. @type {string} */
+        /**
+         * Parent CSS selector.
+         * @type {string}
+         */
         this.parent = "body";
-        /** Movement axis constraint. @type {ControllerAxis} */
+        /**
+         * Movement axis constraint.
+         * @type {ControllerAxis}
+         */
         this.axis = "all";
-        /** Radius in pixels. @type {number} */
+        /**
+         * Radius in pixels.
+         * @type {number}
+         */
         this.radius = 50;
-        /** Controller inner HTML. @type {string} */
+        /**
+         * Controller inner HTML.
+         * @type {string}
+         */
         this.text = "";
-        /** Anchor positioning styles. @type {ControllerStyle} */
+        /**
+         * Anchor positioning styles.
+         * @type {ControllerStyle}
+         */
         this.position = { top: "50%", left: "50%" };
-        /** Whether the anchor stays in place on press. @type {boolean} */
+        /**
+         * Whether the anchor stays in place on press.
+         * @type {boolean}
+         */
         this.fixed = true;
-        /** Whether release resets the controller. @type {boolean} */
+        /**
+         * Whether release resets the controller.
+         * @type {boolean}
+         */
         this.spring = true;
-        /** Whether a pointer is currently pressing the controller. @type {boolean} */
+        /**
+         * Whether a pointer is currently pressing the controller.
+         * @type {boolean}
+         */
         this.isPress = false;
-        /** Active state; remains toggled when spring is false. @type {boolean} */
+        /**
+         * Active state; remains toggled when spring is false.
+         * @type {boolean}
+         */
         this.isActive = false;
-        /** Whether the pointer has moved during a press. @type {boolean} */
+        /**
+         * Whether the pointer has moved during a press.
+         * @type {boolean}
+         */
         this.isDrag = false;
-        /** Inactive center as a fraction of the radius. @type {number} */
+        /**
+         * Inactive center as a fraction of the radius.
+         * @type {number}
+         */
         this.deadZone = 0;
-        /** Output: 0/1 for buttons and D-pads, 0–1 for all-axis joysticks, -1–1 for single-axis joysticks. @type {number} */
+        /**
+         * Output: 0/1 for buttons and D-pads, 0–1 for all-axis joysticks, -1–1 for single-axis joysticks.
+         * @type {number}
+         */
         this.value = 0;
-        /** Clockwise angle in radians, normalized to [0, TAU), with 0 pointing right. @type {number} */
+        /**
+         * Clockwise angle in radians, normalized to [0, TAU), with 0 pointing right.
+         * @type {number}
+         */
         this.angle = 0;
-        /** Angle snapped to the current direction region, in radians. @type {number} */
+        /**
+         * Angle snapped to the current direction region, in radians.
+         * @type {number}
+         */
         this.angleDirection = 0;
-        /** Clockwise direction index, starting at 0 (right). @type {number} */
+        /**
+         * Clockwise direction index, starting at 0 (right).
+         * @type {number}
+         */
         this.direction = 0;
-        /** Number of direction regions in a full turn. @type {number} */
+        /**
+         * Number of direction regions in a full turn.
+         * @type {number}
+         */
         this.directionsTot = 8;
-        /** Pointer origin X relative to the parent, in pixels. @type {number} */
+        /**
+         * Pointer origin X relative to the parent, in pixels.
+         * @type {number}
+         */
         this.xStart = 0;
-        /** Pointer origin Y relative to the parent, in pixels. @type {number} */
+        /**
+         * Pointer origin Y relative to the parent, in pixels.
+         * @type {number}
+         */
         this.yStart = 0;
-        /** Horizontal displacement from the origin, in pixels. @type {number} */
+        /**
+         * Horizontal displacement from the origin, in pixels.
+         * @type {number}
+         */
         this.xDiff = 0;
-        /** Vertical displacement from the origin, in pixels. @type {number} */
+        /**
+         * Vertical displacement from the origin, in pixels.
+         * @type {number}
+         */
         this.yDiff = 0;
-        /** Drag distance in pixels, capped at the radius. @type {number} */
+        /**
+         * Drag distance in pixels, capped at the radius.
+         * @type {number}
+         */
         this.distanceDrag = 0;
-        /** Latest pointer X relative to the parent; set on first press. @type {number | undefined} */
+        /**
+         * Latest pointer X relative to the parent; set on first press.
+         * @type {number | undefined}
+         */
         this.xDrag;
-        /** Latest pointer Y relative to the parent; set on first press. @type {number | undefined} */
+        /**
+         * Latest pointer Y relative to the parent; set on first press.
+         * @type {number | undefined}
+         */
         this.yDrag;
-        /** Input callback, invoked with this controller as its receiver. @type {ControllerCallback} */
+        /**
+         * Input callback, invoked with this controller as its receiver.
+         * @type {ControllerCallback}
+         */
         this.onInput = function () { };
 
         Object.assign(this, options);
 
-        /** Custom controller styles, including the default border. @type {ControllerStyle} */
+        /**
+         * Custom controller styles, including the default border.
+         * @type {ControllerStyle}
+         */
         this.style = {
             border: "2px solid currentColor",
             ...options.style
         };
 
         this.#isTouchMovable = this.type === "joystick" || this.type === "dpad";
-
-        this.handleStart = this.handleStart.bind(this);
-        this.handleMove = this.handleMove.bind(this);
-        this.handleEnd = this.handleEnd.bind(this);
     }
 
-    /** Hook called after the base DOM and listeners are initialized. @returns {void} */
+    /**
+     * Hook called after the base DOM and listeners are initialized.
+     * @protected
+     * @returns {void}
+     */
     onInit() { }
-    /** Hook called after pointer press state is updated. @returns {void} */
+    /**
+     * Hook called after pointer press state is updated.
+     * @protected
+     * @returns {void}
+     */
     onStart() { }
-    /** Hook called after pointer movement is calculated. @returns {void} */
+    /**
+     * Hook called after pointer movement is calculated.
+     * @protected
+     * @returns {void}
+     */
     onMove() { }
-    /** Hook called after pointer release/cancellation state is updated. @returns {void} */
+    /**
+     * Hook called after pointer release/cancellation state is updated.
+     * @protected
+     * @returns {void}
+     */
     onEnd() { }
 
     /**
      * Prevent native context-menu behavior.
+     * @internal
      * @param {Event} evt DOM event.
      * @returns {void}
      */
-    _noDefault(evt) {
+    #noDefault(evt) {
         evt.preventDefault();
     }
 
     /**
      * Get pointer coordinates relative to an element's bounding box.
+     * @internal
      * @param {PointerEvent} evt Pointer event.
      * @param {Element} el Reference element.
      * @returns {{x: number, y: number}} Coordinates in pixels.
@@ -169,12 +310,13 @@ class Controller {
 
     /**
      * Update pointer displacement, distance, angle and direction.
+     * @internal
      * @param {PointerEvent} evt Pointer event.
      * @returns {void}
      */
     #calculate(evt) {
-        if (!this.elParent) return;
-        const { x, y } = this.#getPointerXY(evt, this.elParent);
+        if (!this.#elParent) return;
+        const { x, y } = this.#getPointerXY(evt, this.#elParent);
         this.xDrag = x;
         this.yDrag = y;
         this.xDiff = this.xDrag - this.xStart;
@@ -194,11 +336,13 @@ class Controller {
 
     /**
      * Capture a pointer and update the pressed state.
+     * The arrow field keeps a stable, instance-bound listener for cleanup.
+     * @internal
      * @param {PointerEvent} evt Pointer-down event.
      * @returns {void}
      */
-    handleStart(evt) {
-        if (!this.elParent || !this.#elEventStarter || !this.el || !this.elAnchor) return;
+    #handleStart = (evt) => {
+        if (!this.#elParent || !this.#elEventStarter || !this.el || !this.#elAnchor) return;
         // Is already assigned? Do nothing
         if (this.#isTouchMovable && this.#pointerId !== null) return;
         this.#pointerId = evt.pointerId;
@@ -209,7 +353,7 @@ class Controller {
         evt.preventDefault();
         this.#elEventStarter.setPointerCapture(this.#pointerId);
 
-        const { x, y } = this.#getPointerXY(evt, this.elParent);
+        const { x, y } = this.#getPointerXY(evt, this.#elParent);
 
         this.isPress = true;
         this.isActive = this.spring ? true : !this.isActive;
@@ -220,7 +364,7 @@ class Controller {
         // A D-pad measures presses and drags from its fixed visual center.
         if (this.type === "dpad") {
             const rect = this.el.getBoundingClientRect();
-            const parentRect = this.elParent.getBoundingClientRect();
+            const parentRect = this.#elParent.getBoundingClientRect();
             this.xStart = rect.left + rect.width / 2 - parentRect.left;
             this.yStart = rect.top + rect.height / 2 - parentRect.top;
         }
@@ -228,21 +372,22 @@ class Controller {
         this.#calculate(evt);
 
         if (!this.fixed) {
-            this.elAnchor.style.left = `${this.xStart}px`;
-            this.elAnchor.style.top = `${this.yStart}px`;
+            this.#elAnchor.style.left = `${this.xStart}px`;
+            this.#elAnchor.style.top = `${this.yStart}px`;
         }
 
         this.el.classList.toggle("is-active", this.#isTouchMovable ? this.isPress : this.isActive);
 
         this.onStart();
-    }
+    };
 
     /**
      * Update the controller from the captured pointer's movement.
+     * @internal
      * @param {PointerEvent} evt Pointer-move event.
      * @returns {void}
      */
-    handleMove(evt) {
+    #handleMove = (evt) => {
         if (this.#isTouchMovable && evt.pointerId !== this.#pointerId) return;
 
         evt.preventDefault();
@@ -251,14 +396,15 @@ class Controller {
         this.#calculate(evt);
 
         this.onMove();
-    }
+    };
 
     /**
      * Release the captured pointer and update the released state.
+     * @internal
      * @param {PointerEvent} evt Pointer-up or pointer-cancel event.
      * @returns {void}
      */
-    handleEnd(evt) {
+    #handleEnd = (evt) => {
         if (!this.#elEventStarter || !this.el) return;
 
         // If touch was not registered on touch-start - do nothing
@@ -277,24 +423,26 @@ class Controller {
         this.el.classList.toggle("is-active", this.#isTouchMovable ? this.isPress : this.isActive);
 
         this.onEnd();
-    }
+    };
 
-    /** Create the controller DOM and attach pointer listeners. @returns {void} */
+    /**
+     * Create the controller DOM and attach pointer listeners.
+     * Reinitializing first destroys the previous DOM and listeners.
+     * @throws {Error} If the parent selector does not match an element.
+     * @returns {void}
+     */
     init() {
         if (this.#isInitialized) {
             this.destroy();
         }
 
-        this.#isInitialized = true;
         this.#pointerId = null;
 
-        this.elParent = el(this.parent);
-        if (!this.elParent) throw new Error(`Gamepad: Parent not found: ${this.parent}`);
-        /** Anchor element, available after init(). @type {HTMLDivElement} */
-        this.elAnchor = elNew("div", {
+        this.#elParent = el(this.parent);
+        if (!this.#elParent) throw new Error(`Gamepad: Parent not found: ${this.parent}`);
+        this.#elAnchor = elNew("div", {
             className: "Gamepad-anchor"
         });
-        /** Visible controller element, available after init(). @type {HTMLDivElement} */
         this.el = elNew("div", {
             id: this.id,
             innerHTML: this.text,
@@ -331,7 +479,7 @@ class Controller {
         };
 
         // Add styles - Controller anchor
-        Object.assign(this.elAnchor.style, {
+        Object.assign(this.#elAnchor.style, {
             position: "absolute",
             width: "0",
             height: "0",
@@ -344,35 +492,44 @@ class Controller {
         Object.assign(this.el.style, styles);
 
         // Insert Elements to DOM
-        this.elAnchor.append(this.el);
-        this.elParent.append(this.elAnchor);
+        this.#elAnchor.append(this.el);
+        this.#elParent.append(this.#elAnchor);
 
         // Events
-        this.#elEventStarter = this.fixed ? this.el : this.elParent;
+        this.#elEventStarter = this.fixed ? this.el : this.#elParent;
 
-        this.#elEventStarter.addEventListener("pointerdown", this.handleStart, { passive: false });
-        if (this.#isTouchMovable) this.#elEventStarter.addEventListener("pointermove", this.handleMove, { passive: false });
-        this.#elEventStarter.addEventListener("pointerup", this.handleEnd);
-        this.#elEventStarter.addEventListener("pointercancel", this.handleEnd);
-        this.#elEventStarter.addEventListener("contextmenu", this._noDefault);
+        this.#elEventStarter.addEventListener("pointerdown", this.#handleStart, { passive: false });
+        if (this.#isTouchMovable) this.#elEventStarter.addEventListener("pointermove", this.#handleMove, { passive: false });
+        this.#elEventStarter.addEventListener("pointerup", this.#handleEnd);
+        this.#elEventStarter.addEventListener("pointercancel", this.#handleEnd);
+        this.#elEventStarter.addEventListener("contextmenu", this.#noDefault);
 
+        this.#isInitialized = true;
         this.onInit();
     }
 
-    /** Remove pointer listeners and the controller DOM. @returns {void} */
+    /**
+     * Remove pointer listeners and DOM references. Safe to call repeatedly or before init().
+     * Call init() to reuse this controller; configuration and output values are retained.
+     * @returns {void}
+     */
     destroy() {
         this.#isInitialized = false;
         this.#pointerId = null;
 
         // Events
-        this.#elEventStarter?.removeEventListener("pointerdown", this.handleStart);
-        if (this.#isTouchMovable) this.#elEventStarter?.removeEventListener("pointermove", this.handleMove);
-        this.#elEventStarter?.removeEventListener("pointerup", this.handleEnd);
-        this.#elEventStarter?.removeEventListener("pointercancel", this.handleEnd);
-        this.#elEventStarter?.removeEventListener("contextmenu", this._noDefault);
+        this.#elEventStarter?.removeEventListener("pointerdown", this.#handleStart);
+        if (this.#isTouchMovable) this.#elEventStarter?.removeEventListener("pointermove", this.#handleMove);
+        this.#elEventStarter?.removeEventListener("pointerup", this.#handleEnd);
+        this.#elEventStarter?.removeEventListener("pointercancel", this.#handleEnd);
+        this.#elEventStarter?.removeEventListener("contextmenu", this.#noDefault);
 
         // Remove element from DOM
-        this.elAnchor?.remove();
+        this.#elAnchor?.remove();
+        this.#elEventStarter = null;
+        this.#elParent = null;
+        this.#elAnchor = null;
+        this.el = null;
     }
 }
 

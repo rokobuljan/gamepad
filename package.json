@@ -7,7 +7,8 @@
         "dev": "vite",
         "build": "vite build",
         "serve": "vite preview",
-        "typecheck": "tsc --project jsconfig.json"
+        "typecheck": "tsc --project jsconfig.json",
+        "test": "node --test tests/library.test.mjs tests/types.test.cjs"
     },
     "repository": {
         "type": "git",

@@ -14,7 +14,10 @@ export const elNew = (tag, prop) => Object.assign(document.createElement(tag), p
  * @returns {T | null}
  */
 export const el = (sel, PAR) => (PAR || document).querySelector(sel);
-/** A full turn in radians. @type {number} */
+/**
+ * A full turn in radians.
+ * @type {number}
+ */
 export const TAU = Math.PI * 2;
 /**
  * Normalize an angle to the interval [0, TAU).

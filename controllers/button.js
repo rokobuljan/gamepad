@@ -7,13 +7,20 @@ import { Controller } from "./controller.js";
 
 /** Touch button with a 0/1 value; spring: false makes it a toggle. */
 class Button extends Controller {
-    /** @param {import("./controller.js").ControllerOptions} options Button configuration. */
+    /**
+     * @param {import("./controller.js").ControllerOptions} options Button configuration.
+     */
     constructor(options) {
         options.type = "button";
         super(options);
     }
 
-    /** Set the pressed/toggled value and notify onInput. @returns {void} */
+    /**
+     * Set the pressed/toggled value and notify onInput.
+     * @protected
+     * @override
+     * @returns {void}
+     */
     onStart() {
         super.onStart();
 
@@ -22,7 +29,12 @@ class Button extends Controller {
         this.onInput();
     }
     
-    /** Reset a spring button on release and notify onInput. @returns {void} */
+    /**
+     * Reset a spring button on release and notify onInput.
+     * @protected
+     * @override
+     * @returns {void}
+     */
     onEnd() {
         super.onEnd();
 

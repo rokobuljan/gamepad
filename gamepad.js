@@ -7,14 +7,15 @@ import { Button } from "./controllers/button.js";
 import { Joystick } from "./controllers/joystick.js";
 import { DPad } from "./controllers/dpad.js";
 
-/**
- * @typedef {Button | Joystick | DPad} GamepadController
- * @typedef {import("./controllers/controller.js").ControllerOptions} ControllerOptions
- * @typedef {ControllerOptions | GamepadController} ControllerInput
- */
+/** @typedef {Button | Joystick | DPad} GamepadController */
+
+/** @typedef {import("./controllers/controller.js").ControllerOptions} ControllerOptions */
+
+/** @typedef {ControllerOptions | GamepadController} ControllerInput */
 
 /**
  * Check whether a value is a supported controller instance.
+ * @internal
  * @param {unknown} ob Value to inspect.
  * @returns {ob is GamepadController}
  */
@@ -23,9 +24,13 @@ const TYPE = "joystick";
 
 /** Manage a collection of touch controllers, keyed by their unique IDs. */
 class Gamepad {
-    /** @param {ControllerInput[]} [controllersArray=[]] Controllers to create and initialize. */
+    /**
+     * @param {ControllerInput[]} [controllersArray=[]] Controllers to create and initialize.
+     */
     constructor(controllersArray = []) {
-        /** @type {Record<string, GamepadController>} */
+        /**
+         * @type {Record<string, GamepadController>}
+         */
         this.controllers = {};
         controllersArray.forEach(options => this.add(options));
     }
@@ -84,23 +89,27 @@ class Gamepad {
         // Destroy all controllers
         Object.keys(this.controllers).forEach((id) => this.remove(id));
         // Remove events
-        removeEventListener("click", this.handleFullscreen);
+        removeEventListener("click", this.#handleFullscreen);
         return this;
     }
 
-    /** Request fullscreen in response to a user click. @returns {void} */
-    handleFullscreen() {
+    /**
+     * Request fullscreen on click; each gamepad owns its listener.
+     * @internal
+     * @returns {void}
+     */
+    #handleFullscreen = () => {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
         }
-    }
+    };
 
     /**
      * Call this function to add a listener to request Fullscreen API
      * @returns {Gamepad}
      */
     requestFullScreen() {
-        addEventListener("click", this.handleFullscreen);
+        addEventListener("click", this.#handleFullscreen);
         return this;
     }
 
