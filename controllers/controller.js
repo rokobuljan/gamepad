@@ -20,7 +20,7 @@ import { el, elNew, norm, TAU, userSelectNoneForAllBrowsers } from "../utils.js"
 
 /**
  * @typedef {object} ControllerOptions
- * @property {string} id Unique controller ID, also used as its DOM ID.
+ * @property {string} [id] Unique controller and DOM ID; generated when omitted or empty.
  * @property {ControllerType} [type="joystick"] Kind created by Gamepad; standalone classes set this themselves.
  * @property {string} [parent="body"] CSS selector of the parent HTML element.
  * @property {ControllerAxis} [axis="all"] Movement axis constraint.
@@ -103,20 +103,9 @@ class Controller {
     el = null;
 
     /**
-     * @param {ControllerOptions} options Controller configuration and initial state.
+     * @param {ControllerOptions} [options={}] Controller configuration and initial state.
      */
-    constructor(options) {
-
-        if (!options.id) {
-            console.error("Gamepad: Controller is missing a unique ID");
-            return;
-        }
-
-        /**
-         * Unique controller and DOM ID.
-         * @type {string}
-         */
-        this.id = options.id;
+    constructor(options = {}) {
         /**
          * Controller kind, set by the concrete subclass.
          * @type {ControllerType | undefined}
@@ -244,6 +233,13 @@ class Controller {
         this.onInput = function () { };
 
         Object.assign(this, options);
+
+        /**
+         * Unique controller and DOM ID, generated once when omitted or empty.
+         * Retained across destroy() and init().
+         * @type {string}
+         */
+        this.id = options.id || `gamepad-${crypto.getRandomValues(new Uint32Array(4)).join("-")}`;
 
         /**
          * Custom controller styles, including the default border.

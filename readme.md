@@ -1,4 +1,4 @@
-<h1><img src="example/public/gamepad.svg" alt="Gamepad" width="480"></h1>
+<h1><img src="https://raw.githubusercontent.com/rokobuljan/gamepad/main/example/public/gamepad.svg" alt="Gamepad" width="480"></h1>
 
 [Live demo](https://rokobuljan.github.io/gamepad/) · [npm](https://www.npmjs.com/package/@rbuljan/gamepad)
 
@@ -68,13 +68,15 @@ It runs when input changes through a press, drag, or release, rather than on eve
 Each controller also works on its own. These independent examples use the same
 `#controls` container; call `init()` to display the control and `destroy()` to remove it.
 
+IDs are generated automatically and are available as `controller.id`. Set `id`
+when you want a name for lookup, such as `gamepad.controllers.move`.
+
 ### Horizontal joystick
 
 ```js
 import { Joystick } from "@rbuljan/gamepad";
 
 const joystick = new Joystick({
-    id: "panorama",
     parent: "#controls",
     axis: "x",
     onInput() {
@@ -91,7 +93,6 @@ joystick.init();
 import { Button } from "@rbuljan/gamepad";
 
 const button = new Button({
-    id: "menu",
     parent: "#controls",
     text: "Menu",
     spring: false,
@@ -109,7 +110,6 @@ button.init();
 import { DPad } from "@rbuljan/gamepad";
 
 const dpad = new DPad({
-    id: "steering",
     parent: "#controls",
     axis: "x",
     onInput() {
@@ -130,7 +130,7 @@ Pass these options to `Gamepad` entries or standalone controllers:
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `id` | Required | Unique controller ID. |
+| `id` | Auto-generated | Optional unique controller ID. Omitted or empty IDs are generated once and retained on reinitialization. |
 | `type` | `"joystick"` | `"joystick"`, `"button"`, or `"dpad"`. Standalone classes set this automatically. |
 | `parent` | `"body"` | CSS selector of the container. |
 | `position` | `{ left: "50%", top: "50%" }` | CSS position inside the container. |
@@ -214,7 +214,7 @@ npm run build:pages # Build the GitHub Pages demo
 ```
 
 The [live demo](https://rokobuljan.github.io/gamepad/) deploys automatically from
-`no-ts` and `main` through GitHub Actions.
+`main` through GitHub Actions.
 
 ## License
 

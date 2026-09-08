@@ -18,9 +18,9 @@ class Joystick extends Controller {
     #elHandle = null;
 
     /**
-     * @param {import("./controller.js").ControllerOptions} options Joystick configuration.
+     * @param {import("./controller.js").ControllerOptions} [options={}] Joystick configuration.
      */
-    constructor(options) {
+    constructor(options = {}) {
         options.type = "joystick";
         super(options);
     }

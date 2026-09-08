@@ -9,22 +9,31 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
-    contents: write
-    pull-requests: write
+    contents: read
 
 jobs:
     publish:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v6
+            - uses: actions/setup-node@v4
               with:
-                  node-version: "20.x"
+                  node-version: "22"
                   cache: "npm"
                   registry-url: "https://registry.npmjs.org"
 
             - run: npm ci
             - run: npm run build
+            - name: Check whether this version is already published
+              id: release
+              run: |
+                  VERSION=$(node -p "require('./package.json').version")
+                  if npm view "@rbuljan/gamepad@$VERSION" version > /dev/null 2>&1; then
+                      echo "published=true" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "published=false" >> "$GITHUB_OUTPUT"
+                  fi
             - run: npm publish --access public
+              if: steps.release.outputs.published != 'true'
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

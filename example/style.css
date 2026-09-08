@@ -47,6 +47,7 @@ body {
 }
 
 #app-menu {
+    color-scheme: dark;
     pointer-events: none;
     position: absolute;
     padding: 20px;
@@ -89,25 +90,8 @@ body {
     }
 } */
 
-.app-brand {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    width: min(320px, calc(100% - 100px));
-    padding: 10px 14px;
-    border-radius: 12px;
-    background: #fff;
-    color-scheme: light;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.app-brand img {
+#app-menu img {
     display: block;
-    width: 100%;
+    width: min(320px, 100%);
     height: auto;
-}
-
-#app-menu {
-    top: 100px;
 }

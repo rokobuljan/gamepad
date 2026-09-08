@@ -53,8 +53,16 @@ pad.highlight();
 pad.elX;
 // @ts-expect-error Fullscreen listener is private.
 gp.handleFullscreen();
-// @ts-expect-error ID is required.
-new Button({});
+new Button({}).id.toUpperCase();
+new Button().id.toUpperCase();
+new Joystick().id.toUpperCase();
+new DPad().id.toUpperCase();
+new Gamepad([{}, { type: 'button' }, { type: 'dpad', onInput() {
+    this.id.toUpperCase();
+    this.value.toFixed();
+} }]);
+// @ts-expect-error An explicit ID must be a string.
+new Button({ id: 42 });
 // @ts-expect-error Invalid axis.
 new Joystick({ id: 'bad', axis: 'z' });
 // @ts-expect-error Misspelled option.

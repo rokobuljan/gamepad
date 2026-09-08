@@ -10,7 +10,6 @@ const elApp = el("#app");
 class Player {
     constructor(options) {
         Object.assign(this, {
-            id: "",
             x: 100,
             y: 100,
             radius: 40,
@@ -37,7 +36,10 @@ class Player {
         for (const controller of controllers) {
             if (!controller.value) continue;
             if (controller.type === "joystick") {
-                if (controller.axis === "x") localX += controller.value;
+                if (controller.axis === "x") {
+                    // Analog rotation: left/right turns the ship, with strength controlling speed.
+                    this.angle += controller.value * 0.04 * frame;
+                }
                 else if (controller.axis === "y") localY -= controller.value;
                 else {
                     steerX += Math.cos(controller.angle) * controller.value;
@@ -219,6 +221,26 @@ const GP = new Gamepad([
         axis: "all",
         position: {
             right: "100px",
+            bottom: "100px",
+        },
+    },
+    {
+        id: "direction-joystick",
+        type: "joystick",
+        parent: "#controls-right",
+        axis: "y",
+        position: {
+            right: "200px",
+            bottom: "100px",
+        },
+    },
+    {
+        id: "rotation-joystick",
+        type: "joystick",
+        parent: "#controls-right",
+        axis: "x",
+        position: {
+            right: "300px",
             bottom: "100px",
         },
     },

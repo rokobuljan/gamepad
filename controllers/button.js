@@ -8,9 +8,9 @@ import { Controller } from "./controller.js";
 /** Touch button with a 0/1 value; spring: false makes it a toggle. */
 class Button extends Controller {
     /**
-     * @param {import("./controller.js").ControllerOptions} options Button configuration.
+     * @param {import("./controller.js").ControllerOptions} [options={}] Button configuration.
      */
-    constructor(options) {
+    constructor(options = {}) {
         options.type = "button";
         super(options);
     }

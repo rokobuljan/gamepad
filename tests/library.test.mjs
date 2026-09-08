@@ -80,6 +80,52 @@ function controllerElement() {
     return parent.children.at(-1).children[0];
 }
 
+test("standalone controllers generate stable IDs and initialize without options", () => {
+    const ids = new Set();
+    for (const Controller of [Button, Joystick, DPad]) {
+        for (const controller of [new Controller(), new Controller({}), new Controller({ id: undefined }), new Controller({ id: "" })]) {
+            const id = controller.id;
+            assert.equal(typeof id, "string");
+            assert.ok(id.length > 0);
+            assert.equal(ids.has(id), false);
+            ids.add(id);
+            controller.init();
+            assert.equal(controllerElement().id, id);
+            controller.destroy();
+            controller.init();
+            assert.equal(controller.id, id);
+            assert.equal(controllerElement().id, id);
+            controller.destroy();
+        }
+    }
+    assert.equal(parent.children.length, 0);
+});
+
+test("gamepads manage anonymous and named controllers independently", () => {
+    const values = [];
+    const button = new Button({ onInput() { values.push([this.id, this.value]); } });
+    const gamepad = new Gamepad([{}, { type: "button" }, { type: "dpad" }, { id: "fire", type: "button" }, button]);
+    const otherGamepad = new Gamepad([{}, { type: "dpad" }]);
+    const controllers = [...Object.values(gamepad.controllers), ...Object.values(otherGamepad.controllers)];
+    assert.equal(controllers.length, 7);
+    assert.equal(new Set(controllers.map(controller => controller.id)).size, 7);
+    assert.equal(gamepad.controllers.fire.id, "fire");
+    assert.equal(gamepad.controllers[button.id], button);
+    const buttonElement = parent.children.map(anchor => anchor.children[0]).find(element => element.id === button.id);
+    pointer(buttonElement, "pointerdown");
+    pointer(buttonElement, "pointerup");
+    assert.deepEqual(values, [[button.id, 1], [button.id, 0]]);
+    const anonymous = Object.values(gamepad.controllers)[0];
+    gamepad.remove(anonymous.id, button);
+    assert.equal(gamepad.controllers[anonymous.id], undefined);
+    assert.equal(gamepad.controllers[button.id], undefined);
+    assert.equal(Object.keys(gamepad.controllers).length, 3);
+    assert.equal(Object.keys(otherGamepad.controllers).length, 2);
+    gamepad.destroy();
+    otherGamepad.destroy();
+    assert.equal(parent.children.length, 0);
+});
+
 test("internal members are absent from the public object and prototype chain", () => {
     const controllers = [new Button({ id: "button" }), new Joystick({ id: "stick" }), new DPad({ id: "pad" })];
     for (const controller of controllers) {

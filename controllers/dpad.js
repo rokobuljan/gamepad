@@ -25,9 +25,9 @@ class DPad extends Controller {
     #elY = null;
 
     /**
-     * @param {import("./controller.js").ControllerOptions} options D-pad configuration; fixed is always true.
+     * @param {import("./controller.js").ControllerOptions} [options={}] D-pad configuration; fixed is always true.
      */
-    constructor(options) {
+    constructor(options = {}) {
         options.type = "dpad";
         options.fixed = true;
         super(options);
