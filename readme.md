@@ -24,6 +24,11 @@ Using NPM:
 npm install @rbuljan/gamepad
 ```
 
+Version 3 is an ES module package. npm imports use the JavaScript sources, with
+type declarations generated automatically from JSDoc. A standalone production ES module is available at
+`@rbuljan/gamepad/dist/lib/gamepad.js`, with its source map alongside it.
+See [the changelog](CHANGELOG.md) for the major-version changes.
+
 ## Usage
 
 ### Gamepad Instance with controllers
@@ -356,11 +361,21 @@ and subclass hooks. The tests use Node.js's built-in test runner and were verifi
 npm i
 npm run dev # and head to http://localhost:3000
 
-# To build the example
+# To build the production library and example
 npm run build
+# To build only the library in /dist/lib
+npm run build:lib
+# To build only the example
+npm run build:demo
 # To serve the built project from /dist
 npm run serve  # http://localhost:5000
 ```
+
+`npm pack` and `npm publish` run type checking, tests and the library build through
+the `prepack` script. The package includes the library sources, production bundle,
+generated type declarations and documentation. The demo, tests and build
+configuration are excluded. Declarations in `dist/types/` are generated from
+JSDoc; all authored library code remains JavaScript.
 
 Since **only touch events are supported**: open Dev tools, inspect, and set preview as *Mobile*  
 
