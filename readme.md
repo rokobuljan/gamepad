@@ -1,4 +1,4 @@
-# Gamepad
+<h1><img src="example/public/gamepad.svg" alt="Gamepad" width="480"></h1>
 
 [Live demo](https://rokobuljan.github.io/gamepad/) · [npm](https://www.npmjs.com/package/@rbuljan/gamepad)
 
