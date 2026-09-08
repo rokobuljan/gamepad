@@ -27,3 +27,5 @@
   joystick handles and D-pad arms. Reinitialization reuses the controller safely.
 - Fullscreen click listeners are scoped to each Gamepad instance.
 - D-pads respect the configured `deadZone`, including zero.
+- Preserved upstream multitouch isolation and browser-specific text-selection
+  fixes in the JavaScript implementation.

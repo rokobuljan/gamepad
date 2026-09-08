@@ -66,7 +66,10 @@
         "Games",
         "IOT"
     ],
-    "author": "rbuljan",
+    "author": {
+        "name": "rbuljan",
+        "url": "https://github.com/rokobuljan/"
+    },
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/rokobuljan/gamepad/issues"
@@ -74,6 +77,12 @@
     "homepage": "https://github.com/rokobuljan/gamepad#readme",
     "devDependencies": {
         "typescript": "~5.7.3",
-        "vite": "^6.0.7"
-    }
+        "vite": "^6.0.11"
+    },
+    "contributors": [
+        {
+            "name": "Gregor Altstädt",
+            "url": "https://github.com/gdur/"
+        }
+    ]
 }

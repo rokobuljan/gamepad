@@ -3,7 +3,7 @@
  * Author: https://github.com/rokobuljan/ 
  */
 
-import { el, elNew, norm, TAU } from "../utils.js";
+import { el, elNew, norm, TAU, userSelectNoneForAllBrowsers } from "../utils.js";
 
 /** @typedef {"button" | "joystick" | "dpad"} ControllerType */
 
@@ -344,13 +344,13 @@ class Controller {
     #handleStart = (evt) => {
         if (!this.#elParent || !this.#elEventStarter || !this.el || !this.#elAnchor) return;
         // Is already assigned? Do nothing
-        if (this.#isTouchMovable && this.#pointerId !== null) return;
-        this.#pointerId = evt.pointerId;
+        if (this.#pointerId !== null) return;
 
         // If a Gamepad Button was touched, don't do anything with the Joystick
-        if (this.#isTouchMovable && evt.target instanceof Element && evt.target.closest(".Gamepad-Button")) return;
+        if (this.#isTouchMovable && evt.target instanceof Element && evt.target.closest(".Gamepad-button")) return;
 
         evt.preventDefault();
+        this.#pointerId = evt.pointerId;
         this.#elEventStarter.setPointerCapture(this.#pointerId);
 
         const { x, y } = this.#getPointerXY(evt, this.#elParent);
@@ -388,7 +388,7 @@ class Controller {
      * @returns {void}
      */
     #handleMove = (evt) => {
-        if (this.#isTouchMovable && evt.pointerId !== this.#pointerId) return;
+        if (evt.pointerId !== this.#pointerId || !this.isPress) return;
 
         evt.preventDefault();
         this.isDrag = true;
@@ -411,7 +411,7 @@ class Controller {
         if (evt.pointerId !== this.#pointerId) return;
 
         // If a Gamepad Button was touched, don't do anything with the Joystick
-        if (this.#isTouchMovable && evt.target instanceof Element && evt.target.closest(".Gamepad-Button")) return;
+        if (this.#isTouchMovable && evt.target instanceof Element && evt.target.closest(".Gamepad-button")) return;
 
         this.#elEventStarter.releasePointerCapture(this.#pointerId);
 
@@ -459,7 +459,8 @@ class Controller {
             display: "inline-flex",
             justifyContent: "center",
             alignItems: "center",
-            userSelect: "none",
+            cursor: "default",
+            ...userSelectNoneForAllBrowsers,
         };
 
         // Styles depending on controller type/axis
@@ -483,7 +484,7 @@ class Controller {
             position: "absolute",
             width: "0",
             height: "0",
-            userSelect: "none",
+            ...userSelectNoneForAllBrowsers,
             touchAction: "none",
             ...this.position
         });

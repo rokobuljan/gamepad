@@ -68,9 +68,10 @@ afterEach(() => {
     }
 });
 
-function pointer(element, type, x = 50, y = 50, id = 1) {
+function pointer(element, type, x = 50, y = 50, id = 1, target = element) {
     const event = new Event(type, { cancelable: true });
     Object.assign(event, { pointerId: id, clientX: x, clientY: y });
+    Object.defineProperty(event, "target", { value: target });
     element.dispatchEvent(event);
     return event;
 }
@@ -127,6 +128,9 @@ test("joystick private listeners track only the captured pointer and reset on ca
     assert.equal(stick.value, 0);
     pointer(element, "pointermove", 100, 50);
     assert.equal(stick.value, 1);
+    pointer(element, "pointerup", 100, 50, 2);
+    assert.equal(stick.value, 1);
+    assert.equal(stick.isPress, true);
     assert.equal(element.children[0].style.left, "100px");
     pointer(element, "pointercancel");
     assert.equal(stick.value, 0);
@@ -135,6 +139,34 @@ test("joystick private listeners track only the captured pointer and reset on ca
     stick.destroy();
     stick.init();
     assert.equal(controllerElement().children.length, 1);
+});
+
+test("buttons sharing a parent retain independent captured pointers", () => {
+    const first = new Button({ id: "first" });
+    const second = new Button({ id: "second" });
+    first.init();
+    const firstElement = controllerElement();
+    second.init();
+    const secondElement = controllerElement();
+    pointer(firstElement, "pointerdown", 50, 50, 1);
+    pointer(secondElement, "pointerdown", 50, 50, 2);
+    pointer(firstElement, "pointerdown", 50, 50, 2);
+    pointer(firstElement, "pointerup", 50, 50, 2);
+    assert.equal(first.value, 1);
+    assert.equal(second.value, 1);
+    pointer(firstElement, "pointerup", 50, 50, 1);
+    assert.equal(first.value, 0);
+    assert.equal(second.value, 1);
+    pointer(secondElement, "pointerup", 50, 50, 2);
+    assert.equal(second.value, 0);
+});
+
+test("gamepad destruction removes all controllers sharing a parent", () => {
+    const gamepad = new Gamepad([{ id: "first" }, { id: "second", type: "button" }]);
+    assert.equal(parent.children.length, 2);
+    gamepad.destroy();
+    assert.equal(parent.children.length, 0);
+    assert.deepEqual(Object.keys(gamepad.controllers), []);
 });
 
 test("D-pad private rendering preserves dead zones, directions and release highlights", () => {
@@ -167,6 +199,20 @@ test("floating controllers remove listeners from their parent", () => {
     pointer(parent, "pointermove");
     pointer(parent, "pointerup");
     assert.equal(inputs, 1);
+});
+
+test("a floating joystick ignores button presses without reserving their pointer", () => {
+    const stick = new Joystick({ id: "move", fixed: false });
+    const button = new Button({ id: "fire" });
+    stick.init();
+    button.init();
+    const buttonElement = controllerElement();
+    pointer(parent, "pointerdown", 50, 50, 1, buttonElement);
+    assert.equal(stick.isPress, false);
+    pointer(parent, "pointerdown", 20, 30, 2);
+    assert.equal(stick.isPress, true);
+    pointer(parent, "pointerup", 20, 30, 2);
+    assert.equal(stick.isPress, false);
 });
 
 test("protected hooks still dispatch to subclass overrides", () => {

@@ -15,6 +15,21 @@ export const elNew = (tag, prop) => Object.assign(document.createElement(tag), p
  */
 export const el = (sel, PAR) => (PAR || document).querySelector(sel);
 /**
+ * Prevent native selection and touch callouts on controller surfaces.
+ * Preserves the browser-specific selection fixes from the upstream controller.
+ * @internal
+ * @type {Record<string, string>}
+ */
+export const userSelectNoneForAllBrowsers = {
+    userSelect: "none",
+    "-webkit-touch-callout": "none",
+    "-webkit-user-select": "none",
+    "-khtml-user-select": "none",
+    "-moz-user-select": "none",
+    "-ms-user-select": "none",
+    "user-select": "none",
+};
+/**
  * A full turn in radians.
  * @type {number}
  */
