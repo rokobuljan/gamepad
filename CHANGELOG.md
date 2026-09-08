@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.0 - 2026-09-08
+
+- Updated the README.
+
 ## 3.1.0 - 2026-09-08
 
 - Controller IDs are optional and generated automatically when omitted or empty.
