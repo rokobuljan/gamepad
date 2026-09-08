@@ -16,7 +16,7 @@ class Player {
             radius: 40,
             angle: Math.PI + Math.PI / 2,
             speed: 0,
-            speed_max: 5,
+            speedMax: 5,
             vx: 0,
             vy: 0,
             damping: 0.9, // Velocity retained per frame when the controls are released
@@ -44,8 +44,15 @@ class Player {
                     steerY += Math.sin(controller.angle) * controller.value;
                 }
             } else if (controller.type === "dpad") {
-                localX += Math.cos(controller.angleDirection) * controller.value;
-                localY += Math.sin(controller.angleDirection) * controller.value;
+                if (controller.id === "move") {
+                    localX += Math.cos(controller.angleDirection) * controller.value;
+                    localY += Math.sin(controller.angleDirection) * controller.value;
+                } else if (controller.id === "rotate") {
+                    this.angle += controller.value * 0.04 * frame * (controller.xDiff < 0 ? -1 : 1);
+                } else if (controller.id === "direction") {
+                    // Advance or reverse ship along its current heading, without changing the heading.
+                    localY += controller.value * (controller.yDiff < 0 ? -1 : 1);
+                }
             }
         }
 
@@ -62,8 +69,8 @@ class Player {
 
         // Local up points forward; local right strafes to the ship's right.
         const rotation = this.angle + Math.PI / 2;
-        const targetVX = (localX * Math.cos(rotation) - localY * Math.sin(rotation)) * this.speed_max;
-        const targetVY = (localX * Math.sin(rotation) + localY * Math.cos(rotation)) * this.speed_max;
+        const targetVX = (localX * Math.cos(rotation) - localY * Math.sin(rotation)) * this.speedMax;
+        const targetVY = (localX * Math.sin(rotation) + localY * Math.cos(rotation)) * this.speedMax;
         const damping = this.damping ** frame;
         this.vx = targetVX + (this.vx - targetVX) * damping;
         this.vy = targetVY + (this.vy - targetVY) * damping;
@@ -76,10 +83,10 @@ class Player {
         this.x += this.vx * frame;
         this.y += this.vy * frame;
 
-        const bcr_app = elApp.getBoundingClientRect();
+        const bcrApp = elApp.getBoundingClientRect();
         // edge collision  
-        const maxX = Math.max(0, bcr_app.width - this.radius);
-        const maxY = Math.max(0, bcr_app.height - this.radius);
+        const maxX = Math.max(0, bcrApp.width - this.radius);
+        const maxY = Math.max(0, bcrApp.height - this.radius);
         if (this.x < 0 || this.x > maxX) this.vx = 0;
         if (this.y < 0 || this.y > maxY) this.vy = 0;
         this.x = Math.max(0, Math.min(maxX, this.x));
@@ -112,15 +119,15 @@ class Weapon {
             angle: 0,
             speed: 0,
         }, props, {
-            speed_max: 13,
+            speedMax: 13,
             life: 190,
             fireRate: 10,
             fireCoolDown: 0,
             el: elNew("div", { className: "missile" }),
         });
 
-        const speed_min = 3;
-        this.speed += speed_min;
+        const speedMin = 3;
+        this.speed += speedMin;
 
         this.init();
     }
@@ -130,7 +137,7 @@ class Weapon {
         // Accelerate
         this.speed *= 1.1 ** frame;
         // Top speed
-        this.speed = Math.min(this.speed, this.speed_max);
+        this.speed = Math.min(this.speed, this.speedMax);
         // Position
         this.x += Math.cos(this.angle) * this.speed * frame;
         this.y += Math.sin(this.angle) * this.speed * frame;
@@ -180,29 +187,29 @@ const GP = new Gamepad([
         axis: "all",
         position: {
             left: "100px",
-            top: "50%",
+            bottom: "100px",
         },
     },
     {
-        id: "move-x",
+        id: "rotate",
         type: "dpad",
         parent: "#controls-left",
         axis: "x",
         deadZone: 0,
         position: {
-            left: "250px",
-            top: "50%",
+            left: "100px",
+            bottom: "250px",
         },
     },
     {
-        id: "move-y",
+        id: "direction",
         type: "dpad",
         parent: "#controls-left",
         axis: "y",
         deadZone: 0,
         position: {
-            left: "65%",
-            top: "50%",
+            left: "210px",
+            bottom: "250px",
         },
     },
     {
@@ -211,8 +218,8 @@ const GP = new Gamepad([
         parent: "#controls-right",
         axis: "all",
         position: {
-            left: "45%",
-            top: "50%",
+            right: "100px",
+            bottom: "100px",
         },
     },
     {
@@ -221,8 +228,8 @@ const GP = new Gamepad([
         text: "F",
         parent: "#controls-right",
         position: {
-            right: "25%",
-            top: "50%",
+            right: "100px",
+            bottom: "250px",
         },
         onInput() {
             if (!this.value) return;
