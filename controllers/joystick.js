@@ -7,13 +7,16 @@ import { Controller } from "./controller.js";
 
 import { elNew } from "../utils.js";
 
+/** Analog touch joystick, optionally constrained to a single axis. */
 class Joystick extends Controller {
 
+    /** @param {import("./controller.js").ControllerOptions} options Joystick configuration. */
     constructor(options) {
         options.type = "joystick";
         super(options);
     }
 
+    /** Reset the output on press and notify onInput. @returns {void} */
     onStart() {
         super.onStart();
 
@@ -22,8 +25,10 @@ class Joystick extends Controller {
         this.onInput();
     }
 
+    /** Update the analog value and handle position, then notify onInput. @returns {void} */
     onMove() {
         super.onMove();
+        if (!this.elHandle) return;
 
         if (this.axis === "all") {
 
@@ -53,9 +58,10 @@ class Joystick extends Controller {
         this.onInput();
     }
 
+    /** Recenter a spring joystick on release and notify onInput. @returns {void} */
     onEnd() {
         super.onEnd();
-        if (!this.spring) return;
+        if (!this.spring || !this.elHandle) return;
 
         this.value = 0;
         this.elHandle.style.left = `50%`;
@@ -64,10 +70,13 @@ class Joystick extends Controller {
         this.onInput();
     }
 
+    /** Initialize the controller and create its movable handle. @returns {void} */
     init() {
         super.init();
+        if (!this.el) return;
 
         // Add Handle to this Controller
+        /** Movable handle, available after init(). @type {HTMLDivElement} */
         this.elHandle = elNew("div", {
             className: "Gamepad-joystick-handle"
         });

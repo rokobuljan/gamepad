@@ -311,6 +311,18 @@ ___
 
 ## Development and Example demo
 
+The library is JavaScript with JSDoc types for controller options, callbacks and
+output state. Editors that support JavaScript type checking use `jsconfig.json`;
+`onInput()` callbacks receive a typed controller as `this`.
+
+```sh
+npm run typecheck
+```
+
+This runs strict type checking without generating files or converting JavaScript
+to TypeScript. Only the library is checked; the demo and Vite configuration are
+excluded. TypeScript is used solely as a development-time checker.
+
 ```sh
 npm i
 npm run dev # and head to http://localhost:3000

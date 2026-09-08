@@ -7,18 +7,32 @@ import { Button } from "./controllers/button.js";
 import { Joystick } from "./controllers/joystick.js";
 import { DPad } from "./controllers/dpad.js";
 
+/**
+ * @typedef {Button | Joystick | DPad} GamepadController
+ * @typedef {import("./controllers/controller.js").ControllerOptions} ControllerOptions
+ * @typedef {ControllerOptions | GamepadController} ControllerInput
+ */
+
+/**
+ * Check whether a value is a supported controller instance.
+ * @param {unknown} ob Value to inspect.
+ * @returns {ob is GamepadController}
+ */
 const isController = (ob) => ob instanceof Button || ob instanceof Joystick || ob instanceof DPad;
 const TYPE = "joystick";
 
+/** Manage a collection of touch controllers, keyed by their unique IDs. */
 class Gamepad {
+    /** @param {ControllerInput[]} [controllersArray=[]] Controllers to create and initialize. */
     constructor(controllersArray = []) {
+        /** @type {Record<string, GamepadController>} */
         this.controllers = {};
         controllersArray.forEach(options => this.add(options));
     }
 
     /**
      * Add Controller to Gamepad
-     * @param {object|Controller} options controllerOptions or a Button, Joystick or DPad Controller instance.
+     * @param {...ControllerInput} args Options or Button, Joystick or DPad instances.
      * @returns {Gamepad}
      */
     add(...args) {
@@ -27,7 +41,7 @@ class Gamepad {
             if (isController(options)) {
                 controller = options;
             } else {
-                options.type = (options.type || TYPE).trim().toLowerCase();
+                options.type = /** @type {import("./controllers/controller.js").ControllerType} */ ((options.type || TYPE).trim().toLowerCase());
                 controller = new {
                     button: Button,
                     joystick: Joystick,
@@ -45,15 +59,15 @@ class Gamepad {
 
     /**
      * Remove/destroy controller by ID
-     * @param {string} id Controller ID to remove
+     * @param {...(string | GamepadController)} args Controller IDs or instances to remove.
      * @returns {Gamepad}
      */
     remove(...args) {
         args.forEach((id) => {
-            id = typeof id === "string" ? id : id.id;
-            if (this.controllers.hasOwnProperty(id)) {
-                this.controllers[id].destroy();
-                delete this.controllers[id];
+            const controllerId = typeof id === "string" ? id : id.id;
+            if (this.controllers.hasOwnProperty(controllerId)) {
+                this.controllers[controllerId].destroy();
+                delete this.controllers[controllerId];
             }
         });
         return this;
@@ -61,7 +75,7 @@ class Gamepad {
 
     /**
      * Remove/destroy all controllers (or one by ID)
-     * @param {string|Controller} id (Optional) Controller ID or Controller instance
+     * @param {string | GamepadController} [id] Controller ID or instance; omit to destroy all.
      * @returns {Gamepad}
      */
     destroy(id) {
@@ -74,6 +88,7 @@ class Gamepad {
         return this;
     }
 
+    /** Request fullscreen in response to a user click. @returns {void} */
     handleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
@@ -91,6 +106,7 @@ class Gamepad {
 
     /**
      * Exit fullScreen
+     * @returns {Gamepad}
      */
     exitFullScreen() {
         if (document.exitFullscreen) {
@@ -111,7 +127,7 @@ class Gamepad {
      * Vibrate Gamepad!
      * Use a milliseconds integer or an array of pattern like: [200,30,100,30,200]
      * where 30 is the pause in ms.
-     * @param {number|array} vibrationPattern 
+     * @param {number | number[]} vibrationPattern Duration or alternating vibration/pause durations in milliseconds.
      * @returns {Gamepad}
      */
     vibrate(vibrationPattern) {

@@ -6,7 +6,8 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "serve": "vite preview"
+        "serve": "vite preview",
+        "typecheck": "tsc --project jsconfig.json"
     },
     "repository": {
         "type": "git",
@@ -27,6 +28,7 @@
     },
     "homepage": "https://github.com/rokobuljan/gamepad#readme",
     "devDependencies": {
+        "typescript": "~5.7.3",
         "vite": "^6.0.7"
     }
 }

@@ -7,30 +7,34 @@ import { Controller } from "./controller.js";
 
 import { elNew } from "../utils.js";
 
+/** Fixed directional pad with a digital 0/1 value and highlighted direction arms. */
 class DPad extends Controller {
 
+    /** @param {import("./controller.js").ControllerOptions} options D-pad configuration; fixed is always true. */
     constructor(options) {
         options.type = "dpad";
         options.fixed = true;
-        // options.deadZone = this.axis === "all" ? 0.2 : 0; // Inactive center, as a fraction of the radius
         super(options);
-        if (options.deadzone === undefined) {
+        if (options.deadZone === undefined) {
             this.deadZone = this.axis === "all" ? 0.2 : 0;
         }
     }
 
+    /** Update direction output immediately on press. @returns {void} */
     onStart() {
         super.onStart();
 
         this.update();
     }
 
+    /** Update direction output while dragging. @returns {void} */
     onMove() {
         super.onMove();
 
         this.update();
     }
 
+    /** Clear a spring D-pad's value and highlights on release. @returns {void} */
     onEnd() {
         super.onEnd();
         if (!this.spring) return;
@@ -41,15 +45,22 @@ class DPad extends Controller {
         this.onInput();
     }
 
+    /** Apply the dead zone, refresh highlights and notify onInput. @returns {void} */
     update() {
         this.value = this.distanceDrag > this.radius * this.deadZone ? 1 : 0;
         this.highlight();
         this.onInput();
     }
 
+    /** Highlight the arms matching the current snapped direction and value. @returns {void} */
     highlight() {
+        if (!this.elX || !this.elY) return;
         const x = this.value ? Math.round(Math.cos(this.angleDirection)) : 0;
         const y = this.value ? Math.round(Math.sin(this.angleDirection)) : 0;
+        /**
+         * @param {number} side Signed arm direction: negative, positive or zero.
+         * @returns {string} CSS background-image value.
+         */
         const gradient = (side) => side
             ? `linear-gradient(to ${side < 0 ? "right" : "left"}, currentColor 0%, currentColor 50%, transparent 50%, transparent 100%)`
             : "none";
@@ -59,8 +70,10 @@ class DPad extends Controller {
         this.elY.style.backgroundImage = gradient(y);
     }
 
+    /** Initialize the controller and create the directional arms. @returns {void} */
     init() {
         super.init();
+        if (!this.el) return;
 
         const stylesGP = {
             "--border": "2px",
@@ -90,9 +103,11 @@ class DPad extends Controller {
             "position": "absolute",
         };
 
+        /** Horizontal arm, available after init(). @type {HTMLDivElement} */
         const elX = this.elX = elNew("div", {
             className: "Gamepad-dpad-x",
         });
+        /** Vertical arm (rotated 90 degrees), available after init(). @type {HTMLDivElement} */
         const elY = this.elY = elNew("div", {
             className: "Gamepad-dpad-y",
         });
