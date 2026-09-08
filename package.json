@@ -1,20 +1,60 @@
 {
     "name": "@rbuljan/gamepad",
-    "version": "2.0.4",
+    "version": "3.1.0",
     "description": "Multi-touch gamepad with buttons and joystick for JavaScript games, apps, IOT",
-    "main": "dist/gamepad.js",
-    "types": "dist/gamepad.ts",
     "type": "module",
-    "scripts": {
-        "start": "npm run dev",
-        "dev": "vite --open",
-        "build": "tsc -p .",
-        "lint": "tsc"
+    "main": "gamepad.js",
+    "types": "dist/types/gamepad.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/types/gamepad.d.ts",
+            "default": "./gamepad.js"
+        },
+        "./gamepad.js": {
+            "types": "./dist/types/gamepad.d.ts",
+            "default": "./gamepad.js"
+        },
+        "./utils.js": {
+            "types": "./dist/types/utils.d.ts",
+            "default": "./utils.js"
+        },
+        "./controllers/*.js": {
+            "types": "./dist/types/controllers/*.d.ts",
+            "default": "./controllers/*.js"
+        },
+        "./dist/lib/gamepad.js": {
+            "types": "./dist/types/gamepad.d.ts",
+            "default": "./dist/lib/gamepad.js"
+        },
+        "./package.json": "./package.json"
     },
     "files": [
-        "dist/",
-        "src/"
+        "gamepad.js",
+        "utils.js",
+        "controllers/*.js",
+        "dist/lib/",
+        "dist/types/",
+        "CHANGELOG.md"
     ],
+    "unpkg": "dist/lib/gamepad.js",
+    "jsdelivr": "dist/lib/gamepad.js",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org",
+        "tag": "latest"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "npm run build:lib && npm run build:demo",
+        "build:lib": "vite build --config vite.lib.config.js && npm run build:types",
+        "build:types": "tsc --project jsconfig.json --noEmit false --declaration --emitDeclarationOnly --declarationDir dist/types --stripInternal",
+        "build:demo": "vite build",
+        "build:pages": "vite build --base=/gamepad/ --outDir=../dist/pages --emptyOutDir",
+        "serve": "vite preview",
+        "typecheck": "tsc --project jsconfig.json",
+        "test": "node --test tests/library.test.mjs tests/types.test.cjs",
+        "prepack": "npm run typecheck && npm test && npm run build:lib"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/rokobuljan/gamepad.git"
@@ -25,30 +65,25 @@
         "Controller",
         "Touch",
         "Games",
-        "Ui",
-        "Responsive",
-        "IOT",
-        "clean",
-        "easy to use"
+        "IOT"
     ],
     "author": {
         "name": "rbuljan",
         "url": "https://github.com/rokobuljan/"
     },
-    "contributors": [
-        {
-            "name": "Gregor Altstädt",
-            "url": "https://github.com/gdur/"
-        }
-    ],
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/rokobuljan/gamepad/issues"
     },
     "homepage": "https://github.com/rokobuljan/gamepad#readme",
     "devDependencies": {
-        "vite": "^6.0.11",
-        "typescript": "^5.7.3",
-        "sass": "^1.83.4"
-    }
+        "typescript": "~5.7.3",
+        "vite": "^6.0.11"
+    },
+    "contributors": [
+        {
+            "name": "Gregor Altstädt",
+            "url": "https://github.com/gdur/"
+        }
+    ]
 }
