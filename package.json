@@ -49,6 +49,7 @@
         "build:lib": "vite build --config vite.lib.config.js && npm run build:types",
         "build:types": "tsc --project jsconfig.json --noEmit false --declaration --emitDeclarationOnly --declarationDir dist/types --stripInternal",
         "build:demo": "vite build",
+        "build:pages": "vite build --base=/gamepad/ --outDir=../dist/pages --emptyOutDir",
         "serve": "vite preview",
         "typecheck": "tsc --project jsconfig.json",
         "test": "node --test tests/library.test.mjs tests/types.test.cjs",
